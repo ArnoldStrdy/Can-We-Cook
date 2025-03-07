@@ -1,0 +1,29 @@
+{
+  "ownerID": "1",
+  "businessName": "My Business",
+  "businessAddress": "123 Main St",
+  "cuisineType": "Italian",
+  "businessLogo": "https://www.example.com/logo.png",
+  "businessCertifications": ["Certification 1", "Certification 2"],
+  "businessDescription": "This is a description of my business.",
+  "businessMenu": [
+    {
+      "itemID": "1",
+      "itemName": "Item 1",
+      "itemPrice": "10.00",
+      "itemImage": "https://www.example.com/item1.png"
+    },
+    {
+      "itemID": "2",
+      "itemName": "Item 2",
+      "itemPrice": "20.00",
+      "itemImage": "https://www.example.com/item2.png"
+    }
+  ],
+  "businessPictures": [
+    "https://www.example.com/picture1.png",
+    "https://www.example.com/picture2.png"
+  ],
+  "weeklyAggregatedScore": "40",
+  "weeklyReviewCount": "10"
+}

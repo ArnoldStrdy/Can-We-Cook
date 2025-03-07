@@ -1,0 +1,8 @@
+{
+  "businessID": "123",
+  "customerID": "456",
+  "verified": "true",
+  "reviewText": "I had a great experience with this business. The staff was very friendly and helpful. I would definitely recommend this business to others.",
+  "rating": "5",
+  "dateTime": "2021-01-01T12:00:00"
+}
