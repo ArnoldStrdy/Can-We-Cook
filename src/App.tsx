@@ -1,18 +1,21 @@
-import { useState } from "react";
-import { Button } from "./components/ui/button";
+import { Routes, Route } from "react-router-dom";
+
+import BusinessDash from "./pages/BusinessDash";
+import CustomerDash from "./pages/CustomerDash";
+import RestaurantDetails from "./pages/RestaurantDetails";
+import Error from "./pages/Error";
 
 function App() {
-  const [status, setStatus] = useState(false);
-
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
-      <Button
-        variant={"destructive"}
-        onClick={() => setStatus((prev) => !prev)}
-      >
-        Arpan is {status ? "not here" : "here"}
-      </Button>
-    </div>
+    <>
+      <Routes>
+        <Route path="/" element={<CustomerDash />} />
+        <Route path="/:section" element={<CustomerDash />} />
+        <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+        <Route path="/business" element={<BusinessDash />} />
+        <Route path="*" element={<Error />} />
+      </Routes>
+    </>
   );
 }
 

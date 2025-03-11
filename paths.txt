@@ -1,4 +1,3 @@
 Customer Dashboard: /
 Restaurant Page: /restaurant/{id}
 Business Dashboard: /business
-Business Dashboard: /business/{id}
