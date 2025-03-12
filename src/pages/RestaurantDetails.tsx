@@ -1,7 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Ratings from "@/components/ui/ratings";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import imgUrl from "../assets/logoIcon.png";
 
 const reviews = [
   {
@@ -32,7 +41,45 @@ const reviews = [
     review:
       "I had an amazing dinner at Savor & Sip last night! The ambiance was warm and inviting, and the staff were super friendly. I ordered the grilled salmon, and it was cooked to perfection—crispy on the outside and tender inside.",
   },
+];
 
+const menu = [
+  {
+    picture: imgUrl,
+    name: "Item 1",
+    price: "5",
+  },
+  {
+    picture: imgUrl,
+    name: "Item 1",
+    price: "5",
+  },
+  {
+    picture: imgUrl,
+    name: "Item 1",
+    price: "5",
+  },
+  {
+    picture: imgUrl,
+    name: "Item 1",
+    price: "5",
+  },
+  {
+    picture: imgUrl,
+    name: "Item 1",
+    price: "5",
+  },
+];
+
+const pictures = [
+  imgUrl,
+  imgUrl,
+  imgUrl,
+  imgUrl,
+  imgUrl,
+  imgUrl,
+  imgUrl,
+  imgUrl,
 ];
 
 function RestaurantDetails() {
@@ -52,7 +99,7 @@ function RestaurantDetails() {
           </span>
         </div>
         <div className="flex-1/4 m-auto">
-          <img src="/src\assets\logoIcon.png" className="w-[60%] mx-auto"/>
+          <img src="/src\assets\logoIcon.png" className="w-[60%] mx-auto" />
         </div>
       </div>
       <div className="w-min mx-auto">
@@ -67,33 +114,14 @@ function RestaurantDetails() {
           <TabsTrigger value="pictures">Pictures</TabsTrigger>
           <TabsTrigger value="map">Map</TabsTrigger>
         </TabsList>
-        <TabsContent value="reviews" className="px-4 space-y-6 mb-4">
-          {reviews.map((review, index) => (
-            <Card key={index}>
-              <CardContent className="text-lg space-y-2">
-                <div className="flex">
-                  <div className="flex-3/5 font-bold">{review.reviewer}</div>
-                  <div className=" flex flex-2/5">
-                    <div className="flex ml-auto space-x-6">
-                      <div className="text-gray-600 text-right">
-                        {review.date}
-                      </div>
-                      <div className="">
-                        <Ratings stars={review.rating} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>{review.review}</div>
-              </CardContent>
-            </Card>
-          ))}
+        <TabsContent value="reviews" className="px-4 mb-4">
+          <ReviewsTabContent />
         </TabsContent>
         <TabsContent value="menu" className="px-4">
-          men
+          <MenuTabContent />
         </TabsContent>
         <TabsContent value="pictures" className="px-4">
-          pic
+          <PicturesTabContent />
         </TabsContent>
         <TabsContent value="map" className="px-4">
           map
@@ -102,5 +130,63 @@ function RestaurantDetails() {
     </div>
   );
 }
+
+const ReviewsTabContent = () => (
+  <div className="mt-4 space-y-6">
+    {reviews.map((review, index) => (
+      <Card key={index}>
+        <CardContent className="text-lg space-y-2">
+          <div className="flex">
+            <div className="flex-3/5 font-bold">{review.reviewer}</div>
+            <div className=" flex flex-2/5">
+              <div className="flex ml-auto space-x-6">
+                <div className="text-gray-600 text-right">{review.date}</div>
+                <div className="">
+                  <Ratings stars={review.rating} />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>{review.review}</div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+);
+
+const MenuTabContent = () => (
+  <Table className="mt-4">
+    <TableHeader>
+      <TableRow className="text-lg">
+        <TableHead className="text-center font-bold text-black">
+          Picture
+        </TableHead>
+        <TableHead className="text-center font-bold text-black">Name</TableHead>
+        <TableHead className="text-center font-bold text-black">
+          Price
+        </TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {menu.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell className="w-[7%] text-center">
+            <img src={item.picture} />
+          </TableCell>
+          <TableCell className="text-center">{item.name}</TableCell>
+          <TableCell className="text-center">${item.price}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+);
+
+const PicturesTabContent = () => (
+  <div className="grid grid-cols-4 gap-8 mt-4">
+    {pictures.map((picture, index) => (
+      <img src={picture} className="aspect-square w-[60%] m-auto" key={index} />
+    ))}
+  </div>
+);
 
 export default RestaurantDetails;
