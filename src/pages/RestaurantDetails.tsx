@@ -11,10 +11,18 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import imgUrl from "../assets/logoIcon.png";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { ChevronRight, Upload, Verified } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
+import RatingSelect from "@/components/ui/ratingSelect";
+import { Textarea } from "@/components/ui/textarea";
 
 const reviews = [
   {
@@ -89,47 +97,85 @@ const pictures = [
 function RestaurantDetails() {
   const [loggedIn, setLoggedIn] = useState(true);
 
-  const ReviewDialog = () => (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="rounded-full ml-auto text-lg p-6">
-          Write a Review
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        {loggedIn ? (
-          <>
-            <span>
-              You are logged in as <b>[Username]</b>
-            </span>
-            <span className="flex">
-              Post anonymously? <Switch className="ml-2 my-auto" />{" "}
-            </span>
-          </>
-        ) : (
-          <span>
-            You are not logged in,{" "}
-            <Button variant="ghost" className="w-min px-2.5">
-              Login?
-            </Button>
-          </span>
-        )}
+  const ReviewDialog = () => {
+    const [page, setPage] = useState(1);
 
-        <span className="text-center mx-[20%]">
-          Upload a picture of your receipt to show a{" "}
-          <Verified className="inline" color="#4ECB71" /> beside your name
-        </span>
-        <Button className="mx-auto w-min">
-          <Upload />
-        </Button>
-        {loggedIn && (
-          <Button className="mx-auto" variant="ghost">
-            Skip <ChevronRight className="inline" />
+    const FirstPage = () => {
+      return (
+        <>
+          {loggedIn ? (
+            <>
+              <span>
+                You are logged in as <b>[Username]</b>
+              </span>
+              <span className="flex">
+                Post anonymously? <Switch className="ml-2 my-auto" />{" "}
+              </span>
+            </>
+          ) : (
+            <span>
+              You are not logged in,{" "}
+              <Button variant="ghost" className="w-min px-2.5">
+                Login?
+              </Button>
+            </span>
+          )}
+
+          <span className="text-center mx-[20%]">
+            Upload a picture of your receipt to show a{" "}
+            <Verified className="inline" color="#4ECB71" /> beside your name
+          </span>
+          <Button className="mx-auto w-min">
+            <Upload />
           </Button>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
+          {loggedIn && (
+            <Button className="mx-auto" variant="ghost" onClick={() => setPage(2)}>
+              Skip <ChevronRight className="inline" />
+            </Button>
+          )}
+        </>
+      );
+    };
+
+    const SecondPage = () => {
+      const [star, setStars] = useState(0);
+      console.log(star);
+      return (
+        <>
+          <span>Rate your experience</span>
+          <div>
+            <RatingSelect onChange={setStars} />
+          </div>
+
+          <span>What were the up's and down's?</span>
+          <Textarea/>
+          <span>Got any pictures? (optional)</span>
+          <Button variant="outline" className="w-min">
+            <Upload />
+          </Button>
+          <Button variant="outline" className="w-min ml-auto">
+            Post
+          </Button>
+        </>
+      );
+    };
+    return (
+      <Dialog onOpenChange={() => setPage(1)}>
+        <DialogTrigger asChild>
+          <Button className="rounded-full ml-auto text-lg p-6">
+            Write a Review
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogTitle>
+          {page === 1 && <FirstPage />}
+          {page === 2 && <SecondPage />}
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <div className="mx-[20%] mt-[5%] space-y-6">
