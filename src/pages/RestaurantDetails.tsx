@@ -11,6 +11,10 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import imgUrl from "../assets/logoIcon.png";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ChevronRight, Upload, Verified } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
 
 const reviews = [
   {
@@ -83,6 +87,50 @@ const pictures = [
 ];
 
 function RestaurantDetails() {
+  const [loggedIn, setLoggedIn] = useState(true);
+
+  const ReviewDialog = () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="rounded-full ml-auto text-lg p-6">
+          Write a Review
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        {loggedIn ? (
+          <>
+            <span>
+              You are logged in as <b>[Username]</b>
+            </span>
+            <span className="flex">
+              Post anonymously? <Switch className="ml-2 my-auto" />{" "}
+            </span>
+          </>
+        ) : (
+          <span>
+            You are not logged in,{" "}
+            <Button variant="ghost" className="w-min px-2.5">
+              Login?
+            </Button>
+          </span>
+        )}
+
+        <span className="text-center mx-[20%]">
+          Upload a picture of your receipt to show a{" "}
+          <Verified className="inline" color="#4ECB71" /> beside your name
+        </span>
+        <Button className="mx-auto w-min">
+          <Upload />
+        </Button>
+        {loggedIn && (
+          <Button className="mx-auto" variant="ghost">
+            Skip <ChevronRight className="inline" />
+          </Button>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
     <div className="mx-[20%] mt-[5%] space-y-6">
       <div className="flex">
@@ -103,9 +151,7 @@ function RestaurantDetails() {
         </div>
       </div>
       <div className="w-min mx-auto">
-        <Button className="rounded-full ml-auto text-lg p-6">
-          Write a Review
-        </Button>
+        <ReviewDialog />
       </div>
       <Tabs defaultValue="reviews" className="w-full">
         <TabsList className="w-full">
