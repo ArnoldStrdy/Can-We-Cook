@@ -10,9 +10,9 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<CustomerDash />} />
-        <Route path="/:section" element={<CustomerDash />} />
+        <Route path="/#:section" element={<CustomerDash />} /> /** Original Match with Everything... **/
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
-        <Route path="/business" element={<BusinessDash />} />
+        <Route path="/business" element={<BusinessDash />} /> 
         <Route path="*" element={<Error />} />
       </Routes>
     </>
