@@ -4,18 +4,21 @@ import BusinessDash from "./pages/BusinessDash";
 import CustomerDash from "./pages/CustomerDash";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Error from "./pages/Error";
+import CustomerNavbar from "@/components/CustomerNav";
 
 function App() {
   return (
-    <>
+    <div>
+      <CustomerNavbar />
       <Routes>
         <Route path="/" element={<CustomerDash />} />
-        <Route path="/#:section" element={<CustomerDash />} /> /** Original Match with Everything... **/
+        <Route path="/:section" element={<CustomerDash />} /> /** Original Match
+        with Everything... **/
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
-        <Route path="/business" element={<BusinessDash />} /> 
+        <Route path="/business" element={<BusinessDash />} />
         <Route path="*" element={<Error />} />
       </Routes>
-    </>
+    </div>
   );
 }
 
