@@ -72,7 +72,7 @@ const deleteDocument = async (collectionName: string, docId: string): Promise<bo
 const getCollection = async (collectionName: string): Promise<firebase.firestore.QuerySnapshot | undefined> => {
     try {
         const snapshot = await firestore.collection(collectionName).get();
-        snapshot.forEach((doc) => {
+        snapshot.forEach((doc: firebase.firestore.QueryDocumentSnapshot) => {
             console.log(doc.id, " => ", doc.data());
         });
         return snapshot;
@@ -84,9 +84,13 @@ const getCollection = async (collectionName: string): Promise<firebase.firestore
 
 const getBusiness = async (docId: string): Promise<Business | undefined> => {
     try {
+        console.log("Getting business: ", docId);
         const doc = await getDocument("businesses", docId);
+        console.log("Business: ", doc);
         if (doc) {
-            return new Business(doc.name, doc.buisnessCertificate, doc.buisnessDescription, doc.buisnessLogo, doc.buisnessPhotos, doc.businessWeeklyRating, doc.businessMenu, doc.cuisineType);
+            return new Business(doc.businessName, doc.businessCertificate, doc.businessDescription, 
+                                doc.businessLogo, doc.businessPhotos, doc.businessWeeklyRating, 
+                                doc.businessMenu, doc.cuisineType, doc.businessLocation);
         }
     } catch (error) {
         console.error("Error getting business: ", error);
@@ -95,27 +99,84 @@ const getBusiness = async (docId: string): Promise<Business | undefined> => {
 }
 
 class Business {
-    name: string;
-    buisnessCertificate: Array<string>;
-    buisnessDescription: string;
-    buisnessLogo: Url;
-    buisnessPhotos: Array<Url>;
+    businessName: string;
+    businessCertificate: Array<string>;
+    businessDescription: string;
+    businessLogo: Url;
+    businessPhotos: Array<Url>;
     businessWeeklyRating: number;
     businessMenu: Array<string>;
     cuisineType: string;
+    businessLocation: Array<number>;
 
-    constructor(name: string, buisnessCertificate: Array<string>, 
+    constructor(businessMame: string, buisnessCertificate: Array<string>, 
         buisnessDescription: string, buisnessLogo: Url, buisnessPhotos: Array<Url>, 
-        businessWeeklyRating: number, businessMenu: Array<string>, cuisineType: string) {
-        this.name = name;
-        this.buisnessCertificate = buisnessCertificate;
-        this.buisnessDescription = buisnessDescription;
-        this.buisnessLogo = buisnessLogo;
-        this.buisnessPhotos = buisnessPhotos;
+        businessWeeklyRating: number, businessMenu: Array<string>, cuisineType: string, businessLocation: Array<number>) {
+        this.businessName = businessMame;
+        this.businessCertificate = buisnessCertificate;
+        this.businessDescription = buisnessDescription;
+        this.businessLogo = buisnessLogo;
+        this.businessPhotos = buisnessPhotos;
         this.businessWeeklyRating = businessWeeklyRating;
         this.businessMenu = businessMenu;
         this.cuisineType = cuisineType;
+        this.businessLocation = businessLocation;
     }
+    setName(name: string) {
+        this.businessName = name;
+    }
+    getName() {
+        return this.businessName;
+    }
+    setBuisnessCertificate(buisnessCertificate: Array<string>) {
+        this.businessCertificate = buisnessCertificate;
+    }
+    getBuisnessCertificate() {
+        return this.businessCertificate;
+    }
+    setBuisnessDescription(buisnessDescription: string) {
+        this.businessDescription = buisnessDescription;
+    }
+    getBuisnessDescription() { 
+        return this.businessDescription;
+    }
+    setBuisnessLogo(buisnessLogo: Url) {
+        this.businessLogo = buisnessLogo;
+    }
+    getBuisnessLogo() {
+        return this.businessLogo;
+    }
+    setBuisnessPhotos(buisnessPhotos: Array<Url>) {
+        this.businessPhotos = buisnessPhotos;
+    }   
+    getBuisnessPhotos() {
+        return this.businessPhotos;
+    }
+    setBusinessWeeklyRating(businessWeeklyRating: number) {
+        this.businessWeeklyRating = businessWeeklyRating;
+    }
+    getBusinessWeeklyRating() { 
+        return this.businessWeeklyRating;
+    }
+    setBusinessMenu(businessMenu: Array<string>) { 
+        this.businessMenu = businessMenu;
+    }
+    getBusinessMenu() {
+        return this.businessMenu;
+    }
+    setCuisineType(cuisineType: string) {
+        this.cuisineType = cuisineType;
+    }
+    getCuisineType() {
+        return this.cuisineType;
+    }
+    setBusinessLocation(businessLocation: Array<number>) {
+        this.businessLocation = businessLocation;
+    }
+    getBusinessLocation() {
+        return this.businessLocation;
+    }
+
 }
 
-export { firestore, auth, addDocument, getDocument, updateDocument, deleteDocument, getCollection };
+export { firestore, auth, addDocument, getDocument, updateDocument, deleteDocument, getCollection, getBusiness, Business };
