@@ -10,22 +10,23 @@ function CustomerNavbar() {
   //   console.log(url);
   // }, [section]);
 
-  // const handleToggle = () => {
-  //   const nav = document.getElementById("nav");
-  //   if (nav.classList.contains("opacity-0")) {
-  //     nav.classList.remove("opacity-0");
-  //     nav.classList.add("opacity-100");
-  //     setTimeout(() => {
-  //       nav.classList.remove("invisible");
-  //     });
-  //   } else {
-  //     nav.classList.add("opacity-0");
-  //     nav.classList.remove("opacity-100");
-  //     setTimeout(() => {
-  //       nav.classList.add("invisible");
-  //     }, 300);
-  //   }
-  // };
+  const handleToggle = () => {
+    const nav = document.getElementById("nav");
+    if (!nav) return;
+    if (nav.classList.contains("opacity-0")) {
+      nav.classList.remove("opacity-0");
+      nav.classList.add("opacity-100");
+      setTimeout(() => {
+        nav.classList.remove("invisible");
+      });
+    } else {
+      nav.classList.add("opacity-0");
+      nav.classList.remove("opacity-100");
+      setTimeout(() => {
+        nav.classList.add("invisible");
+      }, 300);
+    }
+  };
 
   return (
     <>
@@ -119,7 +120,7 @@ function CustomerNavbar() {
             <button
               className="text-black"
               onClick={() => {
-                // handleToggle();
+                handleToggle();
               }}
             >
               <svg
@@ -152,11 +153,11 @@ function CustomerNavbar() {
             }
             var top = document.getElementById("top");
             // top.scrollIntoView({ behavior: "smooth" });
-            // handleToggle();
+            handleToggle();
           }}
           className="text-2xl mb-4 cursor-pointer"
         >
-          HOME
+          Home
         </p>
         {/* <a
           target="_self"
@@ -167,35 +168,59 @@ function CustomerNavbar() {
         </a> */}
         <p
           onClick={() => {
-            if (url.includes("currency-converter-privacy-policy")) {
-              navigate("/about");
-            }
-            var about = document.getElementById("about");
+            navigate("/restaurants");
             // about.scrollIntoView({ behavior: "smooth" });
-            // handleToggle();
+            handleToggle();
           }}
           className="text-2xl mb-4 cursor-pointer"
         >
-          ABOUT ME
+          Restaurants
         </p>
         <p
           onClick={() => {
-            if (url.includes("currency-converter-privacy-policy")) {
-              navigate("/contact");
-            }
+            navigate("/map");
             var contact = document.getElementById("contact");
             // contact.scrollIntoView({ behavior: "smooth" });
-            // handleToggle();
+            handleToggle();
           }}
-          className="text-2xl cursor-pointer"
+          className="text-2xl mb-4 cursor-pointer"
         >
-          CONTACT
+          Map
+        </p>
+        <p
+          onClick={() => {
+            navigate("/about");
+            // var contact = document.getElementById("contact");
+            // contact.scrollIntoView({ behavior: "smooth" });
+            handleToggle();
+          }}
+          className="text-2xl mb-4 cursor-pointer"
+        >
+          About Us
+        </p>
+        <p
+          onClick={() => {
+            // contact.scrollIntoView({ behavior: "smooth" });
+          }}
+          className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
+        >
+          Login/Signup
+        </p>
+        <p
+          onClick={() => {
+            navigate("/business");
+            // var contact = document.getElementById("contact");
+            // contact.scrollIntoView({ behavior: "smooth" });
+          }}
+          className="text-2xl mb-4 cursor-pointer"
+        >
+          Temp go to business
         </p>
         <button
           className="mt-8 text-xl text-gray-300"
-          // onClick={() => {
-          //   handleToggle();
-          // }}
+          onClick={() => {
+            handleToggle();
+          }}
         >
           Close
         </button>
