@@ -176,7 +176,10 @@ class Business {
     getBusinessLocation() {
         return this.businessLocation;
     }
+}
 
+class Customer {
+    
 }
 
 export { firestore, auth, addDocument, getDocument, updateDocument, deleteDocument, getCollection, getBusiness, Business };

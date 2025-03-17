@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { getCollection, getBusiness, Business } from "./FirebaseBusinessAPI"; // Firebase Config
+import { getCollection, getBusiness, Business } from "./FirebaseAPI"; // Firebase Config
 import firebaseConfig from "@/FirebaseConfig";
 
 function BusinessDash() {
