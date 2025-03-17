@@ -4,6 +4,7 @@ import Logo from "../assets/logoNameIcon.png";
 function CustomerNavbar() {
   const navigate = useNavigate();
   const url = window.location.href;
+
   // useEffect(() => {
   //   console.log(section);
   //   console.log(url);
@@ -102,6 +103,16 @@ function CustomerNavbar() {
               className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
             >
               Login/Signup
+            </p>
+            <p
+              onClick={() => {
+                navigate("/business");
+                // var contact = document.getElementById("contact");
+                // contact.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+            >
+              Temp go to business
             </p>
           </div>
           <div className="sm:hidden">
