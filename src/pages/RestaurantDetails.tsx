@@ -239,7 +239,7 @@ function RestaurantDetails() {
 }
 
 const ReviewsTabContent = () => (
-  <div className="mt-4 space-y-6">
+  <div className="mt-4 space-y-6 ">
     {reviews.map((review, index) => (
       <Card key={index}>
         <CardContent className="text-lg space-y-2">
