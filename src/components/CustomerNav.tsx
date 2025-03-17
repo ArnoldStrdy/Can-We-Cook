@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logoNameIcon.png";
 
