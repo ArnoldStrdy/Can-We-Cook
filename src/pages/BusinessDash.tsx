@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
-import { getCollection, getBusiness, Business } from "./FirebaseBusinessAPI";  // Firebase Config
+import { getCollection, getBusiness, Business } from "./FirebaseBusinessAPI"; // Firebase Config
 import firebaseConfig from "@/FirebaseConfig";
-
-
 
 function BusinessDash() {
   useEffect(() => {
@@ -32,7 +30,7 @@ function BusinessDash() {
   console.log("Business Dashboard");
   //console.log(firebaseConfig);
   return (
-    <div className="bg-white dark:bg-black flex flex-col items-center justify-center">
+    <div className="bg-white dark:bg-black flex flex-col items-center justify-center mt-20">
       <h1>Business Dashboard</h1>
       <div id="reviews"></div>
     </div>
