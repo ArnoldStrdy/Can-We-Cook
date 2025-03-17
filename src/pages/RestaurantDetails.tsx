@@ -129,7 +129,11 @@ function RestaurantDetails() {
             <Upload />
           </Button>
           {loggedIn && (
-            <Button className="mx-auto" variant="ghost" onClick={() => setPage(2)}>
+            <Button
+              className="mx-auto"
+              variant="ghost"
+              onClick={() => setPage(2)}
+            >
               Skip <ChevronRight className="inline" />
             </Button>
           )}
@@ -148,7 +152,7 @@ function RestaurantDetails() {
           </div>
 
           <span>What were the up's and down's?</span>
-          <Textarea/>
+          <Textarea />
           <span>Got any pictures? (optional)</span>
           <Button variant="outline" className="w-min">
             <Upload />
@@ -216,7 +220,18 @@ function RestaurantDetails() {
           <PicturesTabContent />
         </TabsContent>
         <TabsContent value="map" className="px-4">
-          map
+          <div className="aspect-2/1 w-full">
+            <iframe
+              className="size-full"
+              src="https://use.mazemap.com/embed.html#v=1&zlevel=1&center=145.132766,-37.914154&zoom=18&campusid=159&sharepoitype=poi&sharepoi=1034799&utm_medium=iframe"
+              style={{ border: "1px solid grey" }}
+              allow="geolocation"
+            ></iframe>
+            <br />
+            <small>
+              <a href="https://www.mazemap.com/">Map by MazeMap</a>
+            </small>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
