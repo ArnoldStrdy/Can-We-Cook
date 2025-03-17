@@ -35,14 +35,14 @@ const reviews = [
   {
     reviewer: "Jeff Bezos",
     date: "05/07/2024",
-    rating: 5,
+    rating: 3,
     review:
       "I had an amazing dinner at Savor & Sip last night! The ambiance was warm and inviting, and the staff were super friendly. I ordered the grilled salmon, and it was cooked to perfection—crispy on the outside and tender inside.",
   },
   {
     reviewer: "Jeff Bezos",
     date: "05/07/2024",
-    rating: 5,
+    rating: 2,
     review:
       "I had an amazing dinner at Savor & Sip last night! The ambiance was warm and inviting, and the staff were super friendly. I ordered the grilled salmon, and it was cooked to perfection—crispy on the outside and tender inside.",
   },
@@ -163,6 +163,7 @@ function RestaurantDetails() {
         </>
       );
     };
+
     return (
       <Dialog onOpenChange={() => setPage(1)}>
         <DialogTrigger asChild>
