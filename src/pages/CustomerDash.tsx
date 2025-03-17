@@ -529,7 +529,7 @@ function CustomerDash() {
   }, [section]);
 
   return (
-    <div className="bg-white dark:bg-black flex flex-col items-center justify-center">
+    <div className="bg-white dark:bg-black flex flex-col items-center justify-center text-black">
       <div
         id="top"
         className="max-w-6xl w-full h-screen min-h-[800px] flex flex-col items-start justify-center gap-6"
