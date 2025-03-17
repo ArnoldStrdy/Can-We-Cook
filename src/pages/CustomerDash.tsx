@@ -3,6 +3,7 @@ import imgUrl from "../assets/logoIcon.png";
 import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import Ratings from "@/components/ui/ratings";
 
 const sampleTopRestaurants = [
   {
@@ -554,7 +555,8 @@ function CustomerDash() {
               </div>
               <div className="flex flex-col items-center justify-center gap-2">
                 <div>{restaurant.rating}</div>
-                <div className="flex flex-row items-center justify-center gap-1">
+                <Ratings stars={restaurant.rating} />
+                {/* <div className="flex flex-row items-center justify-center gap-1">
                   {[1, 2, 3, 4, 5].map((value) => (
                     <Star
                       key={value}
@@ -563,7 +565,7 @@ function CustomerDash() {
                       }`}
                     />
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
           ))}
@@ -639,7 +641,14 @@ function CustomerDash() {
           <div className="flex flex-col items-start justify-start gap-1">
             <h1 className="text-3xl font-semibold">Map</h1>
           </div>
-          <div className="flex flex-col justify-center gap-4 w-full"></div>
+          <div className="flex flex-col justify-center gap-4 w-full">
+            <iframe
+              className="w-full h-[720px]"
+              src="https://use.mazemap.com/embed.html#v=1&campusid=159&zlevel=1&center=145.133167,-37.911460&zoom=16.4&utm_medium=iframe"
+              allow="geolocation"
+            ></iframe>
+            <br />
+          </div>
         </div>
       </div>
     </div>
