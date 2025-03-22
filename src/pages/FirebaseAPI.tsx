@@ -1,6 +1,6 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
-import firebaseConfig from '../FirebaseConfig';
+import { firebaseConfig } from '../FirebaseConfig';
 import { Url } from 'url';
 
 // Your web app's Firebase configuration
@@ -31,7 +31,9 @@ const addDocument = async (collectionName: string, data: any): Promise<boolean> 
 // Function to get a document from a collection
 const getDocument = async (collectionName: string, docId: string): Promise<firebase.firestore.DocumentData | undefined> => {
     try {
-        const doc = await firestore.collection(collectionName).doc(docId).get();
+        const docD = firestore.collection(collectionName).doc(docId);
+        const doc = await docD.get();
+        console.log("[X] Document data:", doc.data());
         if (doc.exists) {
             console.log("Document data:", doc.data());
             return doc.data();
@@ -82,6 +84,7 @@ const getCollection = async (collectionName: string): Promise<firebase.firestore
     }
 }
 
+
 const getBusiness = async (docId: string): Promise<Business | undefined> => {
     try {
         console.log("Getting business: ", docId);
@@ -97,6 +100,7 @@ const getBusiness = async (docId: string): Promise<Business | undefined> => {
     }
     return undefined;
 }
+
 
 class Business {
     businessName: string;
@@ -122,10 +126,10 @@ class Business {
         this.cuisineType = cuisineType;
         this.businessLocation = businessLocation;
     }
-    setName(name: string) {
+    setbusinessName(name: string) {
         this.businessName = name;
     }
-    getName() {
+    getbusinessName() {
         return this.businessName;
     }
     setBuisnessCertificate(buisnessCertificate: Array<string>) {
@@ -179,7 +183,7 @@ class Business {
 }
 
 class Customer {
-    
+
 }
 
 export { firestore, auth, addDocument, getDocument, updateDocument, deleteDocument, getCollection, getBusiness, Business };

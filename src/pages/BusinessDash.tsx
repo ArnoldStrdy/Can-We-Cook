@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
-import { getCollection, getBusiness, Business } from "./FirebaseAPI"; // Firebase Config
-import firebaseConfig from "@/FirebaseConfig";
+import { getCollection, getBusiness, Business, getDocument } from "./FirebaseAPI"; // Firebase Config
+import { firebaseConfig } from "@/FirebaseConfig";
 
 function BusinessDash() {
   useEffect(() => {
+    
     const reviews = getCollection("reviews");
     reviews.then((data) => {
       console.log(data);
@@ -16,11 +17,10 @@ function BusinessDash() {
           reviewDiv.innerHTML = review.data().reviewText + "<br>";
           reviewDiv.innerHTML += review.data().rating + "<br>";
           reviewDiv.innerHTML += review.data().dateTime + "<br>";
-          console.log(review.data().businessID.id);
-          getBusiness(review.data().businessID.id).then((business) => {
+          reviewDiv.innerHTML += review.data().businessID.id + "<br>";
+          getDocument("businesses", review.data().businessID.id).then((business) => {
             reviewDiv.innerHTML += business?.businessName + "<br>";
-            return undefined;
-          });
+          }); 
           reviewsDiv.appendChild(reviewDiv);
         });
       }
@@ -28,7 +28,8 @@ function BusinessDash() {
   }, []);
 
   console.log("Business Dashboard");
-  //console.log(firebaseConfig);
+  
+  console.log(firebaseConfig);
   return (
     <div className="bg-white dark:bg-black flex flex-col items-center justify-center mt-20">
       <h1 className="text-3xl font-semibold">Owner DashBoard</h1>

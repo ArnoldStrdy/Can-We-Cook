@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logoNameIcon.png";
+import { useEffect } from "react";
+import { getAuth, EmailAuthProvider } from "firebase/auth";
+import * as firebaseui from 'firebaseui';
 
 function CustomerNavbar() {
   const navigate = useNavigate();
@@ -8,7 +11,7 @@ function CustomerNavbar() {
   // useEffect(() => {
   //   console.log(section);
   //   console.log(url);
-  // }, [section]);
+
 
   const handleToggle = () => {
     const nav = document.getElementById("nav");
@@ -99,7 +102,8 @@ function CustomerNavbar() {
             </p>
             <p
               onClick={() => {
-                // contact.scrollIntoView({ behavior: "smooth" });
+                // contact.scrollIntoView({ behavior: "smooth" });\
+                
               }}
               className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
             >
@@ -230,3 +234,4 @@ function CustomerNavbar() {
 }
 
 export default CustomerNavbar;
+
