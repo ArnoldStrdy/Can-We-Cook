@@ -3,6 +3,8 @@ import Logo from "../assets/logoNameIcon.png";
 import { useEffect } from "react";
 import { getAuth, EmailAuthProvider } from "firebase/auth";
 import * as firebaseui from 'firebaseui';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 function CustomerNavbar() {
   const navigate = useNavigate();
@@ -107,7 +109,7 @@ function CustomerNavbar() {
               }}
               className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
             >
-              Login/Signup
+              <Link to="/login">Login/Signup</Link>
             </p>
             <p
               onClick={() => {
@@ -208,7 +210,7 @@ function CustomerNavbar() {
           }}
           className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
         >
-          Login/Signup
+          <Link to="/login">Login/Signup</Link>
         </p>
         <p
           onClick={() => {

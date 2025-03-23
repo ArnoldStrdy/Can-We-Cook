@@ -183,7 +183,7 @@ class Business {
 }
 
 class Customer {
-
+    
 }
 
 export { firestore, auth, addDocument, getDocument, updateDocument, deleteDocument, getCollection, getBusiness, Business };

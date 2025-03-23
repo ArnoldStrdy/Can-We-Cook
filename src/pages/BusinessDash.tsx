@@ -34,6 +34,11 @@ function BusinessDash() {
     <div className="bg-white dark:bg-black flex flex-col items-center justify-center mt-20">
       <h1 className="text-3xl font-semibold">Owner DashBoard</h1>
       <div id="reviews"></div>
+      <button
+        onClick={() => {
+          ;
+
+        }}>AAAA</button>
     </div>
   );
 }

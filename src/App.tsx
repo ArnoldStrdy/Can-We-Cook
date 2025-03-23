@@ -6,7 +6,10 @@ import RestaurantDetails from "./pages/RestaurantDetails";
 import AboutUs from "./pages/AboutUs";
 import Error from "./pages/Error";
 import CustomerNavbar from "@/components/CustomerNav";
-
+import LoginPage from "./pages/LoginPage";
+import firebase from "firebase/compat/app";
+const auth = firebase.auth();
+console.log(auth.currentUser);
 function App() {
   return (
     <div>
@@ -14,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<CustomerDash />} />
         <Route path="/business" element={<BusinessDash />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/:section" element={<CustomerDash />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
