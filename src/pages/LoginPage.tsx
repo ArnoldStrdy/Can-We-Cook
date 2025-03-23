@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import 'firebase/compat/auth';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
+import { createCustomer } from './FirebaseAPI';
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -16,8 +17,11 @@ const LoginPage: React.FC = () => {
             await auth.setPersistence(persistance);
             await auth.signInWithEmailAndPassword(email, password);
             console.log("User logged in successfully");
-            console.log(auth.currentUser);
-            console.log("Is email persistent: ", auth.currentUser?.email === email);
+            if (auth.currentUser) {
+                console.log(auth.currentUser.uid);
+            } else {
+                console.log("No user is currently logged in");
+            }
         } catch (error) {
             setError((error as any).message);
             console.error("Error logging in: ", error);
@@ -27,10 +31,27 @@ const LoginPage: React.FC = () => {
     const handleSignup = async () => {
         try {
             await auth.createUserWithEmailAndPassword(email, password);
+            await auth.setPersistence(persistance);
+            if (auth.currentUser){
+                createCustomer(email, auth.currentUser?.uid);
+            }
+            else {
+                console.log("No user is currently logged in: Catostrophic Error");
+            }
             console.log("User signed up successfully");
         } catch (error) {
             setError((error as any).message);
             console.error("Error signing up: ", error);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+            console.log("User logged out successfully");
+        } catch (error) {
+            setError((error as any).message);
+            console.error("Error logging out: ", error);
         }
     };
 
@@ -55,6 +76,9 @@ const LoginPage: React.FC = () => {
             {error && <p>{error}</p>}
             <button onClick={() => setIsLogin(!isLogin)}>
                 {isLogin ? 'Switch to Sign Up' : 'Switch to Login'}
+            </button>
+            <button onClick={handleLogout}>
+                Logout
             </button>
         </div>
     );

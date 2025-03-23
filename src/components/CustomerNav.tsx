@@ -5,7 +5,7 @@ import { getAuth, EmailAuthProvider } from "firebase/auth";
 import * as firebaseui from 'firebaseui';
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import firebase from "firebase/compat/app";
 function CustomerNavbar() {
   const navigate = useNavigate();
   const url = window.location.href;
@@ -105,12 +105,15 @@ function CustomerNavbar() {
             <p
               onClick={() => {
                 // contact.scrollIntoView({ behavior: "smooth" });\
-                
+                if (firebase.auth().currentUser) {
+                  navigate("/home");
+                }
+                else {
+                  navigate('/login');
+                }
               }}
               className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
-            >
-              <Link to="/login">Login/Signup</Link>
-            </p>
+            >Login/Signup</p>
             <p
               onClick={() => {
                 navigate("/business");
@@ -206,12 +209,15 @@ function CustomerNavbar() {
         </p>
         <p
           onClick={() => {
-            // contact.scrollIntoView({ behavior: "smooth" });
+            if (firebase.auth().currentUser) {
+              navigate("/home");
+            }
+            else {
+              navigate('/login');
+            }
           }}
           className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
-        >
-          <Link to="/login">Login/Signup</Link>
-        </p>
+        >Login/Signup</p>
         <p
           onClick={() => {
             navigate("/business");

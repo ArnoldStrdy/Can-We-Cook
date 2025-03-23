@@ -93,7 +93,7 @@ const getBusiness = async (docId: string): Promise<Business | undefined> => {
         if (doc) {
             return new Business(doc.businessName, doc.businessCertificate, doc.businessDescription, 
                                 doc.businessLogo, doc.businessPhotos, doc.businessWeeklyRating, 
-                                doc.businessMenu, doc.cuisineType, doc.businessLocation);
+                                doc.businessMenu, doc.cuisineType, doc.businessLocation, doc.businessID);
         }
     } catch (error) {
         console.error("Error getting business: ", error);
@@ -112,10 +112,12 @@ class Business {
     businessMenu: Array<string>;
     cuisineType: string;
     businessLocation: Array<number>;
+    businessID: string;
 
     constructor(businessMame: string, buisnessCertificate: Array<string>, 
         buisnessDescription: string, buisnessLogo: Url, buisnessPhotos: Array<Url>, 
-        businessWeeklyRating: number, businessMenu: Array<string>, cuisineType: string, businessLocation: Array<number>) {
+        businessWeeklyRating: number, businessMenu: Array<string>, cuisineType: string, businessLocation: Array<number>, businessID: string) {
+        this.businessID = businessID;
         this.businessName = businessMame;
         this.businessCertificate = buisnessCertificate;
         this.businessDescription = buisnessDescription;
@@ -125,6 +127,12 @@ class Business {
         this.businessMenu = businessMenu;
         this.cuisineType = cuisineType;
         this.businessLocation = businessLocation;
+    }
+    setBusinessID(businessID: string) {
+        this.businessID = businessID;
+    }
+    getBusinessID() {
+        return this.businessID;
     }
     setbusinessName(name: string) {
         this.businessName = name;
@@ -183,7 +191,172 @@ class Business {
 }
 
 class Customer {
+    customerName: string;
+    customerProfilePic: Url | undefined;
+    customerID: string;
+    constructor(customerName: string, customerID: string, customerProfilePic?: Url) {
+        this.customerName = customerName;
+        this.customerID = customerID;
+        this.customerProfilePic = customerProfilePic
+    }
+    setCustomerName(customerName: string) {
+        this.customerName = customerName;
+    }
+    getCustomerName() {
+        return this.customerName;
+    }
+    setCustomerProfilePic(customerProfilePic: Url) {
+        this.customerProfilePic = customerProfilePic;
+    }
+    getCustomerProfilePic() {
+        return this.customerProfilePic;
+    }
+    setCustomerID(customerID: string) {
+        this.customerID = customerID;
+    }
+    getCustomerID() {
+        return this.customerID;
+    }
     
 }
+const createCustomer = (customerName: string, customerID: string) => {
+    addDocument("customers", {
+        name: customerName,
+        ProfilePic: "",
+        uid: customerID
+    }).then((result) => {
+        console.log("Customer created successfully: ", result);
+        return new Customer(customerName, customerID);
+    }).catch((error) => {
+        console.error("Error creating customer: ", error);
+    });
+}
+const getCustomer = async (docId: string): Promise<Customer | undefined> => {
+    try {
+        console.log("Getting customer: ", docId);
+        const doc = await getDocument("customers", docId);
+        console.log("Customer: ", doc);
+        if (doc) {
+            return new Customer(doc.customerName, doc.customerProfilePic, doc.customerID);
+        }
+    } catch (error) {
+        console.error("Error getting customer: ", error);
+    }
+    return undefined;
+}
 
-export { firestore, auth, addDocument, getDocument, updateDocument, deleteDocument, getCollection, getBusiness, Business };
+class Owner {
+    ownerName: string;
+    ownerID: string;
+    constructor(ownerName: string, ownerID: string) {
+        this.ownerName = ownerName;
+        this.ownerID = ownerID;
+    }
+    setOwnerName(ownerName: string) {
+        this.ownerName = ownerName;
+    }
+    getOwnerName() {
+        return this.ownerName;
+    }
+    setOwnerID(ownerID: string) {
+        this.ownerID = ownerID;
+    }
+    getOwnerID() {
+        return this.ownerID;
+    }
+}
+
+const getOwner = async (docId: string): Promise<Owner | undefined> => {
+    try {
+        console.log("Getting owner: ", docId);
+        const doc = await getDocument("owners", docId);
+        console.log("Owner: ", doc);
+        if (doc) {
+            return new Owner(doc.ownerName, doc.ownerID);
+        }
+    } catch (error) {
+        console.error("Error getting owner: ", error);
+    }
+    return undefined;
+}
+
+class Review {
+    customerID: string | undefined;
+    businessID: string;
+    reviewText: string;
+    rating: number;
+    dateTime: Date;
+    reviewID: string;
+    verified: boolean;
+    constructor(customerID: string, businessID: string, reviewText: string, rating: number, dateTime: Date, reviewID: string, verified: boolean) {
+        this.customerID = customerID;
+        this.businessID = businessID;
+        this.reviewText = reviewText;
+        this.rating = rating;
+        this.dateTime = dateTime;
+        this.reviewID = reviewID;
+        this.verified = verified;
+    }
+    setCustomerID(customerID: string) {
+        this.customerID = customerID;
+    }
+    getCustomerID() {
+        return this.customerID;
+    }
+    setBusinessID(businessID: string) {
+        this.businessID = businessID;
+    }
+    getBusinessID() {
+        return this.businessID;
+    }
+    setReviewText(reviewText: string) {
+        this.reviewText = reviewText;
+    }
+    getReviewText() {
+        return this.reviewText;
+    }
+    setRating(rating: number) {
+        this.rating = rating;
+    }
+    getRating() {
+        return this.rating;
+    }
+    setDateTime(dateTime: Date) {
+        this.dateTime = dateTime;
+    }
+    getDateTime() {
+        return this.dateTime;
+    }
+    setReviewID(reviewID: string) {
+        this.reviewID = reviewID;
+    }
+    getReviewID() {
+        return this.reviewID;
+    }
+    setVerified(verified: boolean) {
+        this.verified = verified;
+    }
+    getVerified() {
+        return this.verified;
+    }
+}
+
+const getReview = async (docId: string): Promise<Review | undefined> => {
+    try {
+        console.log("Getting review: ", docId);
+        const doc = await getDocument("reviews", docId);
+        console.log("Review: ", doc);
+        if (doc) {
+            return new Review(doc.customerID, doc.businessID, doc.reviewText, doc.rating, doc.dateTime, doc.reviewID, doc.verified);
+        }
+    } catch (error) {
+        console.error("Error getting review: ", error);
+    }
+    return undefined;
+}
+
+
+export { 
+        firestore, auth, addDocument, getDocument, updateDocument, 
+        deleteDocument, getCollection, getBusiness, Business, createCustomer
+};
