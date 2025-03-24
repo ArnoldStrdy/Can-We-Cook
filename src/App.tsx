@@ -6,6 +6,7 @@ import RestaurantDetails from "./pages/RestaurantDetails";
 import AboutUs from "./pages/AboutUs";
 import Error from "./pages/Error";
 import CustomerNavbar from "@/components/CustomerNav";
+import BusinessCreate from "./pages/BusinessCreate";
 import LoginPage from "./pages/LoginPage";
 import firebase from "firebase/compat/app";
 import { useLocation } from "react-router-dom";
@@ -38,6 +39,7 @@ function App() {
         <Route path="/" element={<CustomerDash />} />
         <Route path="/business" element={<BusinessDash />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/createBusiness" element={<BusinessCreate />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/:section" element={<CustomerDash />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />

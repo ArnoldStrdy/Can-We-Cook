@@ -24,8 +24,9 @@ import { useEffect, useState } from "react";
 import RatingSelect from "@/components/ui/ratingSelect";
 import { Textarea } from "@/components/ui/textarea";
 import firebase from "firebase/compat/app";
-import { useNavigate } from "react-router-dom";
-import { getCustomerFromUID } from "./FirebaseAPI";
+import { useNavigate, useParams } from "react-router-dom";
+import { getCollection, getCustomerFromUID } from "./FirebaseAPI";
+import { Review, Business } from "./WrapperObjects";
 
 const reviews = [
   {
@@ -101,7 +102,7 @@ const pictures = [
   imgUrl,
 ];
 
-type Review = {
+type ReviewType = {
   rating: number;
   review: string;
   pictures: File[];
@@ -110,12 +111,17 @@ type Review = {
 };
 
 function RestaurantDetails() {
+  const id = useParams().id;
+  const business = new Business(id); // Getting Business object from id then just grab data needed from it
+  const reviews = business.getAllReviews();
+  const menu = business.menu;
+  const pictures = business.businessPictures;
   const auth = firebase.auth();
   const navigate = useNavigate();
   const ReviewDialog = () => {
     const [customerName, setCustomerName] = useState<string | null>(null);
     const [page, setPage] = useState(1);
-    const [newReview, setReview] = useState<Review>({
+    const [newReview, setReview] = useState<ReviewType>({
       rating: 0,
       review: "",
       pictures: [],
