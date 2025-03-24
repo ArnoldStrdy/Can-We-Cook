@@ -187,7 +187,7 @@ function BusinessDash() {
 
       {/* Main Content */}
 
-      <div className="flex-1 p-10 overflow-y-auto">
+      <div className="flex-1 px-10 overflow-y-auto">
         {currentPage === "home" && (
           <>
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mt-10">
