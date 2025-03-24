@@ -13,11 +13,16 @@ console.log(auth.currentUser);
 function App() {
   const [uid, setUID] = useState<string | null>(null);
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        setUID(user.uid);
-      }
-    });
+    if (document.cookie.includes(";uid")) {
+      const uid = document.cookie.split(";uid=")[1];
+      setUID(uid);
+    } else {
+      firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+        if (user) {
+          setUID(user.uid);
+        }
+      });
+    }
   }, []);
   return (
     <div>

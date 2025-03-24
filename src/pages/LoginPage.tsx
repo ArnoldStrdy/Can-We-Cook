@@ -38,6 +38,9 @@ const LoginPage: React.FC = () => {
       await auth.setPersistence(persistance);
       if (auth.currentUser) {
         createCustomer(name, auth.currentUser?.uid);
+        document.cookie = 'name=' + name;
+        document.cookie = 'uid=' + auth.currentUser.uid;
+        navigate("/");
       } else {
         console.log("No user is currently logged in: Catostrophic Error");
       }
