@@ -244,7 +244,19 @@ const getCustomer = async (docId: string): Promise<Customer | undefined> => {
     }
     return undefined;
 }
-
+const getCustomerFromUID = async (uid: string): Promise<Customer | undefined> => {
+    try {
+        const snapshot = await firestore.collection("customers").where("uid", "==", uid).get();
+        let customer: Customer | undefined;
+        snapshot.forEach((doc: { customerName: string; customerProfilePic: Url; uid: string; }) => {
+            customer = new Customer(doc.customerName, doc.customerProfilePic, doc.uid);
+        });
+        return customer;
+    } catch (error) {
+        console.error("Error getting customer: ", error);
+    }
+    return undefined;
+}
 class Owner {
     ownerName: string;
     ownerID: string;
@@ -355,6 +367,19 @@ const getReview = async (docId: string): Promise<Review | undefined> => {
     return undefined;
 }
 
+const reviewFromBusiness = async (businessID: string): Promise<Array<Review> | undefined> => {
+    try {
+        const reviews = new Array<Review>();
+        const snapshot = await firestore.collection("reviews").where("businessID", "==", businessID).get();
+        snapshot.forEach((doc: { customerID: string; businessID: string; reviewText: string; rating: number; dateTime: Date; reviewID: string; verified: boolean; }) => {
+            reviews.push(new Review(doc.customerID, doc.businessID, doc.reviewText, doc.rating, doc.dateTime, doc.reviewID, doc.verified));
+        });
+        return reviews;
+    } catch (error) {
+        console.error("Error getting reviews: ", error);
+    }
+    return undefined;
+}
 
 export { 
         firestore, auth, addDocument, getDocument, updateDocument, 

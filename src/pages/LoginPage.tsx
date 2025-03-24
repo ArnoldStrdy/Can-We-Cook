@@ -10,6 +10,7 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [name, setName] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const auth = firebase.auth();
   const persistance = firebase.auth.Auth.Persistence.SESSION;
@@ -36,7 +37,7 @@ const LoginPage: React.FC = () => {
       await auth.createUserWithEmailAndPassword(email, password);
       await auth.setPersistence(persistance);
       if (auth.currentUser) {
-        createCustomer(email, auth.currentUser?.uid);
+        createCustomer(name, auth.currentUser?.uid);
       } else {
         console.log("No user is currently logged in: Catostrophic Error");
       }
@@ -64,7 +65,9 @@ const LoginPage: React.FC = () => {
         <input
           className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
           type="text"
+          value={name}
           placeholder="Name"
+          onChange={(e) => setName(e.target.value)}
         />
       )}
       <input
