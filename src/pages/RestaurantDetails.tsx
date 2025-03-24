@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 const reviews = [
   {
     reviewer: "Jeff Bezos",
+    verified: false,
     date: "05/07/2024",
     rating: 5,
     review:
@@ -34,6 +35,7 @@ const reviews = [
   },
   {
     reviewer: "Jeff Bezos",
+    verified: true,
     date: "05/07/2024",
     rating: 3,
     review:
@@ -41,6 +43,7 @@ const reviews = [
   },
   {
     reviewer: "Jeff Bezos",
+    verified: true,
     date: "05/07/2024",
     rating: 2,
     review:
@@ -48,6 +51,7 @@ const reviews = [
   },
   {
     reviewer: "Jeff Bezos",
+    verified: false,
     date: "05/07/2024",
     rating: 5,
     review:
@@ -94,11 +98,30 @@ const pictures = [
   imgUrl,
 ];
 
+type Review = {
+  rating: number;
+  review: string;
+  pictures: File[];
+  verified: boolean;
+  anonymous: boolean;
+};
+
 function RestaurantDetails() {
   const [loggedIn, setLoggedIn] = useState(true);
 
   const ReviewDialog = () => {
     const [page, setPage] = useState(1);
+    const [newReview, setReview] = useState<Review>({
+      rating: 0,
+      review: "",
+      pictures: [],
+      verified: false,
+      anonymous: loggedIn ? false : true,
+    });
+
+    const handleSubmit = () => {
+      console.log(newReview);
+    };
 
     const FirstPage = () => {
       return (
@@ -109,7 +132,13 @@ function RestaurantDetails() {
                 You are logged in as <b>[Username]</b>
               </span>
               <span className="flex">
-                Post anonymously? <Switch className="ml-2 my-auto" />{" "}
+                Post anonymously?{" "}
+                <Switch
+                  className="ml-2 my-auto"
+                  onCheckedChange={(checked) =>
+                    setReview({ ...newReview, anonymous: checked })
+                  }
+                />{" "}
               </span>
             </>
           ) : (
@@ -142,13 +171,16 @@ function RestaurantDetails() {
     };
 
     const SecondPage = () => {
-      const [star, setStars] = useState(0);
-      console.log(star);
       return (
         <>
           <span>Rate your experience</span>
           <div>
-            <RatingSelect onChange={setStars} />
+            <RatingSelect
+              onChange={(rating) => {
+                setReview({ ...newReview, rating });
+              }}
+              rating={newReview.rating}
+            />
           </div>
 
           <span>What were the up's and down's?</span>
@@ -157,7 +189,11 @@ function RestaurantDetails() {
           <Button variant="outline" className="w-min">
             <Upload />
           </Button>
-          <Button variant="outline" className="w-min ml-auto">
+          <Button
+            variant="outline"
+            className="w-min ml-auto"
+            onClick={() => handleSubmit()}
+          >
             Post
           </Button>
         </>
