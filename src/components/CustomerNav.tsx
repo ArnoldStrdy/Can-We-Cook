@@ -22,6 +22,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   //   console.log(url);
 
   const [customerName, setCustomerName] = useState<string | null>(null);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
   // const [uid, setUID] = useState<string | null>(null);
   // const uid = firebase.auth().currentUser?.uid;
 
@@ -35,13 +36,20 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   }, []);
 
   useEffect(() => {
-    const fetchName = async () => {
+    const fetchCustomerData = async () => {
       if (!uid) return;
-      const name = await getCustomerFromUID(uid);
-      setCustomerName(name ?? "Guest"); // fallback if undefined
+      const customerData = await getCustomerFromUID(uid);
+
+      if (customerData) {
+        setCustomerName(customerData.name);
+        setProfilePic(customerData.profilePic);
+      } else {
+        setCustomerName("Guest"); // fallback
+        setProfilePic(""); // fallback: empty or default avatar URL
+      }
     };
 
-    fetchName();
+    fetchCustomerData();
   }, [uid]);
 
   const handleToggle = () => {
@@ -132,15 +140,20 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               About Us
             </p>
             {firebase.auth().currentUser ? (
-              <p
-                onClick={() => {
-                  firebase.auth().signOut();
-                  navigate("/");
-                }}
-                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
-              >
-                Hi, {customerName}
-              </p>
+              <div className="flex flex-row items-center gap-4">
+                {profilePic && (
+                  <img src={profilePic} className="w-8 h-8 rounded-full" />
+                )}
+                <p
+                  onClick={() => {
+                    firebase.auth().signOut();
+                    navigate("/");
+                  }}
+                  className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+                >
+                  Hi, {customerName}
+                </p>
+              </div>
             ) : (
               <p
                 onClick={() => {
