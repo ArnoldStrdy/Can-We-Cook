@@ -20,9 +20,12 @@ import {
 } from "@/components/ui/dialog";
 import { ChevronRight, Upload, Verified } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RatingSelect from "@/components/ui/ratingSelect";
 import { Textarea } from "@/components/ui/textarea";
+import firebase from "firebase/compat/app";
+import { useNavigate } from "react-router-dom";
+import { getCustomerFromUID } from "./FirebaseAPI";
 
 const reviews = [
   {
@@ -107,29 +110,42 @@ type Review = {
 };
 
 function RestaurantDetails() {
-  const [loggedIn, setLoggedIn] = useState(true);
-
+  const auth = firebase.auth();
+  const navigate = useNavigate();
   const ReviewDialog = () => {
+    const [customerName, setCustomerName] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [newReview, setReview] = useState<Review>({
       rating: 0,
       review: "",
       pictures: [],
       verified: false,
-      anonymous: loggedIn ? false : true,
+      anonymous: auth.currentuser ? false : true,
     });
 
+    useEffect(() => {
+      const uid = auth.currentUser ? auth.currentUser.uid : undefined;
+      const fetchName = async () => {
+        console.log("a")
+        if (!uid) return;
+        const profile = await getCustomerFromUID(uid);
+        setCustomerName(profile?.name ?? "Guest"); // fallback if undefined
+      };
+
+      fetchName();
+    }, [auth.currentUser]);
     const handleSubmit = () => {
       console.log(newReview);
     };
-
+    
     const FirstPage = () => {
+      console.log(auth.currentUser);
       return (
         <>
-          {loggedIn ? (
+          {auth.currentUser ? (
             <>
               <span>
-                You are logged in as <b>[Username]</b>
+                You are logged in as <b>[{customerName}]</b>
               </span>
               <span className="flex">
                 Post anonymously?{" "}
@@ -144,7 +160,11 @@ function RestaurantDetails() {
           ) : (
             <span>
               You are not logged in,{" "}
-              <Button variant="ghost" className="w-min px-2.5">
+              <Button
+                variant="ghost"
+                className="w-min px-2.5"
+                onClick={() => navigate("/login")}
+              >
                 Login?
               </Button>
             </span>
@@ -157,7 +177,7 @@ function RestaurantDetails() {
           <Button className="mx-auto w-min">
             <Upload />
           </Button>
-          {loggedIn && (
+          {auth.currentUser && (
             <Button
               className="mx-auto"
               variant="ghost"
@@ -281,7 +301,10 @@ const ReviewsTabContent = () => (
       <Card key={index}>
         <CardContent className="text-lg space-y-2">
           <div className="flex">
-            <div className="flex-3/5 font-bold">{review.reviewer}</div>
+            <div className="flex-3/5 font-bold flex">
+              {review.reviewer}{" "}
+              {review.verified && <Verified color="#4ECB71" className="ml-2" />}
+            </div>
             <div className=" flex flex-2/5">
               <div className="flex ml-auto space-x-6">
                 <div className="text-gray-600 text-right">{review.date}</div>
