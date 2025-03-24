@@ -431,41 +431,34 @@ const getReview = async (docId: string): Promise<Review | undefined> => {
 
 const reviewFromBusiness = async (
   businessID: string
-): Promise<Array<Review> | undefined> => {
+): Promise<Array<Review>> => {
   try {
-    const reviews = new Array<Review>();
+    const reviews: Review[] = [];
     const snapshot = await firestore
       .collection("reviews")
       .where("businessID", "==", businessID)
       .get();
-    snapshot.forEach(
-      (doc: {
-        customerID: string;
-        businessID: string;
-        reviewText: string;
-        rating: number;
-        dateTime: Date;
-        reviewID: string;
-        verified: boolean;
-      }) => {
-        reviews.push(
-          new Review(
-            doc.customerID,
-            doc.businessID,
-            doc.reviewText,
-            doc.rating,
-            doc.dateTime,
-            doc.reviewID,
-            doc.verified
-          )
-        );
-      }
-    );
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      reviews.push(
+        new Review(
+          data.customerID,
+          data.businessID,
+          data.reviewText,
+          data.rating,
+          data.dateTime.toDate ? data.dateTime.toDate() : data.dateTime, // handle Firestore Timestamp
+          data.reviewID,
+          data.verified
+        )
+      );
+    });
+
     return reviews;
   } catch (error) {
     console.error("Error getting reviews: ", error);
+    return []; // safer fallback than undefined
   }
-  return undefined;
 };
 
 export {
