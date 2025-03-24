@@ -120,7 +120,7 @@ function RestaurantDetails() {
       review: "",
       pictures: [],
       verified: false,
-      anonymous: auth.currentuser ? false : true,
+      anonymous: auth.currentUser ? false : true,
     });
 
     useEffect(() => {
