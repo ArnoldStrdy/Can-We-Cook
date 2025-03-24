@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-
+import React, { useState, useRef } from "react";
+import emailjs from "@emailjs/browser";
 
 
 const AboutUs: React.FC = () => {
+  const formRef = useRef<HTMLFormElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -11,13 +12,41 @@ const AboutUs: React.FC = () => {
     message: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+
+    if (formRef.current) {
+      emailjs
+        .sendForm(
+          "service_oxj8iv2", // e.g. "service_xxx"
+          "template_kvej2fb", // e.g. "template_yyy"
+          formRef.current,
+          "PzuVWR3t9YB9qMz_P" // e.g. "Ddfh_SsAK123ABCd"
+        )
+        .then(
+          (result) => {
+            console.log("Message successfully sent!", result.text);
+            alert("Message sent successfully!");
+            setFormData({
+              name: "",
+              email: "",
+              phone: "",
+              findUs: "",
+              message: "",
+            });
+          },
+          (error) => {
+            console.error("Error sending Message:", error.text);
+            alert("Something went wrong. Please try again.");
+          }
+        );
+    }
   };
 
   return (
@@ -35,6 +64,7 @@ const AboutUs: React.FC = () => {
 
         {/* Contact Form */}
         <form
+          ref={formRef} 
           onSubmit={handleSubmit}
           className="w-full max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
         >
