@@ -124,6 +124,43 @@ const getBusiness = async (docId: string): Promise<Business | undefined> => {
   return undefined;
 };
 
+class menuItem {
+    itemID: number;
+    itemName: string;
+    itemPrice: number;
+    itemImage: Url;
+    constructor(itemID: number, itemName: string, itemPrice: number, itemImage: Url) {
+        this.itemID = itemID;
+        this.itemName = itemName;
+        this.itemPrice = itemPrice;
+        this.itemImage = itemImage;
+    }
+    setItemID(itemID: number) {
+        this.itemID = itemID;
+    }
+    getItemID() {
+        return this.itemID;
+    }
+    setItemName(itemName: string) {
+        this.itemName = itemName;
+    }
+    getItemName() {
+        return this.itemName;
+    }
+    setItemPrice(itemPrice: number) {
+        this.itemPrice = itemPrice;
+    }
+    getItemPrice() {
+        return this.itemPrice;
+    }
+    setItemImage(itemImage: Url) {
+        this.itemImage = itemImage;
+    }
+    getItemImage() {
+        return this.itemImage;
+    }
+}
+
 class Business {
   businessName: string;
   businessCertificate: Array<string>;
@@ -131,7 +168,7 @@ class Business {
   businessLogo: Url;
   businessPhotos: Array<Url>;
   businessWeeklyRating: number;
-  businessMenu: Array<string>;
+  businessMenu: Array<menuItem>;
   cuisineType: string;
   businessLocation: Array<number>;
   businessID: string;
@@ -143,7 +180,7 @@ class Business {
     buisnessLogo: Url,
     buisnessPhotos: Array<Url>,
     businessWeeklyRating: number,
-    businessMenu: Array<string>,
+    businessMenu: Array<menuItem>,
     cuisineType: string,
     businessLocation: Array<number>,
     businessID: string
@@ -201,7 +238,7 @@ class Business {
   getBusinessWeeklyRating() {
     return this.businessWeeklyRating;
   }
-  setBusinessMenu(businessMenu: Array<string>) {
+  setBusinessMenu(businessMenu: Array<menuItem>) {
     this.businessMenu = businessMenu;
   }
   getBusinessMenu() {
@@ -467,6 +504,19 @@ const reviewFromBusiness = async (
     return []; // safer fallback than undefined
   }
 };
+
+const addRestaurantName = async (businessID: string, name: Name) => {
+    try {
+        await firestore.collection("businesses").doc(businessID).update({
+            businessName: name,
+        });
+        console.log("Restaurant name successfully updated!");
+    } catch (error) {
+        console.error("Error updating restaurant name: ", error);
+    }
+};
+
+
 
 export {
   firestore,
