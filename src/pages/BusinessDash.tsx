@@ -102,31 +102,6 @@ type Review = {
 
 function BusinessDash() {
   const [currentPage, setCurrentPage] = useState("home");
-  useEffect(() => {
-    const reviews = getCollection("reviews");
-    reviews.then((data) => {
-      console.log(data);
-      const reviewsDiv = document.getElementById("reviews");
-      if (reviewsDiv) {
-        reviewsDiv.innerHTML = ""; // Clear the reviews div before appending new reviews
-        data?.forEach((review: any) => {
-          const reviewDiv = document.createElement("div");
-          console.log(review.data());
-          reviewDiv.innerHTML = review.data().reviewText + "<br>";
-          reviewDiv.innerHTML += review.data().rating + "<br>";
-          reviewDiv.innerHTML += review.data().dateTime + "<br>";
-          reviewDiv.innerHTML += review.data().businessID.id + "<br>";
-          getDocument("businesses", review.data().businessID.id).then(
-            (business) => {
-              reviewDiv.innerHTML += business?.businessName + "<br>";
-            }
-          );
-          reviewsDiv.appendChild(reviewDiv);
-        });
-      }
-    });
-  }, []);
-
   console.log("Business Dashboard");
 
   return (
