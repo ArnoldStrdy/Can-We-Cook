@@ -253,19 +253,23 @@ class Customer {
     return this.customerID;
   }
 }
-const createCustomer = (customerName: string, customerID: string) => {
-  addDocument("customers", {
-    name: customerName,
-    ProfilePic: "",
-    uid: customerID,
-  })
-    .then((result) => {
-      console.log("Customer created successfully: ", result);
-      return new Customer(customerName, customerID);
-    })
-    .catch((error) => {
-      console.error("Error creating customer: ", error);
+const createCustomer = async (
+  customerName: string,
+  customerID: string,
+  profilePicUrl: string
+) => {
+  try {
+    const result = await addDocument("customers", {
+      name: customerName,
+      ProfilePic: profilePicUrl,
+      uid: customerID,
     });
+    console.log("Customer created successfully: ", result);
+    return new Customer(customerName, customerID);
+  } catch (error) {
+    console.error("Error creating customer: ", error);
+    throw error; // So caller knows it failed
+  }
 };
 const getCustomer = async (docId: string): Promise<Customer | undefined> => {
   try {
@@ -286,7 +290,7 @@ const getCustomer = async (docId: string): Promise<Customer | undefined> => {
 };
 export const getCustomerFromUID = async (
   uid: string
-): Promise<string | undefined> => {
+): Promise<{ name: string; profilePic: string } | undefined> => {
   try {
     const snapshot = await firestore
       .collection("customers")
@@ -297,9 +301,12 @@ export const getCustomerFromUID = async (
     if (snapshot.empty) return undefined;
 
     const data = snapshot.docs[0].data();
-    return data.name as string;
+    return {
+      name: data.name as string,
+      profilePic: data.ProfilePic as string,
+    };
   } catch (error) {
-    console.error("Error getting customer name:", error);
+    console.error("Error getting customer data:", error);
     return undefined;
   }
 };

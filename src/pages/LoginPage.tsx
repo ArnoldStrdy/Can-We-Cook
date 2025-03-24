@@ -36,15 +36,20 @@ const LoginPage: React.FC = () => {
     try {
       await auth.createUserWithEmailAndPassword(email, password);
       await auth.setPersistence(persistance);
+
       if (auth.currentUser) {
-        createCustomer(name, auth.currentUser?.uid);
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          name
+        )}&background=random&color=fff&rounded=true`;
+
+        await createCustomer(name, auth.currentUser.uid, avatarUrl);
+        console.log("User signed up successfully with avatar:", avatarUrl);
         document.cookie = 'name=' + name;
         document.cookie = 'uid=' + auth.currentUser.uid;
         navigate("/");
       } else {
-        console.log("No user is currently logged in: Catostrophic Error");
+        console.log("No user is currently logged in: Catastrophic Error");
       }
-      console.log("User signed up successfully");
     } catch (error) {
       setError((error as any).message);
       console.error("Error signing up: ", error);
