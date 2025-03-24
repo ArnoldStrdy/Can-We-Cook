@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-
+import { useEffect, useState } from "react";
 import BusinessDash from "./pages/BusinessDash";
 import CustomerDash from "./pages/CustomerDash";
 import RestaurantDetails from "./pages/RestaurantDetails";
@@ -11,9 +11,17 @@ import firebase from "firebase/compat/app";
 const auth = firebase.auth();
 console.log(auth.currentUser);
 function App() {
+  const [uid, setUID] = useState<string | null>(null);
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setUID(user.uid);
+      }
+    });
+  }, []);
   return (
     <div>
-      <CustomerNavbar />
+      <CustomerNavbar uid={uid} setUID={setUID} />
       <Routes>
         <Route path="/" element={<CustomerDash />} />
         <Route path="/business" element={<BusinessDash />} />

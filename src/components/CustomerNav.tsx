@@ -1,18 +1,48 @@
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logoNameIcon.png";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getAuth, EmailAuthProvider } from "firebase/auth";
 import * as firebaseui from "firebaseui";
 import React from "react";
 import { Link } from "react-router-dom";
 import firebase from "firebase/compat/app";
-function CustomerNavbar() {
+import { getCustomerFromUID } from "@/pages/FirebaseAPI";
+
+interface CustomerNavbarProps {
+  uid: string | null;
+  setUID: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const navigate = useNavigate();
   const url = window.location.href;
 
   // useEffect(() => {
   //   console.log(section);
   //   console.log(url);
+
+  const [customerName, setCustomerName] = useState<string | null>(null);
+  // const [uid, setUID] = useState<string | null>(null);
+  // const uid = firebase.auth().currentUser?.uid;
+
+  // check if user is logged in
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setUID(user.uid);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const fetchName = async () => {
+      if (!uid) return;
+      const name = await getCustomerFromUID(uid);
+      setCustomerName(name ?? "Guest"); // fallback if undefined
+    };
+
+    fetchName();
+  }, [uid]);
 
   const handleToggle = () => {
     const nav = document.getElementById("nav");
@@ -109,7 +139,7 @@ function CustomerNavbar() {
                 }}
                 className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
               >
-                Logout
+                Hi, {customerName}
               </p>
             ) : (
               <p
@@ -261,6 +291,6 @@ function CustomerNavbar() {
       </nav>
     </>
   );
-}
+};
 
 export default CustomerNavbar;
