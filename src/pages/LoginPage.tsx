@@ -13,7 +13,7 @@ const LoginPage: React.FC = () => {
   const [name, setName] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const auth = firebase.auth();
-  const persistance = firebase.auth.Auth.Persistence.SESSION;
+  const persistance = firebase.auth.Auth.Persistence.LOCAL;
   console.log("Auth: ", auth.currentUser);
   const handleLogin = async () => {
     try {
