@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "firebase/compat/auth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { createCustomer } from "./FirebaseAPI";
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,6 +21,7 @@ const LoginPage: React.FC = () => {
       console.log("User logged in successfully");
       if (auth.currentUser) {
         console.log(auth.currentUser.uid);
+        navigate("/");
       } else {
         console.log("No user is currently logged in");
       }
@@ -57,6 +60,13 @@ const LoginPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center mt-20 max-w-sm mx-auto gap-4">
       <h2 className="font-semibold">{isLogin ? "Login" : "Sign Up"}</h2>
+      {!isLogin && (
+        <input
+          className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
+          type="text"
+          placeholder="Name"
+        />
+      )}
       <input
         className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
         type="email"

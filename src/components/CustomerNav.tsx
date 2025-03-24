@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logoNameIcon.png";
 import { useEffect } from "react";
 import { getAuth, EmailAuthProvider } from "firebase/auth";
-import * as firebaseui from 'firebaseui';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import * as firebaseui from "firebaseui";
+import React from "react";
+import { Link } from "react-router-dom";
 import firebase from "firebase/compat/app";
 function CustomerNavbar() {
   const navigate = useNavigate();
@@ -13,7 +13,6 @@ function CustomerNavbar() {
   // useEffect(() => {
   //   console.log(section);
   //   console.log(url);
-
 
   const handleToggle = () => {
     const nav = document.getElementById("nav");
@@ -102,18 +101,40 @@ function CustomerNavbar() {
             >
               About Us
             </p>
-            <p
+            {firebase.auth().currentUser ? (
+              <p
+                onClick={() => {
+                  firebase.auth().signOut();
+                  navigate("/");
+                }}
+                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+              >
+                Logout
+              </p>
+            ) : (
+              <p
+                onClick={() => {
+                  navigate("/login");
+                }}
+                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+              >
+                Login/Signup
+              </p>
+            )}
+            {/* <p
               onClick={() => {
                 // contact.scrollIntoView({ behavior: "smooth" });\
-                if (firebase.auth().currentUser) {
-                  navigate("/home");
-                }
-                else {
-                  navigate('/login');
-                }
+                // if (firebase.auth().currentUser) {
+                //   navigate("/home");
+                // }
+                // else {
+                navigate("/login");
+                // }
               }}
               className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
-            >Login/Signup</p>
+            >
+              Login/Signup
+            </p> */}
             <p
               onClick={() => {
                 navigate("/business");
@@ -211,13 +232,14 @@ function CustomerNavbar() {
           onClick={() => {
             if (firebase.auth().currentUser) {
               navigate("/home");
-            }
-            else {
-              navigate('/login');
+            } else {
+              navigate("/login");
             }
           }}
           className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
-        >Login/Signup</p>
+        >
+          Login/Signup
+        </p>
         <p
           onClick={() => {
             navigate("/business");
@@ -242,4 +264,3 @@ function CustomerNavbar() {
 }
 
 export default CustomerNavbar;
-
