@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { getCollection, getBusiness, Business } from "./FirebaseAPI"; // Firebase Config
-import firebaseConfig from "@/FirebaseConfig";
+
 
 
 const AboutUs: React.FC = () => {
@@ -23,17 +22,22 @@ const AboutUs: React.FC = () => {
 
   return (
     <section id="cs-contact-242" className="py-10 px-5 bg-gray-100 dark:bg-gray-900 mt-10">
+      {/* About Us section ABOVE the form */}
+      <div className="max-w-3xl mx-auto text-center lg:text-left mb-10">
+        <h2 className="text-3xl font-bold">About Us</h2>
+        <p className="mt-4 text-gray-600 dark:text-gray-300">
+          At Can We Cook?, we're passionate about helping the Monash University community discover the best food spots on and around campus. Whether you're looking for a quick bite, hidden gems, or honest reviews from fellow students, we've got you covered. Share your experiences, explore menus, and connect with the vibrant food culture at Monash.
+        </p>
+      </div>
+
       <div className="container mx-auto flex flex-col lg:flex-row gap-10">
-        {/* Left Content */}
-        <div className="flex-1 text-center lg:text-left">
-          <h2 className="text-3xl font-bold">About Us</h2>
-          <p className="mt-4 text-gray-600 dark:text-gray-300">
-            Whether you have questions about our services, need a quote, or are ready to start your next project, our team is here to assist you.
-          </p>
-        </div>
+        {/* Form and other content */}
 
         {/* Contact Form */}
-        <form onSubmit={handleSubmit} className="flex-1 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+        >
           <label className="block mb-4">
             Name
             <input
