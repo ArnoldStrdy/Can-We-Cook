@@ -604,6 +604,24 @@ function CustomerDash() {
               {cuisine}
             </div>
           ))}
+          <input
+            type="text"
+            className="border rounded-full px-4 py-2 w-full"
+            placeholder="Search for a restaurant"
+            onChange={(e) => {
+              setFilteredRestaurants(
+                sampleRestaurants.filter(
+                  (restaurant) =>
+                    restaurant.name
+                      .toLowerCase()
+                      .includes(e.target.value.toLowerCase()) ||
+                    restaurant.cuisine
+                      .toLowerCase()
+                      .includes(e.target.value.toLowerCase())
+                )
+              );
+            }}
+          />
         </div>
 
         <div className="flex flex-col justify-center gap-4 w-full">
