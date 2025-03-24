@@ -8,10 +8,13 @@ import Error from "./pages/Error";
 import CustomerNavbar from "@/components/CustomerNav";
 import LoginPage from "./pages/LoginPage";
 import firebase from "firebase/compat/app";
+import { useLocation } from "react-router-dom";
 const auth = firebase.auth();
 console.log(auth.currentUser);
 function App() {
   const [uid, setUID] = useState<string | null>(null);
+  const location = useLocation(); // Current route location
+
   useEffect(() => {
     if (document.cookie.includes(";uid")) {
       const uid = document.cookie.split(";uid=")[1];
@@ -24,9 +27,13 @@ function App() {
       });
     }
   }, []);
+
+  // Hide navbar only on /business route
+  const hideNavbar = location.pathname === "/business";
+
   return (
     <div>
-      <CustomerNavbar uid={uid} setUID={setUID} />
+      {!hideNavbar && <CustomerNavbar uid={uid} setUID={setUID} />}
       <Routes>
         <Route path="/" element={<CustomerDash />} />
         <Route path="/business" element={<BusinessDash />} />
