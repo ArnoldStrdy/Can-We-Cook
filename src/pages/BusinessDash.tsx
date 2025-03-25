@@ -3,8 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import Ratings from "@/components/ui/ratings";
 import {
   getCollection,
-  getBusiness,
-  Business,
+  // getBusiness,
+  // Business,
   getDocument,
 } from "./FirebaseAPI"; // Firebase Config
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

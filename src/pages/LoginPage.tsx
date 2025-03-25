@@ -44,8 +44,8 @@ const LoginPage: React.FC = () => {
 
         await createCustomer(name, auth.currentUser.uid, avatarUrl);
         console.log("User signed up successfully with avatar:", avatarUrl);
-        document.cookie = 'name=' + name;
-        document.cookie = 'uid=' + auth.currentUser.uid;
+        document.cookie = "name=" + name;
+        document.cookie = "uid=" + auth.currentUser.uid;
         navigate("/");
       } else {
         console.log("No user is currently logged in: Catastrophic Error");
