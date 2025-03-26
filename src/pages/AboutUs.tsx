@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import emailjs from "@emailjs/browser";
-
+import { toast } from "sonner";
 
 const AboutUs: React.FC = () => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -32,7 +32,7 @@ const AboutUs: React.FC = () => {
         .then(
           (result) => {
             console.log("Message successfully sent!", result.text);
-            alert("Message sent successfully!");
+            toast("Message sent successfully!");
             setFormData({
               name: "",
               email: "",
@@ -43,19 +43,26 @@ const AboutUs: React.FC = () => {
           },
           (error) => {
             console.error("Error sending Message:", error.text);
-            alert("Something went wrong. Please try again.");
+            toast("Something went wrong. Please try again.");
           }
         );
     }
   };
 
   return (
-    <section id="cs-contact-242" className="py-10 px-5 bg-gray-100 dark:bg-gray-900 mt-10">
+    <section
+      id="cs-contact-242"
+      className="py-10 px-5 bg-gray-100 dark:bg-gray-900 mt-10"
+    >
       {/* About Us section ABOVE the form */}
       <div className="max-w-3xl mx-auto text-center lg:text-left mb-10">
         <h2 className="text-3xl font-bold">About Us</h2>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-          At Can We Cook?, we're passionate about helping the Monash University community discover the best food spots on and around campus. Whether you're looking for a quick bite, hidden gems, or honest reviews from fellow students, we've got you covered. Share your experiences, explore menus, and connect with the vibrant food culture at Monash.
+          At Can We Cook?, we're passionate about helping the Monash University
+          community discover the best food spots on and around campus. Whether
+          you're looking for a quick bite, hidden gems, or honest reviews from
+          fellow students, we've got you covered. Share your experiences,
+          explore menus, and connect with the vibrant food culture at Monash.
         </p>
       </div>
 
@@ -64,7 +71,7 @@ const AboutUs: React.FC = () => {
 
         {/* Contact Form */}
         <form
-          ref={formRef} 
+          ref={formRef}
           onSubmit={handleSubmit}
           className="w-full max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
         >
@@ -139,11 +146,18 @@ const AboutUs: React.FC = () => {
       <div className="mt-10 flex flex-col items-center text-center">
         <div className="mb-4">
           <h3 className="font-bold">Email</h3>
-          <a href="mailto:whea0002@student.monash.edu" className="text-blue-500">whea0002@student.monash.edu</a>
+          <a
+            href="mailto:whea0002@student.monash.edu"
+            className="text-blue-500"
+          >
+            whea0002@student.monash.edu
+          </a>
         </div>
         <div className="mb-4">
           <h3 className="font-bold">Phone</h3>
-          <a href="tel:0401710315" className="text-blue-500">0401710315</a>
+          <a href="tel:0401710315" className="text-blue-500">
+            0401710315
+          </a>
         </div>
         <div>
           <h3 className="font-bold">Address</h3>
