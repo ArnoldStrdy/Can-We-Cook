@@ -8,6 +8,7 @@ import Error from "./pages/Error";
 import CustomerNavbar from "@/components/CustomerNav";
 import BusinessCreate from "./pages/BusinessCreate";
 import LoginPage from "./pages/LoginPage";
+import UserSettings from "./pages/UserSettings";
 import firebase from "firebase/compat/app";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
@@ -36,10 +37,11 @@ function App() {
   return (
     <div>
       {!hideNavbar && <CustomerNavbar uid={uid} setUID={setUID} />}
-      <Toaster position="top-right"/>
+      <Toaster richColors position="top-right" />
       <Routes>
         <Route path="/" element={<CustomerDash />} />
         <Route path="/business" element={<BusinessDash />} />
+        <Route path="/settings" element={<UserSettings />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/createBusiness" element={<BusinessCreate />} />
         <Route path="/about" element={<AboutUs />} />

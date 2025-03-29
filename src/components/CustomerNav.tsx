@@ -7,6 +7,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import firebase from "firebase/compat/app";
 import { getCustomerFromUID } from "@/pages/FirebaseAPI";
+import { toast } from "sonner";
 
 interface CustomerNavbarProps {
   uid: string | null;
@@ -23,6 +24,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   // const [uid, setUID] = useState<string | null>(null);
   // const uid = firebase.auth().currentUser?.uid;
 
@@ -70,16 +72,24 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     }
   };
 
+  const handleLogout = () => {
+    firebase.auth().signOut();
+    setDropdownOpen(false);
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
+
   return (
     <>
       <nav className="fixed top-0 right-0 left-0 z-40 w-full h-16 bg-neutral-50 bg-opacity-70 backdrop-blur text-gray-800 flex items-center justify-evenly px-4 max-w-sc">
-        <div className="max-w-6xl w-full flex flex-row items-center align-middle justify-between">
+        <div className="max-w-[1527px] w-full flex flex-row items-center align-middle justify-between">
           {/* <div className="flex items-center gap-4"> */}
           <img
             src={Logo}
             className="w-24 cursor-pointer"
             onClick={() => {
               navigate("/top");
+              setDropdownOpen(false);
               // var top = document.getElementById("top");
               // top.scrollIntoView({ behavior: "smooth" });
             }}
@@ -99,6 +109,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <p
               onClick={() => {
                 navigate("/home");
+                setDropdownOpen(false);
                 // var top = document.getElementById("top");
                 // top.scrollIntoView({ behavior: "smooth" });
               }}
@@ -109,6 +120,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <p
               onClick={() => {
                 navigate("/restaurants");
+                setDropdownOpen(false);
                 // var about = document.getElementById("about");
                 // about.scrollIntoView({
                 //   behavior: "smooth",
@@ -121,6 +133,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <p
               onClick={() => {
                 navigate("/map");
+                setDropdownOpen(false);
 
                 // var contact = document.getElementById("contact");
                 // contact.scrollIntoView({ behavior: "smooth" });
@@ -132,6 +145,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <p
               onClick={() => {
                 navigate("/about");
+                setDropdownOpen(false);
                 // var contact = document.getElementById("contact");
                 // contact.scrollIntoView({ behavior: "smooth" });
               }}
@@ -139,7 +153,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             >
               About Us
             </p>
-            {firebase.auth().currentUser ? (
+            {/* {firebase.auth().currentUser ? (
               <div className="flex flex-row items-center gap-4">
                 {profilePic && (
                   <img src={profilePic} className="w-8 h-8 rounded-full" />
@@ -163,31 +177,68 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               >
                 Login/Signup
               </p>
+            )} */}
+            {firebase.auth().currentUser ? (
+              <div className="relative">
+                <div
+                  className="flex flex-row items-center gap-4 cursor-pointer"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  {profilePic && (
+                    <img
+                      src={profilePic}
+                      className="w-8 h-8 rounded-full"
+                      alt="Profile"
+                    />
+                  )}
+                  <p className="font-normal hover:text-[#FF6F00] transition-colors">
+                    Hi, {customerName}
+                  </p>
+                </div>
+
+                {dropdownOpen && (
+                  <div
+                    onMouseLeave={() => setDropdownOpen(false)}
+                    className="absolute right-0 mt-2 w-48 bg-white border border-[#FF6F00] rounded-sm shadow-sm"
+                  >
+                    <p
+                      className="px-4 py-2 cursor-pointer hover:text-[#FF6F00]"
+                      onClick={() => {
+                        navigate("/settings");
+                        setDropdownOpen(false);
+                      }}
+                      // hide when the use clicks on anything else
+                    >
+                      Settings
+                    </p>
+                    <p
+                      className="px-4 py-2 cursor-pointer hover:text-[#FF6F00]"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p
+                onClick={() => navigate("/login")}
+                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+              >
+                Login/Signup
+              </p>
             )}
             {/* <p
               onClick={() => {
-                // contact.scrollIntoView({ behavior: "smooth" });\
-                // if (firebase.auth().currentUser) {
-                //   navigate("/home");
-                // }
-                // else {
-                navigate("/login");
-                // }
-              }}
-              className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
-            >
-              Login/Signup
-            </p> */}
-            <p
-              onClick={() => {
                 navigate("/business");
+                setDropdownOpen(false);
                 // var contact = document.getElementById("contact");
                 // contact.scrollIntoView({ behavior: "smooth" });
               }}
               className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
             >
               Temp go to business
-            </p>
+            </p> */}
           </div>
           <div className="sm:hidden">
             <button

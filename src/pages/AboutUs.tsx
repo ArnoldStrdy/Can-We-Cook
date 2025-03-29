@@ -32,7 +32,7 @@ const AboutUs: React.FC = () => {
         .then(
           (result) => {
             console.log("Message successfully sent!", result.text);
-            toast("Message sent successfully!");
+            toast.success("Message sent successfully!");
             setFormData({
               name: "",
               email: "",
@@ -43,7 +43,7 @@ const AboutUs: React.FC = () => {
           },
           (error) => {
             console.error("Error sending Message:", error.text);
-            toast("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
           }
         );
     }
