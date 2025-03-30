@@ -15,7 +15,7 @@ function BusinessCreate(){
             console.log(user.uid);
             const owner = await getOwnerFromUID(user.uid);
             console.log(owner);
-            setOwnerID("owners/" + owner?.toString());
+            setOwnerID(owner ? firebase.firestore().doc("owners/" + owner.toString()) : null);
         } else {
             console.error("No user is currently logged in");
             redirect("/login");

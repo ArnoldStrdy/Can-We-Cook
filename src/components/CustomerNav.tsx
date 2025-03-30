@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import firebase from "firebase/compat/app";
 import { getCustomerFromUID } from "@/pages/FirebaseAPI";
 import { toast } from "sonner";
+import { useCookies } from "react-cookie";
 
 interface CustomerNavbarProps {
   uid: string | null;
@@ -17,7 +18,7 @@ interface CustomerNavbarProps {
 const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const navigate = useNavigate();
   const url = window.location.href;
-
+  const [cookies, setCookie] = useCookies(["uid", "name"]);
   // useEffect(() => {
   //   console.log(section);
   //   console.log(url);
@@ -30,6 +31,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   // check if user is logged in
   useEffect(() => {
+    setUID(cookies.uid);
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         setUID(user.uid);

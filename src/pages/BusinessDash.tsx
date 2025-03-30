@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Ratings from "@/components/ui/ratings";
-import {
-  getCollection,
-  // getBusiness,
-  // Business,
-  getDocument,
-} from "./FirebaseAPI"; // Firebase Config
+import { Business } from "@/pages/WrapperObjects"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -19,6 +14,8 @@ import {
 import { firebaseConfig } from "@/FirebaseConfig";
 
 import imgUrl from "../assets/logoIcon.png";
+import { useCookies } from "react-cookie";
+import firebase from "firebase/compat/app";
 const sampleR = [
   {
     name: "Savor & Sip",
@@ -102,8 +99,30 @@ type Review = {
 
 function BusinessDash() {
   const [currentPage, setCurrentPage] = useState("home");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [cookies, setCookie] = useCookies(["uid", "name"]); // Initialize react-cookie
+  const auth = firebase.auth();
+  const persistance = firebase.auth.Auth.Persistence.SESSION;
   console.log("Business Dashboard");
-
+  const handleLogin = async () => {
+        try {
+            await auth.setPersistence(persistance);
+            await auth.signInWithEmailAndPassword(email, password);
+            console.log("User logged in successfully");
+            if (auth.currentUser) {
+                setCookie("uid", auth.currentUser.uid, { path: "/" }); // Set uid cookie
+                console.log(auth.currentUser.uid);
+            } else {
+                console.log("No user is currently logged in");
+            }
+        } catch (error) {
+            setError((error as any).message);
+            console.error("Error logging in: ", error);
+        }
+    };
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-black">
       {/* Sidebar */}
@@ -153,7 +172,7 @@ function BusinessDash() {
             </button>
           </li>
           <li>
-            <button className="w-full text-left text-gray-700 dark:text-gray-200 hover:underline">
+            <button className="w-full text-left text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setCurrentPage("login")}>
               LogOut
             </button>
           </li>
@@ -248,6 +267,29 @@ function BusinessDash() {
             Update Pictures
           </h1>
         )}
+        {currentPage === "login" && (
+          <><h1 className="text-3xl font-semibold text-gray-900 dark:text-white mt-10">
+            Login
+          </h1><div className="bg-white dark:bg-black flex flex-col items-center justify-center mt-20">
+              <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)} />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)} />
+              <button onClick={isLogin ? handleLogin : () => console.log('Sign Up functionality not implemented yet')}>
+                {isLogin ? 'Login' : 'Sign Up'}
+              </button>
+              {error && <p>{error}</p>}
+              <button onClick={() => setIsLogin(!isLogin)}>
+                {isLogin ? 'Switch to Sign Up' : 'Switch to Login'}
+              </button>
+            </div></>)}
       </div>
     </div>
   );
