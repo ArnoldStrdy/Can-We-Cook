@@ -53,7 +53,7 @@ function App() {
     <div>
   
       {!hideNavbar && <CustomerNavbar uid={uid} setUID={setUID} />}
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="bottom-right" />
       <Routes>
         <Route path="/" element={<CustomerDash />} />
         <Route path="/business" element={<BusinessDash />} />
