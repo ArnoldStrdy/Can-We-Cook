@@ -22,6 +22,8 @@ import { useCookies } from "react-cookie";
 import firebase from "firebase/compat/app";
 
 import { useNavigate } from "react-router-dom";
+import { Bus } from "lucide-react";
+
 
 type Review = {
   reviewer: string;
@@ -77,6 +79,7 @@ const dummyMenu = [
   { name: "Chocolate Lava Cake", price: "7.50" },
 ];
 
+const dummyBusiness = new Business();
 const dummyPictures = [imgUrl, imgUrl];
 
 function BusinessDash() {

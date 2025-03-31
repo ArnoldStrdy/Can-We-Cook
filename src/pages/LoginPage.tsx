@@ -203,7 +203,7 @@ const LoginPage: React.FC = () => {
               <p className="text-base text-body-color dark:text-dark-6 mb-2">
                 <span className="pr-0.5">Restaurant Owner?</span>
                 <span
-                  onClick={() => navigate("/business")}
+                  onClick={() => navigate("/loginBusiness")}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
                 >
                   Login here
