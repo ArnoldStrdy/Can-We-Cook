@@ -1,6 +1,7 @@
 
 import { addDocument, app, getCollection, getDocument, updateDocument } from "./FirebaseAPI"
-import { firestore } from "./FirebaseAPI"
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { firestore, DocumentData } from "./FirebaseAPI"
 
 class menuItem {
     businessID: string;
@@ -119,26 +120,9 @@ class Business{
     constructor(
         businessData?: businessData | string
     ) {
-        if (typeof businessData === "string") {
-            getDocument(this.collection, businessData).then((doc) => {
-                if (doc.exists) {
-                    this.businessName = doc.data().businessName;
-                    this.businessAddress = doc.data().businessAddress;
-                    this.ownerID = doc.data().ownerID;
-                    this.menu = doc.data().menu.map((item: menuItem) => new menuItem(item.itemName, item.itemID, item.itemPrice, item.itemImage, doc.id));
-                    this.businessDescription = doc.data().businessDescription;
-                    this.businessLogo = doc.data().businessLogo;
-                    this.cuisineType = doc.data().cuisineType;
-                    this.businessPictures = doc.data().businessPictures;
-                    this.businessID = doc.id;
-                    this.businessCertifications = doc.data().businessCertifications;
-                    this.businessLocation = doc.data().businessLocation;
-                    this.weeklyAggregatedReviews = doc.data().weeklyAggregatedReviews;
-                    this.weeklyAggregatedScore = doc.data().weeklyAggregatedScore;
-                }
-            });
+        if (typeof businessData == "string") {
+            this.initBusiness(businessData); 
         }
-        
         if (typeof businessData !== "string" && businessData !== undefined) {
             this.businessName = businessData.businessName || "";
             this.businessAddress = businessData.businessAddress || "";
@@ -168,7 +152,38 @@ class Business{
             this.weeklyAggregatedReviews = 0;
             this.weeklyAggregatedScore = 0;
         }
-        
+    }
+    async initBusiness(businessID: string | undefined) {
+        if (businessID === undefined) {
+            console.error("Business ID is undefined");
+            return;
+        }
+        const doc = await getDocument(this.collection, businessID)
+            if (!doc) {
+                console.error("Document not found");
+                return;
+            }
+            if (doc) {
+                //console.log(doc.data)
+                this.businessName = doc.data.businessName;
+                this.businessAddress = doc.data.businessAddress;
+                this.ownerID = doc.data.ownerID;
+                this.menu = doc.data.menu.map((item: any) => {
+                    return new menuItem(item.itemName, item.itemID, item.itemPrice, item.itemImage, doc.id);
+                });
+                this.businessDescription = doc.data.businessDescription;
+                this.businessLogo = doc.data.businessLogo;
+                this.cuisineType = doc.data.cuisineType;
+                this.businessPictures = doc.data.businessPictures;
+                this.businessID = doc.id;
+                this.businessCertifications = doc.data.businessCertifications;
+                this.businessLocation = doc.data.businessLocation;
+                this.weeklyAggregatedReviews = doc.data.weeklyAggregatedReviews;
+                this.weeklyAggregatedScore = doc.data.weeklyAggregatedScore;
+            }
+        console.log(this);
+        //console.log("Business ID: " + businessData);
+        return;
     }
     createBusiness() {
         if (this.businessID !== undefined) {
@@ -272,15 +287,23 @@ class Business{
         });
     }
     getAllReviews() {
+        console.log("Business ID: " + this.businessID);
         if (this.businessID === undefined) {
             console.error("Business ID is undefined");
             return;
         }
         const data: Array<Review> = [];
-        firestore.collection("reviews").where("businessID", "==", this.businessID).get().then((querySnapshot) => {
+        const docRef = firestore.collection(this.collection).doc(this.businessID)
+        firestore.collection("reviews").where("businessID", "==", docRef).get().then((querySnapshot) => {  
             querySnapshot.forEach((doc) => {
-                data.push(new Review(doc.id, doc.data().customerID, doc.data().businessID, doc.data().dateTime, doc.data().reviewText, doc.data().verified, doc.data().rating));
+                const reviewData = doc.data();
+                reviewData.customerID.get().then((customerDoc: { data: () => any; }) => {
+                    console.log('XX',customerDoc.data());
+                });
+                const review = new Review(doc.id, reviewData.customerID, reviewData.businessID, reviewData.dateTime.toDate(), reviewData.reviewText, reviewData.verified, reviewData.rating);
+                data.push(review);
             });
+            console.log(data);
         });
         return data;
     }
@@ -294,7 +317,7 @@ class Customer{
 class Review{
     collection: string = "reviews";
     reviewID: string;
-    customerID: string;
+    customerID: string ;
     businessID: string;
     dateTime: Date;
     reviewText: string;
@@ -338,4 +361,5 @@ class Owner{
 }
 export { Business, menuItem, Customer, Review, Owner };
 export type { businessData };
+
 

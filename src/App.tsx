@@ -12,30 +12,46 @@ import UserSettings from "./pages/UserSettings";
 import firebase from "firebase/compat/app";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
+import { CookiesProvider, useCookies } from "react-cookie";
+import { getCustomerFromUID } from "./pages/FirebaseAPI";
+
 const auth = firebase.auth();
 console.log(auth.currentUser);
+
 function App() {
   const [uid, setUID] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
+  const [cookies, setCookie] = useCookies(["uid", "name"]); // Use react-cookie to access cookies
   const location = useLocation(); // Current route location
 
   useEffect(() => {
-    if (document.cookie.includes(";uid")) {
-      const uid = document.cookie.split(";uid=")[1];
-      setUID(uid);
+    if (cookies.uid) {
+      setUID(cookies.uid);
+      setName(cookies.name);
     } else {
       firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
         if (user) {
           setUID(user.uid);
+          getCustomerFromUID(user.uid).then((customer) => {
+            if (customer) {
+              setName(customer.name);
+              setCookie("uid", user.uid, { path: "/" }); // Set uid cookie
+              setCookie("name", customer.name, { path: "/" }); // Set name cookie
+            } else {
+              console.log("No customer data found for this UID.");
+            }
+          });
         }
       });
     }
-  }, []);
+  }, [cookies.uid]);
 
   // Hide navbar only on /business route
   const hideNavbar = location.pathname === "/business";
 
   return (
     <div>
+  
       {!hideNavbar && <CustomerNavbar uid={uid} setUID={setUID} />}
       <Toaster richColors position="top-right" />
       <Routes>

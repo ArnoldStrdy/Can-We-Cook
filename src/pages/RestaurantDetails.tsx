@@ -25,7 +25,7 @@ import RatingSelect from "@/components/ui/ratingSelect";
 import { Textarea } from "@/components/ui/textarea";
 import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCollection, getCustomerFromUID } from "./FirebaseAPI";
+import { firestore, getCollection, getCustomerFromUID, getDocument } from "./FirebaseAPI";
 import { Review, Business } from "./WrapperObjects";
 
 const reviews = [
@@ -112,8 +112,27 @@ type ReviewType = {
 
 function RestaurantDetails() {
   const id = useParams().id;
-  const business = new Business(id); // Getting Business object from id then just grab data needed from it
-  const reviews = business.getAllReviews();
+  const business = new Business(); // Getting Business object from id then just grab data needed from it
+  const [reviews, setReviews] = useState<Review[]>([]);
+  useEffect(() => {
+    const fetchBusinessAndReviews = async () => {
+      if (!id) {
+        console.error("No business ID provided");
+        return;
+      }
+  
+      await business.initBusiness(id); // Initialize the business object
+      console.log("Business initialized:", business);
+  
+      const allReviews = await business.getAllReviews(); // Fetch reviews asynchronously
+      console.log("Fetched Reviews:", allReviews);
+  
+      setReviews(allReviews ?? []); // Update the reviews state with a fallback
+    };
+  
+    fetchBusinessAndReviews();
+  }, [id]);
+  
   const menu = business.menu;
   const pictures = business.businessPictures;
   const auth = firebase.auth();
@@ -274,7 +293,7 @@ function RestaurantDetails() {
           <TabsTrigger value="map">Map</TabsTrigger>
         </TabsList>
         <TabsContent value="reviews" className="px-4 mb-4">
-          <ReviewsTabContent />
+          <ReviewsTabContent reviews={reviews} />
         </TabsContent>
         <TabsContent value="menu" className="px-4">
           <MenuTabContent />
@@ -294,38 +313,59 @@ function RestaurantDetails() {
             <small>
               <a href="https://www.mazemap.com/">Map by MazeMap</a>
             </small>
-          </div>
+          </div>                    
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-const ReviewsTabContent = () => (
-  <div className="mt-4 space-y-6 ">
-    {reviews.map((review, index) => (
+const ReviewsTabContent = ({ reviews }: { reviews: Array<Review> }) => {
+  console.log("Reviews: ", reviews);
+  const [names, setNames] = useState<string[] | null>(null);
+  useEffect(() => {
+    const fetchNames = async () => {
+      const fetchedNames = await Promise.all(
+        reviews.map(async (review) => {
+          if (review.anonymous) return "Anonymous";
+          review.customerID
+          const profile = await review.customerID.get();
+          console.log("Profile: ", profile.id);
+          return profile.data()?.name ?? "FallBack"; // fallback if undefined
+        })
+      );
+      setNames(fetchedNames);
+    };
+
+    fetchNames();
+  }, [reviews]);
+
+  return (<div className="mt-4 space-y-6 reviews">
+    {reviews.map((review, index) => {
+      console.log("[XX]Review: ", review);
+      return (
       <Card key={index}>
         <CardContent className="text-lg space-y-2">
           <div className="flex">
             <div className="flex-3/5 font-bold flex">
-              {review.reviewer}{" "}
+              {names?.[index] || "Loading..."}{" "}
               {review.verified && <Verified color="#4ECB71" className="ml-2" />}
             </div>
             <div className=" flex flex-2/5">
               <div className="flex ml-auto space-x-6">
-                <div className="text-gray-600 text-right">{review.date}</div>
+                <div className="text-gray-600 text-right">{review.dateTime.toLocaleDateString()}</div>
                 <div className="">
                   <Ratings stars={review.rating} />
                 </div>
-              </div>
+              </div>     
             </div>
           </div>
-          <div>{review.review}</div>
+          <div>{review.reviewText}</div>
         </CardContent>
       </Card>
-    ))}
-  </div>
-);
+    )})}
+  </div>);
+};
 
 const MenuTabContent = () => (
   <Table className="mt-4">
