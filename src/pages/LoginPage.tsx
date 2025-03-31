@@ -1,78 +1,422 @@
-import React, { useState } from 'react';
-import 'firebase/compat/auth';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import { createCustomer } from './FirebaseAPI';
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "firebase/compat/auth";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import { createCustomer } from "./FirebaseAPI";
+import Logo from "../assets/logoNameIcon.png";
+import { AuthErrorCodes } from "firebase/auth";
+import { toast } from "sonner";
 
 const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [isLogin, setIsLogin] = useState(true);
-    const [cookies, setCookie] = useCookies(["uid", "name"]); // Initialize react-cookie
-    const auth = firebase.auth();
-    const persistance = firebase.auth.Auth.Persistence.SESSION;
-    console.log("Auth: ", auth.currentUser);
-    const handleLogin = async () => {
-        try {
-            await auth.setPersistence(persistance);
-            await auth.signInWithEmailAndPassword(email, password);
-            console.log("User logged in successfully");
-            if (auth.currentUser) {
-                setCookie("uid", auth.currentUser.uid, { path: "/" }); // Set uid cookie
-                console.log(auth.currentUser.uid);
-            } else {
-                console.log("No user is currently logged in");
-            }
-        } catch (error) {
-            setError((error as any).message);
-            console.error("Error logging in: ", error);
-        }
-    };
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+  const auth = firebase.auth();
+  const persistance = firebase.auth.Auth.Persistence.LOCAL;
+  console.log("Auth: ", auth.currentUser);
 
-    const handleSignup = async () => {
-        try {
-            await auth.createUserWithEmailAndPassword(email, password);
-            await auth.setPersistence(persistance);
-            if (auth.currentUser){
-                createCustomer(email, auth.currentUser?.uid);
-                setCookie("uid", auth.currentUser.uid, { path: "/" }); // Set uid cookie
-            }
-            else {
-                console.log("No user is currently logged in: Catostrophic Error");
-            }
-            console.log("User signed up successfully");
-        } catch (error) {
-            setError((error as any).message);
-            console.error("Error signing up: ", error);
-        }
-    };
+  const handleLogin = async () => {
+    try {
+      await auth.setPersistence(persistance);
+      await auth.signInWithEmailAndPassword(email, password);
+      console.log("User logged in successfully");
+      toast.success("User logged in successfully");
+      if (auth.currentUser) {
+        console.log(auth.currentUser.uid);
+        navigate("/");
+      } else {
+        console.log("No user is currently logged in");
+      }
+    } catch (error: any) {
+      let errorMessage = "An unexpected error occurred. Please try again.";
 
-    return (
-        <div className="bg-white dark:bg-black flex flex-col items-center justify-center mt-20">
-            <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button onClick={isLogin ? handleLogin : handleSignup}>
-                {isLogin ? 'Login' : 'Sign Up'}
-            </button>
-            {error && <p>{error}</p>}
-            <button onClick={() => setIsLogin(!isLogin)}>
-                {isLogin ? 'Switch to Sign Up' : 'Switch to Login'}
-            </button>
+      switch (error.code) {
+        case AuthErrorCodes.INVALID_EMAIL:
+          errorMessage = "Invalid email format.";
+          break;
+        case AuthErrorCodes.USER_DELETED:
+          errorMessage = "No account found with this email.";
+          break;
+        case AuthErrorCodes.INVALID_PASSWORD:
+          errorMessage = "Incorrect password. Please try again.";
+          break;
+        case AuthErrorCodes.TOO_MANY_ATTEMPTS_TRY_LATER:
+          errorMessage =
+            "Too many failed attempts. Please wait a while before trying again.";
+          break;
+        case AuthErrorCodes.USER_DISABLED:
+          errorMessage = "This account has been disabled.";
+          break;
+        case AuthErrorCodes.NETWORK_REQUEST_FAILED:
+          errorMessage = "Network error. Check your internet connection.";
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
+
+      setError(errorMessage);
+      console.error("Error logging in: ", error);
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleSignup = async () => {
+    try {
+      await auth.createUserWithEmailAndPassword(email, password);
+      await auth.setPersistence(persistance);
+
+      if (auth.currentUser) {
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          name
+        )}&background=random&color=fff&rounded=true`;
+
+        await createCustomer(name, auth.currentUser.uid, avatarUrl);
+        console.log("User signed up successfully with avatar:", avatarUrl);
+        document.cookie = "name=" + name;
+        document.cookie = "uid=" + auth.currentUser.uid;
+        toast.success("User signed up successfully");
+        navigate("/");
+      } else {
+        console.log("No user is currently logged in: Catastrophic Error");
+      }
+    } catch (error: any) {
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      switch (error.code) {
+        case AuthErrorCodes.INVALID_EMAIL:
+          errorMessage = "Invalid email format.";
+          break;
+        case AuthErrorCodes.EMAIL_EXISTS:
+          errorMessage = "An account with this email already exists.";
+          break;
+        case AuthErrorCodes.WEAK_PASSWORD:
+          errorMessage =
+            "Password is too weak. Please choose a stronger password.";
+          break;
+        case AuthErrorCodes.OPERATION_NOT_ALLOWED:
+          errorMessage = "Email/password accounts are not enabled.";
+          break;
+        case AuthErrorCodes.TOO_MANY_ATTEMPTS_TRY_LATER:
+          errorMessage =
+            "Too many failed attempts. Please wait a while before trying again.";
+          break;
+        case AuthErrorCodes.NETWORK_REQUEST_FAILED:
+          errorMessage = "Network error. Check your internet connection.";
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
+      setError(errorMessage);
+      toast.error(errorMessage);
+      setError((error as any).message);
+      console.error("Error signing up: ", error);
+    }
+  };
+
+  return (
+    <section className="bg-gray-1 py-20 dark:bg-dark lg:py-[120px]">
+      <div className="container mx-auto">
+        <div className="-mx-4 flex flex-wrap">
+          <div className="w-full px-4">
+            <div className="relative mx-auto max-w-[525px] overflow-hidden rounded-lg bg-white px-10 py-16 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]">
+              <div className="mb-10 text-center md:mb-10">
+                <a href="/" className="mx-auto inline-block max-w-[160px]">
+                  <img src={Logo} alt="logo" />
+                </a>
+              </div>
+              <form>
+                {!isLogin && (
+                  <div className="mb-6">
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      name="Name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+                    />
+                  </div>
+                )}
+                <div className="mb-6">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+                  />
+                </div>
+                <div className="mb-6">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+                  />
+                </div>
+                <div className="mb-10">
+                  <button
+                    onClick={isLogin ? handleLogin : handleSignup}
+                    type="button"
+                    className="w-full cursor-pointer rounded-md border border-primary bg-[#554971] px-5 py-3 text-base font-medium text-white transition hover:bg-opacity-90"
+                  >
+                    {isLogin ? "Login" : "Sign Up"}
+                  </button>
+                </div>
+              </form>
+              <p className="text-base text-body-color dark:text-dark-6 mb-2">
+                <span className="pr-0.5">Restaurant Owner?</span>
+                <span
+                  onClick={() => navigate("/business")}
+                  className="text-[#FF6F00] hover:underline hover:cursor-pointer"
+                >
+                  Login here
+                </span>
+              </p>
+              <p className="text-base text-body-color dark:text-dark-6">
+                <span className="pr-0.5">
+                  {isLogin ? "Not a member yet?" : "Already a member?"}
+                </span>
+                <span
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                  }}
+                  className="text-[#FF6F00] hover:underline hover:cursor-pointer"
+                >
+                  {isLogin ? "Sign Up" : "Login"}
+                </span>
+              </p>
+
+              <div>
+                <span className="absolute right-1 top-1">
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 40 40"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="1.39737"
+                      cy="38.6026"
+                      r="1.39737"
+                      transform="rotate(-90 1.39737 38.6026)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="1.39737"
+                      cy="1.99122"
+                      r="1.39737"
+                      transform="rotate(-90 1.39737 1.99122)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="13.6943"
+                      cy="38.6026"
+                      r="1.39737"
+                      transform="rotate(-90 13.6943 38.6026)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="13.6943"
+                      cy="1.99122"
+                      r="1.39737"
+                      transform="rotate(-90 13.6943 1.99122)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="25.9911"
+                      cy="38.6026"
+                      r="1.39737"
+                      transform="rotate(-90 25.9911 38.6026)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="25.9911"
+                      cy="1.99122"
+                      r="1.39737"
+                      transform="rotate(-90 25.9911 1.99122)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="38.288"
+                      cy="38.6026"
+                      r="1.39737"
+                      transform="rotate(-90 38.288 38.6026)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="38.288"
+                      cy="1.99122"
+                      r="1.39737"
+                      transform="rotate(-90 38.288 1.99122)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="1.39737"
+                      cy="26.3057"
+                      r="1.39737"
+                      transform="rotate(-90 1.39737 26.3057)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="13.6943"
+                      cy="26.3057"
+                      r="1.39737"
+                      transform="rotate(-90 13.6943 26.3057)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="25.9911"
+                      cy="26.3057"
+                      r="1.39737"
+                      transform="rotate(-90 25.9911 26.3057)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="38.288"
+                      cy="26.3057"
+                      r="1.39737"
+                      transform="rotate(-90 38.288 26.3057)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="1.39737"
+                      cy="14.0086"
+                      r="1.39737"
+                      transform="rotate(-90 1.39737 14.0086)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="13.6943"
+                      cy="14.0086"
+                      r="1.39737"
+                      transform="rotate(-90 13.6943 14.0086)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="25.9911"
+                      cy="14.0086"
+                      r="1.39737"
+                      transform="rotate(-90 25.9911 14.0086)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="38.288"
+                      cy="14.0086"
+                      r="1.39737"
+                      transform="rotate(-90 38.288 14.0086)"
+                      fill="#554971"
+                    />
+                  </svg>
+                </span>
+                <span className="absolute bottom-1 left-1">
+                  <svg
+                    width="29"
+                    height="40"
+                    viewBox="0 0 29 40"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="2.288"
+                      cy="25.9912"
+                      r="1.39737"
+                      transform="rotate(-90 2.288 25.9912)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="14.5849"
+                      cy="25.9911"
+                      r="1.39737"
+                      transform="rotate(-90 14.5849 25.9911)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="26.7216"
+                      cy="25.9911"
+                      r="1.39737"
+                      transform="rotate(-90 26.7216 25.9911)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="2.288"
+                      cy="13.6944"
+                      r="1.39737"
+                      transform="rotate(-90 2.288 13.6944)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="14.5849"
+                      cy="13.6943"
+                      r="1.39737"
+                      transform="rotate(-90 14.5849 13.6943)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="26.7216"
+                      cy="13.6943"
+                      r="1.39737"
+                      transform="rotate(-90 26.7216 13.6943)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="2.288"
+                      cy="38.0087"
+                      r="1.39737"
+                      transform="rotate(-90 2.288 38.0087)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="2.288"
+                      cy="1.39739"
+                      r="1.39737"
+                      transform="rotate(-90 2.288 1.39739)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="14.5849"
+                      cy="38.0089"
+                      r="1.39737"
+                      transform="rotate(-90 14.5849 38.0089)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="26.7216"
+                      cy="38.0089"
+                      r="1.39737"
+                      transform="rotate(-90 26.7216 38.0089)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="14.5849"
+                      cy="1.39761"
+                      r="1.39737"
+                      transform="rotate(-90 14.5849 1.39761)"
+                      fill="#554971"
+                    />
+                    <circle
+                      cx="26.7216"
+                      cy="1.39761"
+                      r="1.39737"
+                      transform="rotate(-90 26.7216 1.39761)"
+                      fill="#554971"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 };
 
 export default LoginPage;
