@@ -21,6 +21,8 @@ import imgUrl from "../assets/logoIcon.png";
 import { useCookies } from "react-cookie";
 import firebase from "firebase/compat/app";
 
+import { useNavigate } from "react-router-dom";
+
 type Review = {
   reviewer: string;
   verified: boolean;
@@ -90,6 +92,7 @@ function BusinessDash() {
   const [pictures, setPictures] = useState(dummyPictures);
   const [reviews] = useState(dummyReviews);
 
+  const navigate = useNavigate();
   const handleUpload = async (file: File) => {
     alert(`Pretend uploading: ${file.name}`);
     const newUrl = URL.createObjectURL(file);
@@ -392,7 +395,7 @@ function BusinessDash() {
         className="bg-green-600 text-white px-4 py-2 rounded"
         onClick={() => {
           alert("Logged out!");
-          setCurrentPage("home"); // or redirect to login page
+          navigate("/login"); 
         }}
       >
         ✔ Confirm
