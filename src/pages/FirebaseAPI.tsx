@@ -26,17 +26,20 @@ async function addDocument(collectionName: string, data: any): Promise<string> {
     return "";
   }
 }
-
+interface DocumentData {
+  id: string;
+  data: firebase.firestore.DocumentData;
+}
 async function getDocument(
   collectionName: string,
   docId: string
-): Promise<firebase.firestore.DocumentData | undefined> {
+): Promise<DocumentData | undefined> {
   try {
     const doc = await firestore.collection(collectionName).doc(docId).get();
     console.log("Document data:", doc.data());
     if (doc.exists) {
       console.log("Document data:", doc.data());
-      return doc.data();
+      return { id: doc.id, data: doc.data() } as DocumentData;
     } else {
       console.log("No such document!");
     }
@@ -171,3 +174,4 @@ export {
   addRestaurantName,
   createCustomer,
 };
+export type { DocumentData };
