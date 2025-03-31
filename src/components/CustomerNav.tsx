@@ -202,7 +202,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                     className="absolute right-0 mt-2 w-48 bg-white border border-[#FF6F00] rounded-sm shadow-sm"
                   >
                     <p
-                      className="px-4 py-2 cursor-pointer hover:text-[#FF6F00]"
+                      className="px-4 py-2 hover:cursor-pointer hover:text-[#FF6F00]"
                       onClick={() => {
                         navigate("/settings");
                         setDropdownOpen(false);
@@ -212,7 +212,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                       Settings
                     </p>
                     <p
-                      className="px-4 py-2 cursor-pointer hover:text-[#FF6F00]"
+                      className="px-4 py-2 hover:cursor-pointer hover:text-[#FF6F00]"
                       onClick={handleLogout}
                     >
                       Logout

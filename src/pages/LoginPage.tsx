@@ -6,7 +6,9 @@ import "firebase/compat/auth";
 import { createCustomer } from "./FirebaseAPI";
 import Logo from "../assets/logoNameIcon.png";
 import { AuthErrorCodes } from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { toast } from "sonner";
+import { stat } from "fs";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +17,8 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [status, setStatus] = useState("Login");
+  const [message, setMessage] = useState("");
   const auth = firebase.auth();
   const persistance = firebase.auth.Auth.Persistence.LOCAL;
   console.log("Auth: ", auth.currentUser);
@@ -116,6 +120,17 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage("Password reset email sent! Check your inbox.");
+      setError("");
+    } catch (err: any) {
+      setError("Error resetting password: " + err.message);
+      setMessage("");
+    }
+  };
+
   return (
     <section className="bg-gray-1 py-20 dark:bg-dark lg:py-[120px]">
       <div className="container mx-auto">
@@ -128,7 +143,7 @@ const LoginPage: React.FC = () => {
                 </a>
               </div>
               <form>
-                {!isLogin && (
+                {status === "Signup" && (
                   <div className="mb-6">
                     <input
                       type="text"
@@ -150,6 +165,7 @@ const LoginPage: React.FC = () => {
                     className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
                   />
                 </div>
+                { status !== "Reset" && (
                 <div className="mb-6">
                   <input
                     type="password"
@@ -160,13 +176,27 @@ const LoginPage: React.FC = () => {
                     className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
                   />
                 </div>
+                )}
                 <div className="mb-10">
                   <button
-                    onClick={isLogin ? handleLogin : handleSignup}
+                    onClick={() => {
+                      if (status === "Login") {
+                        handleLogin();
+                      } else if (status === "Signup") {
+                        handleSignup();
+                      } else if (status === "Reset") {
+                        handleResetPassword();
+                        toast.success("Password reset email sent!");
+                      }
+                    }}
                     type="button"
                     className="w-full cursor-pointer rounded-md border border-primary bg-[#554971] px-5 py-3 text-base font-medium text-white transition hover:bg-opacity-90"
                   >
-                    {isLogin ? "Login" : "Sign Up"}
+                    {status === "Login"
+                      ? "Login"
+                      : status === "Signup"
+                      ? "Sign Up"
+                      : "Send Reset Link"}
                   </button>
                 </div>
               </form>
@@ -179,17 +209,39 @@ const LoginPage: React.FC = () => {
                   Login here
                 </span>
               </p>
-              <p className="text-base text-body-color dark:text-dark-6">
-                <span className="pr-0.5">
-                  {isLogin ? "Not a member yet?" : "Already a member?"}
-                </span>
+              <p className="text-base text-body-color dark:text-dark-6 mb-2">
+                <span className="pr-0.5">Forgot your password?</span>
                 <span
                   onClick={() => {
-                    setIsLogin(!isLogin);
+                    setStatus("Reset");
+                    
                   }}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
                 >
-                  {isLogin ? "Sign Up" : "Login"}
+                  Reset it
+                </span>
+              </p>
+              <p className="text-base text-body-color dark:text-dark-6 mb-2">
+                <span className="pr-0.5">
+                  {status === "Login"
+                    ? "Don't have an account?"
+                    : "Already have an account?"}
+                </span>
+                <span
+                  onClick={() => {
+                    if (status === "Login") {
+                      setStatus("Signup");
+                    } else {
+                      setStatus("Login");
+                    }
+                  }}
+                  className="text-[#FF6F00] hover:underline hover:cursor-pointer"
+                >
+                  {
+                    status === "Login"
+                      ? "Sign Up"
+                      : "Log In"
+                  }
                 </span>
               </p>
 
