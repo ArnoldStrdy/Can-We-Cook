@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "firebase/compat/auth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
-import { createCustomer } from "./FirebaseAPI";
+import { createOwner } from "./FirebaseAPI";
 import Logo from "../assets/logoNameIcon.png";
 import { AuthErrorCodes } from "firebase/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -31,7 +31,7 @@ const LoginPageBusiness: React.FC = () => {
       toast.success("User logged in successfully");
       if (auth.currentUser) {
         console.log(auth.currentUser.uid);
-        navigate("/");
+        navigate("/business");
       } else {
         console.log("No user is currently logged in");
       }
@@ -78,12 +78,12 @@ const LoginPageBusiness: React.FC = () => {
           name
         )}&background=random&color=fff&rounded=true`;
 
-        await createCustomer(name, auth.currentUser.uid, avatarUrl);
+        await createOwner(name, auth.currentUser.uid, avatarUrl);
         console.log("User signed up successfully with avatar:", avatarUrl);
         document.cookie = "name=" + name;
         document.cookie = "uid=" + auth.currentUser.uid;
         toast.success("User signed up successfully");
-        navigate("/");
+        navigate("/business");
       } else {
         console.log("No user is currently logged in: Catastrophic Error");
       }

@@ -162,6 +162,23 @@ const createCustomer = async (
   }
 };
 
+const createOwner = async (
+  name: string,
+  uid: string,
+  profilePic: string
+) => {
+  try {
+    await firestore.collection("owners").doc().set({
+      name: name,
+      uid: uid,
+      ProfilePic: profilePic,
+    });
+    console.log("Owners successfully created!");
+  } catch (error) {
+    console.error("Error creating owner: ", error);
+  }
+};
+
 export {
   firestore,
   app,
@@ -173,5 +190,6 @@ export {
   getOwnerFromUID,
   addRestaurantName,
   createCustomer,
+  createOwner
 };
 export type { DocumentData };
