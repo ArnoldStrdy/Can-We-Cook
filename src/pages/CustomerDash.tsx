@@ -10,7 +10,7 @@ const sampleTopRestaurants = [
     name: "Savor & Sip",
     logo: imgUrl,
     rating: 4,
-    id: 2311,
+    id: "odCe5cYwH8M3oHTcYmav",
   },
   {
     name: "The Green House",

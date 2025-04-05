@@ -114,6 +114,7 @@ function RestaurantDetails() {
   const id = useParams().id;
   const business = new Business(); // Getting Business object from id then just grab data needed from it
   const [reviews, setReviews] = useState<Review[]>([]);
+
   useEffect(() => {
     const fetchBusinessAndReviews = async () => {
       if (!id) {
@@ -126,12 +127,23 @@ function RestaurantDetails() {
   
       const allReviews = await business.getAllReviews(); // Fetch reviews asynchronously
       console.log("Fetched Reviews:", allReviews);
-  
-      setReviews(allReviews ?? []); // Update the reviews state with a fallback
+
+      // Check if allReviews is null or undefined
+      if (allReviews === null || allReviews === undefined) {
+        console.error("No reviews found for this business");
+        return;
+      }
+      // Check if allReviews is an array
+      if (!Array.isArray(allReviews)) {
+        console.error("Fetched reviews is not an array");
+        return;
+      }
+      // If all checks pass, set the reviews state  
+      setReviews(allReviews);
     };
   
     fetchBusinessAndReviews();
-  }, [id]);
+  }, []);
   
   const menu = business.menu;
   const pictures = business.businessPictures;
