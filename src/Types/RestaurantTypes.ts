@@ -8,6 +8,13 @@ export type TReview = {
   verified: boolean;
 }
 
+export type TMenu = {
+  itemId: string;
+  itemImage: string;
+  itemName: string;
+  itemPrice: number;
+}
+
 export type TCustomer = {
   name: string
 }

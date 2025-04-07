@@ -1,5 +1,5 @@
 import { db } from "@/FirebaseConfig";
-import { TCustomer, TReview } from "@/Types/RestaurantTypes";
+import { TCustomer, TMenu, TReview } from "@/Types/RestaurantTypes";
 import { collection, doc, DocumentReference, getDoc, getDocs, query, where } from "firebase/firestore";
 
 export const getReviewByBusinessId = async (businessId: string): Promise<TReview[]> => {
@@ -42,4 +42,23 @@ export const getReviewByBusinessId = async (businessId: string): Promise<TReview
       console.error("Error fetching reviews:", error);
       return []
     }
+  }
+
+  export const getMenuByBusinessId = async(businessId: string): Promise<TMenu[]> => {
+    try {
+      const docRef = doc(db, "businesses", businessId);
+      
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        console.log(data.menu)
+        return data.menu
+      } else {
+        console.log("No such document!");
+      }
+    } catch (error) {
+      console.error("Error getting document:", error);
+    }
+    return []
   }

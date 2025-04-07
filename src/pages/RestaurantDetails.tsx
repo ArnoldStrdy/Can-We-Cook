@@ -27,8 +27,8 @@ import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerFromUID } from "./FirebaseAPI";
 import { Business } from "./WrapperObjects";
-import { TReview } from "@/Types/RestaurantTypes";
-import { getReviewByBusinessId } from "@/API/RestaurantAPI";
+import { TMenu, TReview } from "@/Types/RestaurantTypes";
+import { getMenuByBusinessId, getReviewByBusinessId } from "@/API/RestaurantAPI";
 import { useQuery } from "@tanstack/react-query";
 
 const reviews = [
@@ -120,6 +120,12 @@ function RestaurantDetails() {
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
     queryKey: ["getReviewByBusinessId", businessId]
+  })
+
+
+  const getMenuQuery = useQuery({
+    queryFn: () => getMenuByBusinessId(businessId!),
+    queryKey: ["getMenuByBusinessId", businessId]
   })
 
   const menu = business.menu;
@@ -285,7 +291,7 @@ function RestaurantDetails() {
           <ReviewsTabContent reviews={getReviewsQuery.data!} />
         </TabsContent>
         <TabsContent value="menu" className="px-4">
-          <MenuTabContent />
+          <MenuTabContent menu={getMenuQuery.data!}/>
         </TabsContent>
         <TabsContent value="pictures" className="px-4">
           <PicturesTabContent />
@@ -344,7 +350,9 @@ const ReviewsTabContent = ({ reviews }: { reviews: TReview[] }) => {
   );
 };
 
-const MenuTabContent = () => (
+const MenuTabContent = ({menu} : {menu: TMenu[]}) => {
+  console.log(menu)
+  return (
   <Table className="mt-4">
     <TableHeader>
       <TableRow className="text-lg">
@@ -361,15 +369,15 @@ const MenuTabContent = () => (
       {menu.map((item, index) => (
         <TableRow key={index}>
           <TableCell className="w-[7%] text-center">
-            <img src={item.picture} />
+            {item.itemImage.length > 0 && <img src={item.itemImage} />}
           </TableCell>
-          <TableCell className="text-center">{item.name}</TableCell>
-          <TableCell className="text-center">${item.price}</TableCell>
+          <TableCell className="text-center">{item.itemName}</TableCell>
+          <TableCell className="text-center">${item.itemPrice}</TableCell>
         </TableRow>
       ))}
     </TableBody>
   </Table>
-);
+)};
 
 const PicturesTabContent = () => (
   <div className="grid grid-cols-4 gap-8 mt-4">
