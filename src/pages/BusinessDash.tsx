@@ -22,7 +22,11 @@ import { useCookies } from "react-cookie";
 import firebase from "firebase/compat/app";
 
 import { useNavigate } from "react-router-dom";
-import { Bus } from "lucide-react";
+import { Trash2, Verified } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getMenuByBusinessId, getReviewByBusinessId } from "@/API/RestaurantAPI";
+import { TMenu, TReview } from "@/Types/RestaurantTypes";
+import { Button } from "@/components/ui/button";
 
 
 type Review = {
@@ -94,6 +98,18 @@ function BusinessDash() {
   const [menu, setMenu] = useState(dummyMenu);
   const [pictures, setPictures] = useState(dummyPictures);
   const [reviews] = useState(dummyReviews);
+
+  const businessId = "odCe5cYwH8M3oHTcYmav"
+
+  const getReviewsQuery = useQuery({
+    queryFn: () => getReviewByBusinessId(businessId!),
+    queryKey: ["getReviewByBusinessId", businessId]
+  }) 
+
+  const getMenuQuery = useQuery({
+      queryFn: () => getMenuByBusinessId(businessId!),
+      queryKey: ["getMenuByBusinessId", businessId]
+    })
 
   const navigate = useNavigate();
   const handleUpload = async (file: File) => {
@@ -195,10 +211,10 @@ function BusinessDash() {
                     Overall sentiment: Positive.
                   </CardContent>
                 </Card>
-                <ReviewsTabContent reviews={reviews} />
+                <ReviewsTabContent reviews={getReviewsQuery.data!} />
               </TabsContent>
               <TabsContent value="menu">
-                <MenuTabContent menu={menu} />
+                <MenuTabContent menu={getMenuQuery.data!} />
               </TabsContent>
               <TabsContent value="pictures">
                 <PicturesTabContent pictures={pictures} />
@@ -212,7 +228,7 @@ function BusinessDash() {
             <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">
               Reviews
             </h1>
-            <ReviewsTabContent reviews={reviews} />
+            <ReviewsTabContent reviews={getReviewsQuery.data!} />
           </div>
         )}
 
@@ -278,7 +294,7 @@ function BusinessDash() {
           <div className="mt-10 max-w-3xl space-y-6">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">Menu</h1>
 
-            <MenuTabContent menu={menu} onDelete={handleDeleteMenu} />
+            <MenuTabContent menu={getMenuQuery.data!} onDelete={handleDeleteMenu} />
 
             {!isEditingMenu ? (
               <button
@@ -441,7 +457,7 @@ function BusinessDash() {
 
 }
 
-const ReviewsTabContent = ({ reviews }: { reviews: Review[] }) => (
+const ReviewsTabContent = ({ reviews }: { reviews: TReview[] }) => (
   <div className="mt-4 space-y-6">
     <Card>
       <CardContent className="p-4 text-gray-800 dark:text-gray-200">
@@ -450,20 +466,33 @@ const ReviewsTabContent = ({ reviews }: { reviews: Review[] }) => (
       </CardContent>
     </Card>
 
-    {reviews.map((review, index) => (
-      <Card key={index}>
-        <CardContent className="text-lg space-y-2">
-          <div className="flex justify-between">
-            <div className="font-bold">{review.reviewer}</div>
-            <div className="text-right">
-              <div className="text-gray-600">{review.date}</div>
-              <Ratings stars={review.rating} />
-            </div>
-          </div>
-          <div>{review.review}</div>
-        </CardContent>
-      </Card>
-    ))}
+    {reviews?.map((review, index) => {
+        return (
+          <Card key={index}>
+            <CardContent className="text-lg space-y-2">
+              <div className="flex">
+                <div className="flex-3/5 font-bold flex">
+                  {review.customerName}
+                  {review.verified && (
+                    <Verified color="#4ECB71" className="ml-2" />
+                  )}
+                </div>
+                <div className=" flex flex-2/5">
+                  <div className="flex ml-auto space-x-6">
+                    <div className="text-gray-600 text-right">
+                      {review.dateTime.toDate().toLocaleDateString()}
+                    </div>
+                    <div className="">
+                      <Ratings stars={review.rating} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>{review.reviewText}</div>
+            </CardContent>
+          </Card>
+        );
+      })}
   </div>
 );
 
@@ -471,7 +500,7 @@ const MenuTabContent = ({
   menu,
   onDelete,
 }: {
-  menu: { name: string; price: string }[];
+  menu: TMenu[];
   onDelete?: (index: number) => void;
 }) => (
   <Table className="mt-4">
@@ -485,18 +514,16 @@ const MenuTabContent = ({
       </TableRow>
     </TableHeader>
     <TableBody>
-      {menu.map((item, index) => (
+    {menu.map((item, index) => (
         <TableRow key={index}>
-          <TableCell className="text-center">{item.name}</TableCell>
-          <TableCell className="text-center">${item.price}</TableCell>
+          <TableCell className="w-[7%] text-center">
+            {item.itemImage.length > 0 && <img src={item.itemImage} />}
+          </TableCell>
+          <TableCell className="text-center">{item.itemName}</TableCell>
+          <TableCell className="text-center">${item.itemPrice}</TableCell>
           {onDelete && (
             <TableCell className="text-center">
-              <button
-                onClick={() => onDelete(index)}
-                className="text-red-600 hover:text-red-800"
-              >
-                🗑️
-              </button>
+              <Button variant="ghost"><Trash2 color="red"/></Button>
             </TableCell>
           )}
         </TableRow>
