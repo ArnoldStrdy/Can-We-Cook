@@ -143,7 +143,7 @@ const AboutUs: React.FC = () => {
       </div>
 
       {/* Contact Info */}
-      <div className="mt-10 flex flex-col items-center text-center">
+      {/* <div className="mt-10 flex flex-col items-center text-center">
         <div className="mb-4">
           <h3 className="font-bold">Email</h3>
           <a
@@ -163,7 +163,7 @@ const AboutUs: React.FC = () => {
           <h3 className="font-bold">Address</h3>
           <p>Wellington Road, Clayton, Victoria 3800</p>
         </div>
-      </div>
+      </div> */}
 
       {/* Google Map Embed */}
       <div className="mt-10 flex justify-center">
