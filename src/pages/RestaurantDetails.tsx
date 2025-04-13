@@ -18,9 +18,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ChevronRight, Upload, Verified } from "lucide-react";
+import { ChevronRight, Upload, Verified, X } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import RatingSelect from "@/components/ui/ratingSelect";
 import { Textarea } from "@/components/ui/textarea";
 import firebase from "firebase/compat/app";
@@ -28,9 +28,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerFromUID } from "./FirebaseAPI";
 import { Business } from "./WrapperObjects";
 import { TMenu, TReview } from "@/Types/RestaurantTypes";
-import { getMenuByBusinessId, getReviewByBusinessId } from "@/API/RestaurantAPI";
+import {
+  getMenuByBusinessId,
+  getReviewByBusinessId,
+} from "@/API/RestaurantAPI";
 import { useQuery } from "@tanstack/react-query";
-
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 const reviews = [
   {
     reviewer: "Jeff Bezos",
@@ -94,21 +98,12 @@ const menu = [
   },
 ];
 
-const pictures = [
-  imgUrl,
-  imgUrl,
-  imgUrl,
-  imgUrl,
-  imgUrl,
-  imgUrl,
-  imgUrl,
-  imgUrl,
-];
+const pics = [imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl];
 
 type ReviewType = {
   rating: number;
   review: string;
-  pictures: File[];
+  pictures: string[];
   verified: boolean;
   anonymous: boolean;
 };
@@ -116,25 +111,26 @@ type ReviewType = {
 function RestaurantDetails() {
   const businessId = useParams().id;
   const business = new Business(); // Getting Business object from id then just grab data needed from it
-  
+
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
-    queryKey: ["getReviewByBusinessId", businessId]
-  })
-
+    queryKey: ["getReviewByBusinessId", businessId],
+  });
 
   const getMenuQuery = useQuery({
     queryFn: () => getMenuByBusinessId(businessId!),
-    queryKey: ["getMenuByBusinessId", businessId]
-  })
+    queryKey: ["getMenuByBusinessId", businessId],
+  });
 
   const menu = business.menu;
-  const pictures = business.businessPictures;
+  // const pictures = business.businessPictures;
   const auth = firebase.auth();
   const navigate = useNavigate();
+
   const ReviewDialog = () => {
     const [customerName, setCustomerName] = useState<string | null>(null);
     const [page, setPage] = useState(1);
+    const [anonymous, setAnon] = useState<boolean>(false);
     const [newReview, setReview] = useState<ReviewType>({
       rating: 0,
       review: "",
@@ -142,6 +138,8 @@ function RestaurantDetails() {
       verified: false,
       anonymous: auth.currentUser ? false : true,
     });
+
+    const imageInput = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
       const uid = auth.currentUser ? auth.currentUser.uid : undefined;
@@ -154,6 +152,7 @@ function RestaurantDetails() {
 
       fetchName();
     }, [auth.currentUser]);
+
     const handleSubmit = () => {
       console.log(newReview);
     };
@@ -168,12 +167,14 @@ function RestaurantDetails() {
                 You are logged in as <b>[{customerName}]</b>
               </span>
               <span className="flex">
-                Post anonymously?{" "}
+                Post anonymously?
                 <Switch
                   className="ml-2 my-auto"
-                  onCheckedChange={(checked) =>
-                    setReview({ ...newReview, anonymous: checked })
-                  }
+                  checked={anonymous}
+                  onCheckedChange={(checked) => {
+                    setAnon(checked);
+                    setReview({ ...newReview, anonymous: checked });
+                  }}
                 />{" "}
               </span>
             </>
@@ -211,6 +212,27 @@ function RestaurantDetails() {
     };
 
     const SecondPage = () => {
+      const handleAddPicture = (e: ChangeEvent<HTMLInputElement>) => {
+        const MAX_IMAGE = 3;
+        if (e.target.files) {
+          const fileArray = Array.from(e.target.files);
+          const imgUrls = fileArray.map((file) => URL.createObjectURL(file));
+          const remaining = MAX_IMAGE - newReview.pictures.length;
+          if (imgUrls.length > remaining) {
+            toast("Max 3 images");
+          }
+          setReview({
+            ...newReview,
+            pictures: newReview.pictures.concat(
+              imgUrls.filter((_, index) => index < remaining)
+            ),
+          });
+        }
+      };
+
+      const handleDeletePicture = (index: number) => {
+        setReview({...newReview, pictures:newReview.pictures.filter((_,i) => i != index)})
+      }
       return (
         <>
           <span>Rate your experience</span>
@@ -226,9 +248,41 @@ function RestaurantDetails() {
           <span>What were the up's and down's?</span>
           <Textarea />
           <span>Got any pictures? (optional)</span>
-          <Button variant="outline" className="w-min">
+          <Input
+            type="file"
+            ref={imageInput}
+            onChange={handleAddPicture}
+            className="hidden"
+            multiple
+          />
+          <Button
+            variant="outline"
+            className="w-min"
+            onClick={() => imageInput.current!.click()}
+          >
             <Upload />
           </Button>
+          <div className="grid grid-cols-3 gap-2 place-items-center">
+            {newReview.pictures.map((url, index) => (
+              <div
+                key={url}
+                className="rounded bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
+              >
+                <img
+                  src={url}
+                  alt=""
+                  className="w-full h-auto object-contain"
+                />
+                <button
+                  onClick={() => handleDeletePicture(index)}
+                  className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:text-red-800"
+                >
+                  <X/>
+                </button>
+              </div>
+            ))}
+          </div>
+
           <Button
             variant="outline"
             className="w-min ml-auto"
@@ -243,11 +297,11 @@ function RestaurantDetails() {
     return (
       <Dialog onOpenChange={() => setPage(1)}>
         <DialogTrigger asChild>
-          <Button className="rounded-full ml-auto text-lg p-6">
+          <Button className="mx-auto rounded-full ml-auto text-lg p-6">
             Write a Review
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="min-w-[40vw] max-h-[90vh] overflow-auto">
           <DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogTitle>
@@ -291,7 +345,7 @@ function RestaurantDetails() {
           <ReviewsTabContent reviews={getReviewsQuery.data!} />
         </TabsContent>
         <TabsContent value="menu" className="px-4">
-          <MenuTabContent menu={getMenuQuery.data!}/>
+          <MenuTabContent menu={getMenuQuery.data!} />
         </TabsContent>
         <TabsContent value="pictures" className="px-4">
           <PicturesTabContent />
@@ -317,7 +371,7 @@ function RestaurantDetails() {
 
 const ReviewsTabContent = ({ reviews }: { reviews: TReview[] }) => {
   return (
-    <div className="mt-4 space-y-6 reviews">
+    <div className="mt-4 space-y-6">
       {reviews?.map((review, index) => {
         console.log("[XX]Review: ", review);
         return (
@@ -350,38 +404,41 @@ const ReviewsTabContent = ({ reviews }: { reviews: TReview[] }) => {
   );
 };
 
-const MenuTabContent = ({menu} : {menu: TMenu[]}) => {
-  console.log(menu)
+const MenuTabContent = ({ menu }: { menu: TMenu[] }) => {
+  console.log(menu);
   return (
-  <Table className="mt-4">
-    <TableHeader>
-      <TableRow className="text-lg">
-        <TableHead className="text-center font-bold text-black">
-          Picture
-        </TableHead>
-        <TableHead className="text-center font-bold text-black">Name</TableHead>
-        <TableHead className="text-center font-bold text-black">
-          Price
-        </TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {menu.map((item, index) => (
-        <TableRow key={index}>
-          <TableCell className="w-[7%] text-center">
-            {item.itemImage.length > 0 && <img src={item.itemImage} />}
-          </TableCell>
-          <TableCell className="text-center">{item.itemName}</TableCell>
-          <TableCell className="text-center">${item.itemPrice}</TableCell>
+    <Table className="mt-4">
+      <TableHeader>
+        <TableRow className="text-lg">
+          <TableHead className="text-center font-bold text-black">
+            Picture
+          </TableHead>
+          <TableHead className="text-center font-bold text-black">
+            Name
+          </TableHead>
+          <TableHead className="text-center font-bold text-black">
+            Price
+          </TableHead>
         </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-)};
+      </TableHeader>
+      <TableBody>
+        {menu.map((item, index) => (
+          <TableRow key={index}>
+            <TableCell className="w-[7%] text-center">
+              {item.itemImage.length > 0 && <img src={item.itemImage} />}
+            </TableCell>
+            <TableCell className="text-center">{item.itemName}</TableCell>
+            <TableCell className="text-center">${item.itemPrice}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
 
 const PicturesTabContent = () => (
   <div className="grid grid-cols-4 gap-8 mt-4">
-    {pictures.map((picture, index) => (
+    {pics.map((picture, index) => (
       <img src={picture} className="aspect-square w-[60%] m-auto" key={index} />
     ))}
   </div>
