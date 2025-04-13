@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Ratings from "@/components/ui/ratings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Business } from "@/pages/WrapperObjects";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -64,6 +65,13 @@ const dummyReviews: Review[] = [
     rating: 4,
     review: "A solid dining experience. Great for family dinners.",
   },
+  // {
+  //   reviewer: "Bill Gates",
+  //   verified: false,
+  //   date: "10/07/2024",
+  //   rating: 1,
+  //   review: "The food dog shit, will never come back.",
+  // },
 ];
 
 const dummyMenu = [
@@ -481,8 +489,10 @@ function BusinessDash() {
               <button
                 className="bg-green-600 text-white px-4 py-2 rounded"
                 onClick={() => {
-                  alert("Logged out!");
-                  navigate("/login");
+                  // alert("Logged out!");
+                  firebase.auth().signOut();
+                  toast.success("Logged out successfully");
+                  navigate("/");
                 }}
               >
                 ✔ Confirm
