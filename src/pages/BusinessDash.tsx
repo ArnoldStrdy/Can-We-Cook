@@ -65,13 +65,48 @@ const dummyReviews: Review[] = [
     rating: 4,
     review: "A solid dining experience. Great for family dinners.",
   },
-  // {
-  //   reviewer: "Bill Gates",
-  //   verified: false,
-  //   date: "10/07/2024",
-  //   rating: 1,
-  //   review: "The food dog shit, will never come back.",
-  // },
+  {
+    reviewer: "Bill Gates",
+    verified: false,
+    date: "10/07/2024",
+    rating: 2,
+    review: "The food was average, and the service was slow.",
+  },
+  {
+    reviewer: "Emma Watson",
+    verified: true,
+    date: "11/07/2024",
+    rating: 4,
+    review: "Lovely place! The pasta was delicious.",
+  },
+  {
+    reviewer: "Leonardo DiCaprio",
+    verified: true,
+    date: "12/07/2024",
+    rating: 5,
+    review: "Best restaurant in town! Highly recommend the seafood.",
+  },
+  {
+    reviewer: "Scarlett Johansson",
+    verified: false,
+    date: "13/07/2024",
+    rating: 3,
+    review: "Good food, but the wait time was too long.",
+  },
+  {
+    reviewer: "Dwayne Johnson",
+    verified: true,
+    date: "14/07/2024",
+    rating: 4,
+    review: "Great atmosphere! Perfect for a night out.",
+  },
+  {
+    reviewer: "Natalie Portman",
+    verified: true,
+    date: "15/07/2024",
+    rating: 5,
+    review: "Incredible experience! The wine selection is top-notch.",
+  },
 ];
 
 const dummyMenu = [
@@ -81,6 +116,11 @@ const dummyMenu = [
   { name: "Margherita Pizza", price: "14.00" },
   { name: "Chocolate Lava Cake", price: "7.50" },
 ];
+
+type SummarizedReviews = {
+  summary: string;
+  overallSentiment: "positive" | "negative" | "neutral";
+};
 
 const dummyBusiness = new Business();
 const dummyPictures = [imgUrl, imgUrl];
@@ -151,7 +191,8 @@ function BusinessDash() {
     }
   };
 
-  const [summarizedReviews, setSummarizedReviews] = useState(null);
+  const [summarizedReviews, setSummarizedReviews] =
+    useState<SummarizedReviews | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: any) => {
@@ -245,9 +286,10 @@ function BusinessDash() {
                 {summarizedReviews && (
                   <Card className="mb-4">
                     <CardContent className="p-4">
-                      <strong>AI Summary:</strong> {summarizedReviews.summary}
+                      <strong>AI Summary: </strong>
+                      {summarizedReviews.summary}
                       <br />
-                      <strong>Overall Sentiment:</strong>{" "}
+                      <strong>Overall Sentiment: </strong>
                       {summarizedReviews.overallSentiment}
                     </CardContent>
                   </Card>
