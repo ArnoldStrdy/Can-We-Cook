@@ -74,7 +74,13 @@ const sampleRestaurants = [
     id: "odCe5cYwH8M3oHTcYmav",
     cuisine: "Indian",
   },
-  { name: "Urban Bites", logo: imgUrl, rating: 3.8, id: "odCe5cYwH8M3oHTcYmav", cuisine: "Thai" },
+  {
+    name: "Urban Bites",
+    logo: imgUrl,
+    rating: 3.8,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Thai",
+  },
   {
     name: "Fork & Flame",
     logo: imgUrl,
@@ -169,7 +175,7 @@ function CustomerDash() {
           <h1 className="text-3xl font-semibold">Restaurants</h1>
         </div>
 
-        <div className="flex flex-row items-center justify-start gap-4">
+        <div className="flex flex-row items-center justify-start gap-4 overflow-x-auto w-full">
           {[
             "All",
             "American",
@@ -198,7 +204,7 @@ function CustomerDash() {
           ))}
           <input
             type="text"
-            className="border rounded-full px-4 py-2 w-full"
+            className="border rounded-full px-4 py-2 w-full min-w-fit"
             placeholder="Search for a restaurant"
             onChange={(e) => {
               setFilteredRestaurants(
