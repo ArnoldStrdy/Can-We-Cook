@@ -142,6 +142,9 @@ function BusinessDash() {
   const [menu, setMenu] = useState(dummyMenu);
   const [pictures, setPictures] = useState(dummyPictures);
   const [reviews] = useState(dummyReviews);
+  const [newPassword, setNewPassword] = useState("");
+  const [changePasswordError, setChangePasswordError] = useState("");
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
 
   const businessId = "odCe5cYwH8M3oHTcYmav"
 
@@ -205,6 +208,24 @@ function BusinessDash() {
     } catch (error) {
       setError((error as any).message);
       console.error("Error logging in: ", error);
+    }
+  };
+  const handleChangePassword = async () => {
+    const user = firebase.auth().currentUser;
+  
+    if (user && newPassword.length >= 6) {
+      try {
+        await user.updatePassword(newPassword);
+        setChangePasswordSuccess("Password updated successfully!");
+        setChangePasswordError("");
+        setNewPassword("");
+      } catch (error) {
+        setChangePasswordError((error as any).message);
+        setChangePasswordSuccess("");
+      }
+    } else {
+      setChangePasswordError("Password must be at least 6 characters long.");
+      setChangePasswordSuccess("");
     }
   };
 
@@ -516,16 +537,28 @@ function BusinessDash() {
         )}
 
         {currentPage === "settings" && (
-          <div className="mt-10 max-w-xl space-y-6">
-            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
-              Settings
-            </h1>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
-              <button className="mt-4 px-4 py-2 bg-[#FF6F00] text-white rounded">
-                Change Password
-              </button>
-            </div>
-          </div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Change Password</h2>
+          <input
+            type="password"
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+          <button
+            onClick={handleChangePassword}
+            className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+          >
+            ✔ Update Password
+          </button>
+          {changePasswordError && (
+            <p className="text-red-500">{changePasswordError}</p>
+          )}
+          {changePasswordSuccess && (
+            <p className="text-green-500">{changePasswordSuccess}</p>
+          )}
+        </div>
         )}
 
         {currentPage === "logout" && (
