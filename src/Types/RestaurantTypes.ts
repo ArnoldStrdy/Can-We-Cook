@@ -1,11 +1,15 @@
 import { Timestamp } from "firebase/firestore";
 
-export type TReview = {
-  customerName: string;
+export interface TNewReview {
+  anonymous: boolean
   dateTime: Timestamp;
   rating: number;
   reviewText: string;
   verified: boolean;
+}
+
+export interface TReview extends TNewReview {
+  customerName: string;
 }
 
 export type TMenu = {
