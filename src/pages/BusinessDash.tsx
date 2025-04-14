@@ -521,14 +521,6 @@ function BusinessDash() {
               Settings
             </h1>
             <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
-              <div className="flex justify-between">
-                <span>Dark Mode</span>
-                <input type="checkbox" className="toggle toggle-sm" />
-              </div>
-              <div className="flex justify-between">
-                <span>Email Notifications</span>
-                <input type="checkbox" className="toggle toggle-sm" />
-              </div>
               <button className="mt-4 px-4 py-2 bg-[#FF6F00] text-white rounded">
                 Change Password
               </button>
