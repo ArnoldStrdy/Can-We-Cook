@@ -359,7 +359,25 @@ class Owner{
     name: string;
     uid: string;
 }
-export { Business, menuItem, Customer, Review, Owner };
+
+const uploadImage = async (file: File) => {
+    const apiKey = "1a8c9b61971cf5e7191ab4c0f235f7e3";
+    const url = `https://api.imgbb.com/1/upload?key=${apiKey}`;
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+    });
+    const data = await response.json();
+    if (data.success) {
+        return data.data.url;
+    } else {
+        throw new Error("Image upload failed");
+    }
+}
+
+export { Business, menuItem, Customer, Review, Owner, uploadImage };
 export type { businessData };
 
 

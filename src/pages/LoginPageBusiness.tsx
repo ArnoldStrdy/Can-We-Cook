@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { stat } from "fs";
 
 const LoginPageBusiness: React.FC = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

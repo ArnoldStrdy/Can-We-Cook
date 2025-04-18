@@ -113,7 +113,7 @@ const getOwnerFromUID = async (uid: string): Promise<string | undefined> => {
 
 export const getCustomerFromUID = async (
   uid: string
-): Promise<{ name: string; profilePic: string } | undefined> => {
+): Promise<{ name: string; profilePic: string; id: string } | undefined> => {
   try {
     const snapshot = await firestore
       .collection("customers")
@@ -127,6 +127,7 @@ export const getCustomerFromUID = async (
     return {
       name: data.name as string,
       profilePic: data.ProfilePic as string,
+      id: snapshot.docs[0].id,
     };
   } catch (error) {
     console.error("Error getting customer data:", error);
