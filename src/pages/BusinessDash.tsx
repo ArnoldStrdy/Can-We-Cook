@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Trash2, Verified } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getMenuByBusinessId, getReviewByBusinessId } from "@/API/RestaurantAPI";
-import { TMenu, TReview } from "@/Types/RestaurantTypes";
+import { TMenu, TExistingReview } from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
 
 
@@ -631,7 +631,7 @@ function BusinessDash() {
   );
 }
 
-const ReviewsTabContent = ({ reviews }: { reviews: TReview[] }) => (
+const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => (
   <div className="mt-4 space-y-6">
     {/* <Card>
       <CardContent className="p-4 text-gray-800 dark:text-gray-200">

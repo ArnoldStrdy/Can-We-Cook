@@ -27,7 +27,7 @@ import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerFromUID } from "./FirebaseAPI";
 import { Business } from "./WrapperObjects";
-import { TMenu, TReview } from "@/Types/RestaurantTypes";
+import { TMenu, TExistingReview } from "@/Types/RestaurantTypes";
 import {
   getMenuByBusinessId,
   getReviewByBusinessId,
@@ -105,7 +105,7 @@ const pics = [imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl];
 type ReviewType = {
   rating: number;
   reviewText: string;
-  pictures: string[];
+  pictures: File[];
   verified: boolean;
   anonymous: boolean;
 };
@@ -186,7 +186,7 @@ function RestaurantDetails() {
   );
 }
 
-const ReviewsTabContent = ({ reviews }: { reviews: TReview[] }) => {
+const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => {
   return (
     <div className="mt-4 space-y-6">
       {reviews?.map((review, index) => {
@@ -213,6 +213,20 @@ const ReviewsTabContent = ({ reviews }: { reviews: TReview[] }) => {
                 </div>
               </div>
               <div>{review.reviewText}</div>
+              <div className="grid grid-cols-6 gap-2 place-items-center">
+                {review.pictures?.map((url) => (
+                  <div
+                    key={url}
+                    className="rounded-lg bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
+                  >
+                    <img
+                      src={url}
+                      alt=""
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         );
@@ -290,7 +304,8 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
         verified: false,
         anonymous: auth.currentUser ? false : true,
       });
-      setDialogOpen(false)
+      setDialogOpen(false);
+      setPage(1);
     },
     onError: (e) => {
       toast.error(`Error posting review: ${e}`);
@@ -383,15 +398,15 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
       const MAX_IMAGE = 3;
       if (e.target.files) {
         const fileArray = Array.from(e.target.files);
-        const imgUrls = fileArray.map((file) => URL.createObjectURL(file));
+        // const imgUrls = fileArray.map((file) => URL.createObjectURL(file));
         const remaining = MAX_IMAGE - newReview.pictures.length;
-        if (imgUrls.length > remaining) {
+        if (fileArray.length > remaining) {
           toast.error("Max 3 images");
         }
         setReview({
           ...newReview,
           pictures: newReview.pictures.concat(
-            imgUrls.filter((_, index) => index < remaining)
+            fileArray.filter((_, index) => index < remaining)
           ),
         });
       }
@@ -438,20 +453,27 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
           <Upload />
         </Button>
         <div className="grid grid-cols-3 gap-2 place-items-center">
-          {newReview.pictures.map((url, index) => (
-            <div
-              key={url}
-              className="rounded bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
-            >
-              <img src={url} alt="" className="w-full h-auto object-contain" />
-              <button
-                onClick={() => handleDeletePicture(index)}
-                className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:text-red-800"
+          {newReview.pictures.map((file, index) => {
+            const url = URL.createObjectURL(file);
+            return (
+              <div
+                key={url}
+                className="rounded-lg bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
               >
-                <X />
-              </button>
-            </div>
-          ))}
+                <img
+                  src={url}
+                  alt=""
+                  className="w-full h-auto object-contain"
+                />
+                <button
+                  onClick={() => handleDeletePicture(index)}
+                  className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:text-red-800"
+                >
+                  <X />
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         <Button

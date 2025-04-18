@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 
-export interface TNewReview {
+interface TReview {
   anonymous: boolean
   dateTime: Timestamp;
   rating: number;
@@ -8,8 +8,13 @@ export interface TNewReview {
   verified: boolean;
 }
 
-export interface TReview extends TNewReview {
+export interface TNewReview extends TReview{
+  pictures: File[]
+}
+
+export interface TExistingReview extends TReview {
   customerName: string;
+  pictures: string[];
 }
 
 export type TMenu = {

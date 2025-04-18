@@ -360,7 +360,7 @@ class Owner{
     uid: string;
 }
 
-const uploadImage = async (file: File) => {
+const uploadImage = async (file: File): Promise<string> => {
     const apiKey = "1a8c9b61971cf5e7191ab4c0f235f7e3";
     const url = `https://api.imgbb.com/1/upload?key=${apiKey}`;
     const formData = new FormData();
