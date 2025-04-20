@@ -17,11 +17,14 @@ export interface TExistingReview extends TReview {
   pictures: string[];
 }
 
-export type TMenu = {
-  itemId: string;
+export interface TMenu {
   itemImage: string;
   itemName: string;
   itemPrice: number;
+}
+
+export interface TExistingMenu extends TMenu {
+  itemID: string;
 }
 
 export type TCustomer = {
