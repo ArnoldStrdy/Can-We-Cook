@@ -3,7 +3,7 @@ import { GenerateContentResponse, GoogleGenAI, Type } from "@google/genai"
 
 const geminiAPIKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-const genAI = new GoogleGenAI(geminiAPIKey);
+//const genAI = new GoogleGenAI(geminiAPIKey);
 
 const schema = {
   description: "Review Summary Schema",
@@ -53,4 +53,4 @@ const generateReviewSummary = async (reviews: Review[]): Promise<{summary: strin
   };
 }
 
-export { generateReviewSummary };
+export default { generateReviewSummary };
