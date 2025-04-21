@@ -144,12 +144,15 @@ function BusinessDash() {
   const [reviews] = useState(dummyReviews);
   const [newPassword, setNewPassword] = useState("");
   const [changePasswordError, setChangePasswordError] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
   const businessId = "odCe5cYwH8M3oHTcYmav"
   const Buisness = useQuery({
     queryFn: () => {
       const business = new Business();
-      business.initBusiness(businessId!);
+      business.initBusiness(businessId!).then(() => {
+        setPictures(business.businessPictures.length > 0 ? business.businessPictures : [])
+      });
       return business;
     },
     queryKey: ["getBusinessById", businessId],
@@ -173,7 +176,9 @@ function BusinessDash() {
     postMenuItemMutation.mutate({menuItem, businessId})
     setMenu((prev) => [...prev, { name, price }]);
   };
-
+  const handlePictureLoad = (business: Business) => {
+    setPictures(business.businessPictures);
+  }
   const handleDeleteMenu = (itemID: string) => {
     deleteMenuItemMutation.mutate({itemID, businessId})
     // setMenu((prev) => prev.filter((_, index) => index !== indexToDelete));
@@ -185,7 +190,11 @@ function BusinessDash() {
     alert(`Updated: ${name}, ${description}`);
   };
   const handleDeletePicture = (indexToDelete: number) => {
-    setPictures((prev) => prev.filter((_, index) => index !== indexToDelete));
+    const updatedPictures = pictures.filter((_, index) => index !== indexToDelete);
+    setPictures(updatedPictures);
+    Buisness.data!.setBusinessPictures(updatedPictures);
+    console.log("Updated Pictures:", updatedPictures);
+    console.log("Business Pictures:", Buisness.data!.businessPictures);
   };
 
   const [restaurantName, setRestaurantName] = useState("Restaurant 1");
@@ -243,27 +252,27 @@ function BusinessDash() {
             setChangePasswordSuccess("");
           }
         };
-
+  //console.log("[XX]", Buisness.data!.businessPictures)
   const [summarizedReviews, setSummarizedReviews] =
     useState<SummarizedReviews | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     setIsLoading(true);
 
     try {
-      let prompt = "Summarize the reviews of a restaurant. The reviews are: ";
+      let prompt = "Summarize the reviews of a restaurant. Use only information provided in prompt. Suggest specific improvements as to owner if overall sentiment is negative, mixed or neutral from reviews provided if possible. The reviews are: ";
       getReviewsQuery.data!.forEach((review) => {
-        prompt += `${review.customerName} (${review.dateTime}): ${review.reviewText}. `;
+        prompt += `${review.customerName} (${review.dateTime}) [Rating: ${review.rating}]: ${review.reviewText}.\n`;
       });
-      prompt +=
-        "Please provide a summary of the reviews, including the overall sentiment (positive, negative, neutral).";
+      //prompt +=
+        //"Please provide a summary of the reviews, including the overall sentiment (positive, negative, neutral). Make sure to use the information provided in the reviews only. Only add posible suggestions for improvement if the overall sentiment is negative or mixed. Do not add any other information.";
 
       const response = await model.generateContent(prompt);
       const responsejson = JSON.parse(response.response.text());
-
+      
       setSummarizedReviews(responsejson);
     } catch (error) {
       console.error("Error generating summary: ", error);
