@@ -26,7 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerFromUID } from "./FirebaseAPI";
-import { Business } from "./WrapperObjects";
+import { Business, Review } from "./WrapperObjects";
 import { TMenu, TExistingReview } from "@/Types/RestaurantTypes";
 import {
   getMenuByBusinessId,
@@ -37,6 +37,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Timestamp } from "firebase/firestore";
+import { generateReviewSummary } from "../API/gemini";
+
 const reviews = [
   {
     reviewer: "Jeff Bezos",
@@ -112,8 +114,15 @@ type ReviewType = {
 
 function RestaurantDetails() {
   const businessId = useParams().id;
-  const business = new Business(); // Getting Business object from id then just grab data needed from it
-
+  const Buisness = useQuery({
+    queryFn: () => {
+      const business = new Business();
+      business.initBusiness(businessId!);
+      
+      return business;
+    },
+    queryKey: ["getBusinessById", businessId],
+  });
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
     queryKey: ["getReviewByBusinessId", businessId],
@@ -124,7 +133,13 @@ function RestaurantDetails() {
     queryKey: ["getMenuByBusinessId", businessId],
   });
 
-  const menu = business.menu;
+  const menu = Buisness.data?.menu;
+  const pics = Buisness.data?.businessPictures;
+  const reviews = Buisness.data?.getAllReviews();
+  console.log("Menu: ", menu);
+  console.log("Pics: ", pics);
+  console.log("Reviews: ", reviews);
+  
   // const pictures = business.businessPictures;
   const auth = firebase.auth();
   const navigate = useNavigate();
@@ -165,7 +180,7 @@ function RestaurantDetails() {
           <MenuTabContent menu={getMenuQuery.data!} />
         </TabsContent>
         <TabsContent value="pictures" className="px-4">
-          <PicturesTabContent />
+          <PicturesTabContent pics={pics}/>
         </TabsContent>
         <TabsContent value="map" className="px-4">
           <div className="aspect-2/1 w-full">
@@ -267,7 +282,7 @@ const MenuTabContent = ({ menu }: { menu: TMenu[] }) => {
   );
 };
 
-const PicturesTabContent = () => (
+const PicturesTabContent = (pics) => (
   <div className="grid grid-cols-4 gap-8 mt-4">
     {pics.map((picture, index) => (
       <img src={picture} className="aspect-square w-[60%] m-auto" key={index} />
@@ -515,3 +530,4 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
 };
 
 export default RestaurantDetails;
+

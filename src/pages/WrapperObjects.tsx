@@ -286,6 +286,34 @@ class Business{
             }
         });
     }
+    setBusinessPictures(businessPictures: Array<string>) {
+        this.businessPictures = businessPictures;
+        if (this.businessID === undefined) {
+            console.error("Business ID is undefined");
+            return;
+        }
+        updateDocument(this.collection, this.businessID, { businessPictures: businessPictures }).then((bool) => {
+            if (bool) {
+                console.log("Business pictures updated successfully");
+            } else {
+                console.error("Error updating business pictures");
+            }
+        });
+    }
+    addBusinessPicture(businessPictures: string) {
+        this.businessPictures.push(businessPictures);
+        if (this.businessID === undefined) {
+            console.error("Business ID is undefined");
+            return;
+        }
+        updateDocument(this.collection, this.businessID, { businessPictures: this.businessPictures }).then((bool) => {
+            if (bool) {
+                console.log("Business pictures updated successfully");
+            } else {
+                console.error("Error updating business pictures");
+            }
+        });
+    }
     getAllReviews() {
         console.log("Business ID: " + this.businessID);
         if (this.businessID === undefined) {

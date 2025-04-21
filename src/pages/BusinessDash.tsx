@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Ratings from "@/components/ui/ratings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Business } from "@/pages/WrapperObjects";
+import { Business, uploadImage } from "@/pages/WrapperObjects";
 import { toast } from "sonner";
 import {
   Table,
@@ -145,8 +145,16 @@ function BusinessDash() {
   const [newPassword, setNewPassword] = useState("");
   const [changePasswordError, setChangePasswordError] = useState("");
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
-
   const businessId = "odCe5cYwH8M3oHTcYmav"
+  const Buisness = useQuery({
+    queryFn: () => {
+      const business = new Business();
+      business.initBusiness(businessId!);
+      return business;
+    },
+    queryKey: ["getBusinessById", businessId],
+  });
+  
 
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
@@ -157,13 +165,8 @@ function BusinessDash() {
       queryFn: () => getMenuByBusinessId(businessId!),
       queryKey: ["getMenuByBusinessId", businessId]
     })
-
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
-  const handleUpload = async (file: File) => {
-    alert(`Pretend uploading: ${file.name}`);
-    const newUrl = URL.createObjectURL(file);
-    setPictures((prev) => [...prev, newUrl]);
-  };
 
   const handleAddMenu = (name: string, price: string) => {
     setMenu((prev) => [...prev, { name, price }]);
@@ -211,23 +214,32 @@ function BusinessDash() {
     }
   };
   const handleChangePassword = async () => {
-    const user = firebase.auth().currentUser;
-  
-    if (user && newPassword.length >= 6) {
-      try {
-        await user.updatePassword(newPassword);
-        setChangePasswordSuccess("Password updated successfully!");
-        setChangePasswordError("");
-        setNewPassword("");
-      } catch (error) {
-        setChangePasswordError((error as any).message);
-        setChangePasswordSuccess("");
-      }
-    } else {
-      setChangePasswordError("Password must be at least 6 characters long.");
-      setChangePasswordSuccess("");
-    }
-  };
+          const user = firebase.auth().currentUser;
+        
+          if (user && newPassword.length >= 6 && newPassword === confirmPassword) {
+            try {
+              await user.updatePassword(newPassword);
+              setChangePasswordSuccess("Password updated successfully!");
+              setChangePasswordError("");
+              setNewPassword("");
+            } catch (error) {
+              setChangePasswordError((error as any).message);
+              setChangePasswordSuccess("");
+            }
+          } 
+          else if (newPassword !== confirmPassword) {
+            setChangePasswordError("Passwords do not match.");
+            setChangePasswordSuccess("");
+          }
+          else if (newPassword.length < 6) {
+            setChangePasswordError("Password must be at least 6 characters long.");
+            setChangePasswordSuccess("");
+          }
+          else {
+            setChangePasswordError("No user is currently signed in.");
+            setChangePasswordSuccess("");
+          }
+        };
 
   const [summarizedReviews, setSummarizedReviews] =
     useState<SummarizedReviews | null>(null);
@@ -513,10 +525,18 @@ function BusinessDash() {
                     📷 Upload Picture
                     <input
                       type="file"
+                      accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          handleUpload(file);
+                          uploadImage(file).then((url) => {
+                            if (url) {
+                              Buisness.data?.addBusinessPicture(url);
+                            }
+                          }).catch((error) => {
+                            console.error("Error uploading image:", error);
+                            toast.error("Error uploading image");
+                          });
                           setIsEditingPictures(false);
                         }
                       }}
@@ -544,6 +564,13 @@ function BusinessDash() {
             placeholder="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full p-2 border rounded"
           />
           <button
