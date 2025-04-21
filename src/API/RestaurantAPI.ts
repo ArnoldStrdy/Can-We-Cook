@@ -1,8 +1,15 @@
 import { db } from "@/FirebaseConfig";
 import { uploadImage } from "@/pages/WrapperObjects";
-import { TCustomer, TMenu, TNewReview, TExistingReview } from "@/Types/RestaurantTypes";
+import {
+  TCustomer,
+  TExistingMenu,
+  TNewReview,
+  TExistingReview,
+  TMenu,
+} from "@/Types/RestaurantTypes";
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   DocumentReference,
@@ -10,8 +17,10 @@ import {
   getDocs,
   orderBy,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
 
 export const getReviewByBusinessId = async (
   businessId: string
@@ -26,7 +35,7 @@ export const getReviewByBusinessId = async (
       where("businessID", "==", businessRef),
       orderBy("dateTime", "desc")
     );
-    
+
     const querySnapshot = await getDocs(reviewsQuery);
 
     // Extract reviews with business & customer references
@@ -36,7 +45,7 @@ export const getReviewByBusinessId = async (
         let customerName = "Anonymous";
         if (!data.anonymous) {
           const customerRef = data.customerID as DocumentReference; // Firestore Reference to customer
-          customerName = "Unknow Customer"
+          customerName = "Unknown Customer";
           // Fetch Customer Name
           if (customerRef) {
             const customerDoc = await getDoc(customerRef);
@@ -68,7 +77,7 @@ export const getReviewByBusinessId = async (
 
 export const getMenuByBusinessId = async (
   businessId: string
-): Promise<TMenu[]> => {
+): Promise<TExistingMenu[]> => {
   try {
     const docRef = doc(db, "businesses", businessId);
 
@@ -87,7 +96,7 @@ export const getMenuByBusinessId = async (
 };
 
 export const postReview = async ({
-  newReview, 
+  newReview,
   businessID,
   customerUid,
 }: {
@@ -96,7 +105,9 @@ export const postReview = async ({
   customerUid: string;
 }): Promise<undefined> => {
   try {
-    const imgUrls = await Promise.all(newReview.pictures.map((img) => uploadImage(img)))
+    const imgUrls = await Promise.all(
+      newReview.pictures.map((img) => uploadImage(img))
+    );
     const customerQuery = query(
       collection(db, "customers"),
       where("uid", "==", customerUid)
@@ -114,5 +125,52 @@ export const postReview = async ({
     console.log("Document added with ID: ", docRef.id);
   } catch (e) {
     console.error("Error adding document: ", e);
+  }
+};
+
+export const postNewMenuItem = async ({
+  menuItem,
+  businessId,
+}: {
+  menuItem: TMenu;
+  businessId: string;
+}): Promise<undefined> => {
+  try {
+    const businessRef = doc(db, "businesses", businessId);
+    const itemID = uuidv4();
+    await updateDoc(businessRef, { menu: arrayUnion({ itemID, ...menuItem }) });
+    console.log("Menu item added with ID: ");
+  } catch (e) {
+    console.error("Error adding menu item: ", e);
+  }
+};
+
+export const deleteMenuItem = async ({
+  itemID,
+  businessId,
+}: {
+  itemID: string;
+  businessId: string;
+}): Promise<undefined> => {
+  try {
+    const businessRef = doc(db, "businesses", businessId);
+
+    const docSnap = await getDoc(businessRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const currentArray = data.menu || [];
+
+      // Filter out the item with itemID === 2
+      const updatedArray = currentArray.filter(
+        (item: TExistingMenu) => item.itemID !== itemID
+      );
+
+      await updateDoc(businessRef, {
+        menu: updatedArray,
+      });
+    }
+    console.log(`Deleted menu item with id: ${itemID}`);
+  } catch (e) {
+    console.error("Error adding menu item: ", e);
   }
 };

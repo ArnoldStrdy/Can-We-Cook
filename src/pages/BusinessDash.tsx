@@ -19,10 +19,10 @@ import firebase from "firebase/compat/app";
 import model from "@/API/gemini";
 
 import { useNavigate } from "react-router-dom";
-import { Trash2, Verified } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getMenuByBusinessId, getReviewByBusinessId } from "@/API/RestaurantAPI";
-import { TMenu, TExistingReview } from "@/Types/RestaurantTypes";
+import { Check, Trash2, Verified, X } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteMenuItem, getMenuByBusinessId, getReviewByBusinessId, postNewMenuItem } from "@/API/RestaurantAPI";
+import { TExistingMenu, TExistingReview, TMenu } from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
 
 
@@ -155,7 +155,7 @@ function BusinessDash() {
     queryKey: ["getBusinessById", businessId],
   });
   
-
+  const queryClient = useQueryClient()
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
     queryKey: ["getReviewByBusinessId", businessId]
@@ -165,15 +165,18 @@ function BusinessDash() {
       queryFn: () => getMenuByBusinessId(businessId!),
       queryKey: ["getMenuByBusinessId", businessId]
     })
-  const [confirmPassword, setConfirmPassword] = useState("");
+
   const navigate = useNavigate();
 
   const handleAddMenu = (name: string, price: string) => {
+    const menuItem: TMenu = {itemName: name, itemPrice: +price, itemImage: ""}
+    postMenuItemMutation.mutate({menuItem, businessId})
     setMenu((prev) => [...prev, { name, price }]);
   };
 
-  const handleDeleteMenu = (indexToDelete: number) => {
-    setMenu((prev) => prev.filter((_, index) => index !== indexToDelete));
+  const handleDeleteMenu = (itemID: string) => {
+    deleteMenuItemMutation.mutate({itemID, businessId})
+    // setMenu((prev) => prev.filter((_, index) => index !== indexToDelete));
   };
   const handleUpdateRestaurant = (name: string, description: string) => {
     setRestaurantName(name);
@@ -422,16 +425,16 @@ function BusinessDash() {
                 <div className="flex space-x-4">
                   <button
                     type="submit"
-                    className="bg-green-600 text-white px-4 py-2 rounded"
+                    className="bg-green-600 text-white px-4 py-2 rounded flex"
                   >
-                    ✔ Save
+                    <Check className="mr-2"/> Save
                   </button>
                   <button
                     type="button"
                     onClick={cancelEdit}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    className="bg-red-500 text-white px-4 py-2 rounded flex"
                   >
-                    ❌ Cancel
+                    <X className="mr-2"/> Cancel
                   </button>
                 </div>
               </form>
@@ -483,16 +486,16 @@ function BusinessDash() {
                 <div className="flex space-x-4">
                   <button
                     type="submit"
-                    className="bg-green-600 text-white px-4 py-2 rounded"
+                    className="bg-green-600 text-white px-4 py-2 rounded flex"
                   >
-                    ✔ Save
+                    <Check className="mr-2"/> Save
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsEditingMenu(false)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    className="bg-red-500 text-white px-4 py-2 rounded flex"
                   >
-                    ❌ Cancel
+                    <X className="mr-2"/> Cancel
                   </button>
                 </div>
               </form>
@@ -705,12 +708,13 @@ const MenuTabContent = ({
   menu,
   onDelete,
 }: {
-  menu: TMenu[];
-  onDelete?: (index: number) => void;
+  menu: TExistingMenu[];
+  onDelete?: (index: string) => void;
 }) => (
   <Table className="mt-4">
     <TableHeader>
       <TableRow className="text-lg">
+      <TableHead className="text-center font-bold text-black">Image</TableHead>
         <TableHead className="text-center font-bold text-black">Name</TableHead>
         <TableHead className="text-center font-bold text-black">
           Price
@@ -732,7 +736,7 @@ const MenuTabContent = ({
           <TableCell className="text-center">${item.itemPrice}</TableCell>
           {onDelete && (
             <TableCell className="text-center">
-              <Button variant="ghost"><Trash2 color="red"/></Button>
+              <Button variant="ghost" onClick={() => onDelete(item.itemID)}><Trash2 color="red"/></Button>
             </TableCell>
           )}
         </TableRow>

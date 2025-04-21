@@ -27,7 +27,7 @@ import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerFromUID } from "./FirebaseAPI";
 import { Business, Review } from "./WrapperObjects";
-import { TMenu, TExistingReview } from "@/Types/RestaurantTypes";
+import { TExistingMenu, TExistingReview } from "@/Types/RestaurantTypes";
 import {
   getMenuByBusinessId,
   getReviewByBusinessId,
@@ -250,7 +250,7 @@ const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => {
   );
 };
 
-const MenuTabContent = ({ menu }: { menu: TMenu[] }) => {
+const MenuTabContent = ({ menu }: { menu: TExistingMenu[] }) => {
   console.log(menu);
   return (
     <Table className="mt-4">
