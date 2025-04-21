@@ -282,10 +282,15 @@ const MenuTabContent = ({ menu }: { menu: TExistingMenu[] }) => {
   );
 };
 
-const PicturesTabContent = (pics) => (
+const PicturesTabContent = ({ pics }: { pics: string[] }) => (
   <div className="grid grid-cols-4 gap-8 mt-4">
-    {pics.map((picture, index) => (
-      <img src={picture} className="aspect-square w-[60%] m-auto" key={index} />
+    {pics?.map((url, index) => (
+      <div
+        key={index}
+        className="rounded-lg bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
+      >
+        <img src={url} alt="" className="w-full h-auto object-contain" />
+      </div>
     ))}
   </div>
 );
