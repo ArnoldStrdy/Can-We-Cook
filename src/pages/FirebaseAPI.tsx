@@ -145,7 +145,25 @@ const addRestaurantName = async (businessID: string, name: string) => {
     console.error("Error updating restaurant name: ", error);
   }
 };
+const getRestuarantfromOwnerID = async (
+  ownerID: string
+): Promise<string | undefined> => {
+  try {
+    const snapshot = await firestore
+      .collection("businesses")
+      .where("ownerID", "==", ownerID)
+      .limit(1)
+      .get();
 
+    if (snapshot.empty) return undefined;
+
+    const data = snapshot.docs[0].data();
+    return snapshot.docs[0].id;
+  } catch (error) {
+    console.error("Error getting restaurant data:", error);
+    return undefined;
+  }
+}
 const createCustomer = async (
   name: string,
   uid: string,
@@ -191,6 +209,7 @@ export {
   getOwnerFromUID,
   addRestaurantName,
   createCustomer,
-  createOwner
+  createOwner, 
+  getRestuarantfromOwnerID,
 };
 export type { DocumentData };

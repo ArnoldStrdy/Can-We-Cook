@@ -24,6 +24,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteMenuItem, getMenuByBusinessId, getReviewByBusinessId, postNewMenuItem } from "@/API/RestaurantAPI";
 import { TExistingMenu, TExistingReview, TMenu } from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
+import { getOwnerFromUID, getRestuarantfromOwnerID } from "./FirebaseAPI";
 
 
 type Review = {
@@ -146,12 +147,15 @@ function BusinessDash() {
   const [changePasswordError, setChangePasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
-  const businessId = "odCe5cYwH8M3oHTcYmav"
+  const id = getOwnerFromUID(auth.currentUser?.uid!);
+  const [setbusinesID, businessID] = useState<string | null>(null);
+  
+  const businessId = getRestuarantfromOwnerID(id!);
   const Buisness = useQuery({
     queryFn: () => {
       const business = new Business();
       business.initBusiness(businessId!).then(() => {
-        setPictures(business.businessPictures.length > 0 ? business.businessPictures : [])
+        setPictures(business.businessPictures.length > 0 ? business.businessPictures : []);
       });
       return business;
     },
