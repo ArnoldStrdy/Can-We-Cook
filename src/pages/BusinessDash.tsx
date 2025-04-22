@@ -158,7 +158,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
 
   useEffect(() => {
-    setUID(cookies.uid);
+    setUID(uid);
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         setUID(user.uid);
@@ -166,21 +166,19 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     });
   }, []);
 
-  const [ownerID, setOwnerID] = useState<string | null>(null);
-
   useEffect(() => {
-    const fetchOwnerID = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const owner = await getOwnerFromUID(user.uid);
-        setOwnerID(owner!);
-        console.log("Owner ID:", owner);
-      } else {
-        console.error("No user is currently logged in");
-      }
+    const fetchCustomerData = async () => {
+      if (!uid) return;
+      const owner = await getOwnerFromUID(uid);
+      setOwnerID(owner!);
+
+      console.log("Owner ID:", owner);
     };
-    fetchOwnerID();
-  }, [auth]);
+
+    fetchCustomerData();
+  }, [uid]);
+
+  const [ownerID, setOwnerID] = useState<string | null>(null);
 
   const [businessId, setbusinesID] = useState<string | null>(null);
 

@@ -9,7 +9,6 @@ import { AuthErrorCodes } from "firebase/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { toast } from "sonner";
 import { getOwnerFromUID } from "./FirebaseAPI";
-import { getRestuarantfromOwnerID } from "./FirebaseAPI";
 import { stat } from "fs";
 
 const LoginPageBusiness: React.FC = () => {
@@ -34,16 +33,9 @@ const LoginPageBusiness: React.FC = () => {
         console.log(auth.currentUser.uid);
         const owner = await getOwnerFromUID(auth.currentUser.uid);
         if (owner) {
-          const business = await getRestuarantfromOwnerID(owner);
-          console.log("Business: ", business);
-          if (business) {
-            toast.success("User logged in successfully");
-            console.log("Owner found: ", owner);
-            navigate("/business");
-          } else {
-            console.log("No business found for this owner");
-            toast.error("No business found for this owner");
-          }
+          toast.success("User logged in successfully");
+          console.log("Owner found: ", owner);
+          navigate("/business");
         } else {
           console.log("No owner found for this user");
           toast.error("No owner found for this user");
