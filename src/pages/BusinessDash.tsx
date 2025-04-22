@@ -267,6 +267,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const handleUpdateRestaurant = (name: string, description: string) => {
     setRestaurantName(name);
     setRestaurantDesc(description);
+    Buisness.data?.setBusinessName(name);
+    Buisness.data?.setBusinessDescription(description);
     setIsEditing(false);
     alert(`Updated: ${name}, ${description}`);
   };
