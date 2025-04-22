@@ -60,7 +60,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/createBusiness" element={<BusinessCreate />} />
         <Route path="/about" element={<AboutUs />} />
-        <Route path="/business" element={<BusinessDash />} />
+        <Route
+          path="/business"
+          element={<BusinessDash uid={uid} setUID={setUID} />}
+        />
         <Route path="/:section" element={<CustomerDash />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
         <Route path="/loginBusiness" element={<LoginPageBusiness />} />

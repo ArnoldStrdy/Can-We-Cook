@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Ratings from "@/components/ui/ratings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,11 +21,15 @@ import model from "@/API/gemini";
 import { useNavigate } from "react-router-dom";
 import { Check, Trash2, Verified, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteMenuItem, getMenuByBusinessId, getReviewByBusinessId, postNewMenuItem } from "@/API/RestaurantAPI";
+import {
+  deleteMenuItem,
+  getMenuByBusinessId,
+  getReviewByBusinessId,
+  postNewMenuItem,
+} from "@/API/RestaurantAPI";
 import { TExistingMenu, TExistingReview, TMenu } from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
 import { getOwnerFromUID, getRestuarantfromOwnerID } from "./FirebaseAPI";
-
 
 type Review = {
   reviewer: string;
@@ -131,7 +135,12 @@ type SummarizedReviews = {
 const dummyBusiness = new Business();
 const dummyPictures = [imgUrl, imgUrl];
 
-function BusinessDash() {
+interface CustomerNavbarProps {
+  uid: string | null;
+  setUID: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [currentPage, setCurrentPage] = useState("home");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -139,7 +148,7 @@ function BusinessDash() {
   const [isLogin, setIsLogin] = useState(true);
   const [cookies, setCookie] = useCookies(["uid", "name"]); // Initialize react-cookie
   const auth = firebase.auth();
-  const persistance = firebase.auth.Auth.Persistence.SESSION;
+  // const persistance = firebase.auth.Auth.Persistence.LOCAL;
   const [menu, setMenu] = useState(dummyMenu);
   const [pictures, setPictures] = useState(dummyPictures);
   const [reviews] = useState(dummyReviews);
@@ -147,66 +156,114 @@ function BusinessDash() {
   const [changePasswordError, setChangePasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
-  const id = getOwnerFromUID(auth.currentUser?.uid!);
-  const [setbusinesID, businessID] = useState<string | null>(null);
-  
-  const businessId = getRestuarantfromOwnerID(id!);
+
+  useEffect(() => {
+    setUID(cookies.uid);
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setUID(user.uid);
+      }
+    });
+  }, []);
+
+  const [ownerID, setOwnerID] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOwnerID = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const owner = await getOwnerFromUID(user.uid);
+        setOwnerID(owner!);
+        console.log("Owner ID:", owner);
+      } else {
+        console.error("No user is currently logged in");
+      }
+    };
+    fetchOwnerID();
+  }, [auth]);
+
+  const [businessId, setbusinesID] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBusinessID = async () => {
+      if (ownerID) {
+        const business = await getRestuarantfromOwnerID(ownerID);
+        setbusinesID(business!);
+        console.log("Business ID:", business);
+      }
+    };
+    fetchBusinessID();
+  }, [ownerID]);
+
+  // const businessId = getRestuarantfromOwnerID(id!);
+  // const businessId = "odCe5cYwH8M3oHTcYmav";
+
   const Buisness = useQuery({
     queryFn: () => {
       const business = new Business();
       business.initBusiness(businessId!).then(() => {
-        setPictures(business.businessPictures.length > 0 ? business.businessPictures : []);
+        setPictures(
+          business.businessPictures.length > 0 ? business.businessPictures : []
+        );
       });
       return business;
     },
     queryKey: ["getBusinessById", businessId],
   });
-  
-  const queryClient = useQueryClient()
+
+  const queryClient = useQueryClient();
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
-    queryKey: ["getReviewByBusinessId", businessId]
-  }) 
+    queryKey: ["getReviewByBusinessId", businessId],
+  });
 
   const getMenuQuery = useQuery({
-      queryFn: () => getMenuByBusinessId(businessId!),
-      queryKey: ["getMenuByBusinessId", businessId]
-    })
+    queryFn: () => getMenuByBusinessId(businessId!),
+    queryKey: ["getMenuByBusinessId", businessId],
+  });
 
   const navigate = useNavigate();
 
   const postMenuItemMutation = useMutation({
     mutationFn: postNewMenuItem,
-    onSuccess: () => {queryClient.invalidateQueries({
-      queryKey: ["getMenuByBusinessId", businessId],
-    });
-    toast.success("Succesfuly added a menu item");},
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["getMenuByBusinessId", businessId],
+      });
+      toast.success("Succesfuly added a menu item");
+    },
     onError: (e) => {
       toast.error(`Error adding menu item: ${e}`);
     },
-  })
+  });
 
   const deleteMenuItemMutation = useMutation({
     mutationFn: deleteMenuItem,
-    onSuccess: () => {queryClient.invalidateQueries({
-      queryKey: ["getMenuByBusinessId", businessId],
-    });
-    toast.success("Succesfuly deleted a menu item");},
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["getMenuByBusinessId", businessId],
+      });
+      toast.success("Succesfuly deleted a menu item");
+    },
     onError: (e) => {
       toast.error(`Error deleting menu item: ${e}`);
     },
-  })
+  });
 
   const handleAddMenu = (name: string, price: string) => {
-    const menuItem: TMenu = {itemName: name, itemPrice: +price, itemImage: ""}
-    postMenuItemMutation.mutate({menuItem, businessId})
+    const menuItem: TMenu = {
+      itemName: name,
+      itemPrice: +price,
+      itemImage: "",
+    };
+    postMenuItemMutation.mutate({ menuItem, businessId });
     setMenu((prev) => [...prev, { name, price }]);
   };
   const handlePictureLoad = (business: Business) => {
     setPictures(business.businessPictures);
-  }
+  };
   const handleDeleteMenu = (itemID: string) => {
-    deleteMenuItemMutation.mutate({itemID, businessId})
+    deleteMenuItemMutation.mutate({ itemID, businessId });
     // setMenu((prev) => prev.filter((_, index) => index !== indexToDelete));
   };
   const handleUpdateRestaurant = (name: string, description: string) => {
@@ -216,7 +273,9 @@ function BusinessDash() {
     alert(`Updated: ${name}, ${description}`);
   };
   const handleDeletePicture = (indexToDelete: number) => {
-    const updatedPictures = pictures.filter((_, index) => index !== indexToDelete);
+    const updatedPictures = pictures.filter(
+      (_, index) => index !== indexToDelete
+    );
     setPictures(updatedPictures);
     Buisness.data!.setBusinessPictures(updatedPictures);
     console.log("Updated Pictures:", updatedPictures);
@@ -252,53 +311,51 @@ function BusinessDash() {
     }
   };
   const handleChangePassword = async () => {
-          const user = firebase.auth().currentUser;
-        
-          if (user && newPassword.length >= 6 && newPassword === confirmPassword) {
-            try {
-              await user.updatePassword(newPassword);
-              setChangePasswordSuccess("Password updated successfully!");
-              setChangePasswordError("");
-              setNewPassword("");
-            } catch (error) {
-              setChangePasswordError((error as any).message);
-              setChangePasswordSuccess("");
-            }
-          } 
-          else if (newPassword !== confirmPassword) {
-            setChangePasswordError("Passwords do not match.");
-            setChangePasswordSuccess("");
-          }
-          else if (newPassword.length < 6) {
-            setChangePasswordError("Password must be at least 6 characters long.");
-            setChangePasswordSuccess("");
-          }
-          else {
-            setChangePasswordError("No user is currently signed in.");
-            setChangePasswordSuccess("");
-          }
-        };
+    const user = firebase.auth().currentUser;
+
+    if (user && newPassword.length >= 6 && newPassword === confirmPassword) {
+      try {
+        await user.updatePassword(newPassword);
+        setChangePasswordSuccess("Password updated successfully!");
+        setChangePasswordError("");
+        setNewPassword("");
+      } catch (error) {
+        setChangePasswordError((error as any).message);
+        setChangePasswordSuccess("");
+      }
+    } else if (newPassword !== confirmPassword) {
+      setChangePasswordError("Passwords do not match.");
+      setChangePasswordSuccess("");
+    } else if (newPassword.length < 6) {
+      setChangePasswordError("Password must be at least 6 characters long.");
+      setChangePasswordSuccess("");
+    } else {
+      setChangePasswordError("No user is currently signed in.");
+      setChangePasswordSuccess("");
+    }
+  };
   //console.log("[XX]", Buisness.data!.businessPictures)
   const [summarizedReviews, setSummarizedReviews] =
     useState<SummarizedReviews | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     setIsLoading(true);
 
     try {
-      let prompt = "Summarize the reviews of a restaurant. Use only information provided in prompt. Suggest specific improvements as to owner if overall sentiment is negative, mixed or neutral from reviews provided if possible. The reviews are: ";
+      let prompt =
+        "Summarize the reviews of a restaurant. Use only information provided in prompt. Suggest specific improvements as to owner if overall sentiment is negative, mixed or neutral from reviews provided if possible. The reviews are: ";
       getReviewsQuery.data!.forEach((review) => {
         prompt += `${review.customerName} (${review.dateTime}) [Rating: ${review.rating}]: ${review.reviewText}.\n`;
       });
       //prompt +=
-        //"Please provide a summary of the reviews, including the overall sentiment (positive, negative, neutral). Make sure to use the information provided in the reviews only. Only add posible suggestions for improvement if the overall sentiment is negative or mixed. Do not add any other information.";
+      //"Please provide a summary of the reviews, including the overall sentiment (positive, negative, neutral). Make sure to use the information provided in the reviews only. Only add posible suggestions for improvement if the overall sentiment is negative or mixed. Do not add any other information.";
 
       const response = await model.generateContent(prompt);
       const responsejson = JSON.parse(response.response.text());
-      
+
       setSummarizedReviews(responsejson);
     } catch (error) {
       console.error("Error generating summary: ", error);
@@ -462,14 +519,14 @@ function BusinessDash() {
                     type="submit"
                     className="bg-green-600 text-white px-4 py-2 rounded flex"
                   >
-                    <Check className="mr-2"/> Save
+                    <Check className="mr-2" /> Save
                   </button>
                   <button
                     type="button"
                     onClick={cancelEdit}
                     className="bg-red-500 text-white px-4 py-2 rounded flex"
                   >
-                    <X className="mr-2"/> Cancel
+                    <X className="mr-2" /> Cancel
                   </button>
                 </div>
               </form>
@@ -483,7 +540,10 @@ function BusinessDash() {
               Menu
             </h1>
 
-            <MenuTabContent menu={getMenuQuery.data!} onDelete={handleDeleteMenu} />
+            <MenuTabContent
+              menu={getMenuQuery.data!}
+              onDelete={handleDeleteMenu}
+            />
 
             {!isEditingMenu ? (
               <button
@@ -523,14 +583,14 @@ function BusinessDash() {
                     type="submit"
                     className="bg-green-600 text-white px-4 py-2 rounded flex"
                   >
-                    <Check className="mr-2"/> Save
+                    <Check className="mr-2" /> Save
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsEditingMenu(false)}
                     className="bg-red-500 text-white px-4 py-2 rounded flex"
                   >
-                    <X className="mr-2"/> Cancel
+                    <X className="mr-2" /> Cancel
                   </button>
                 </div>
               </form>
@@ -567,14 +627,16 @@ function BusinessDash() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          uploadImage(file).then((url) => {
-                            if (url) {
-                              Buisness.data?.addBusinessPicture(url);
-                            }
-                          }).catch((error) => {
-                            console.error("Error uploading image:", error);
-                            toast.error("Error uploading image");
-                          });
+                          uploadImage(file)
+                            .then((url) => {
+                              if (url) {
+                                Buisness.data?.addBusinessPicture(url);
+                              }
+                            })
+                            .catch((error) => {
+                              console.error("Error uploading image:", error);
+                              toast.error("Error uploading image");
+                            });
                           setIsEditingPictures(false);
                         }
                       }}
@@ -596,34 +658,36 @@ function BusinessDash() {
 
         {currentPage === "settings" && (
           <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Change Password</h2>
-          <input
-            type="password"
-            placeholder="New Password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-          <button
-            onClick={handleChangePassword}
-            className="bg-[#FF6F00] text-white px-4 py-2 rounded"
-          >
-            ✔ Update Password
-          </button>
-          {changePasswordError && (
-            <p className="text-red-500">{changePasswordError}</p>
-          )}
-          {changePasswordSuccess && (
-            <p className="text-green-500">{changePasswordSuccess}</p>
-          )}
-        </div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              Change Password
+            </h2>
+            <input
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+            <button
+              onClick={handleChangePassword}
+              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+            >
+              ✔ Update Password
+            </button>
+            {changePasswordError && (
+              <p className="text-red-500">{changePasswordError}</p>
+            )}
+            {changePasswordSuccess && (
+              <p className="text-green-500">{changePasswordSuccess}</p>
+            )}
+          </div>
         )}
 
         {currentPage === "logout" && (
@@ -694,7 +758,7 @@ function BusinessDash() {
       </div>
     </div>
   );
-}
+};
 
 const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => (
   <div className="mt-4 space-y-6">
@@ -710,32 +774,32 @@ const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => (
     </Card> */}
 
     {reviews?.map((review, index) => {
-        return (
-          <Card key={index}>
-            <CardContent className="text-lg space-y-2">
-              <div className="flex">
-                <div className="flex-3/5 font-bold flex">
-                  {review.customerName}
-                  {review.verified && (
-                    <Verified color="#4ECB71" className="ml-2" />
-                  )}
-                </div>
-                <div className=" flex flex-2/5">
-                  <div className="flex ml-auto space-x-6">
-                    <div className="text-gray-600 text-right">
-                      {review.dateTime.toDate().toLocaleDateString()}
-                    </div>
-                    <div className="">
-                      <Ratings stars={review.rating} />
-                    </div>
+      return (
+        <Card key={index}>
+          <CardContent className="text-lg space-y-2">
+            <div className="flex">
+              <div className="flex-3/5 font-bold flex">
+                {review.customerName}
+                {review.verified && (
+                  <Verified color="#4ECB71" className="ml-2" />
+                )}
+              </div>
+              <div className=" flex flex-2/5">
+                <div className="flex ml-auto space-x-6">
+                  <div className="text-gray-600 text-right">
+                    {review.dateTime.toDate().toLocaleDateString()}
+                  </div>
+                  <div className="">
+                    <Ratings stars={review.rating} />
                   </div>
                 </div>
               </div>
-              <div>{review.reviewText}</div>
-            </CardContent>
-          </Card>
-        );
-      })}
+            </div>
+            <div>{review.reviewText}</div>
+          </CardContent>
+        </Card>
+      );
+    })}
   </div>
 );
 
@@ -749,7 +813,9 @@ const MenuTabContent = ({
   <Table className="mt-4">
     <TableHeader>
       <TableRow className="text-lg">
-      <TableHead className="text-center font-bold text-black">Image</TableHead>
+        <TableHead className="text-center font-bold text-black">
+          Image
+        </TableHead>
         <TableHead className="text-center font-bold text-black">Name</TableHead>
         <TableHead className="text-center font-bold text-black">
           Price
@@ -762,7 +828,7 @@ const MenuTabContent = ({
       </TableRow>
     </TableHeader>
     <TableBody>
-    {menu.map((item, index) => (
+      {menu.map((item, index) => (
         <TableRow key={index}>
           <TableCell className="w-[7%] text-center">
             {item.itemImage.length > 0 && <img src={item.itemImage} />}
@@ -771,7 +837,9 @@ const MenuTabContent = ({
           <TableCell className="text-center">${item.itemPrice}</TableCell>
           {onDelete && (
             <TableCell className="text-center">
-              <Button variant="ghost" onClick={() => onDelete(item.itemID)}><Trash2 color="red"/></Button>
+              <Button variant="ghost" onClick={() => onDelete(item.itemID)}>
+                <Trash2 color="red" />
+              </Button>
             </TableCell>
           )}
         </TableRow>
