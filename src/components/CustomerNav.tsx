@@ -85,35 +85,39 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     <>
       <nav className="fixed top-0 right-0 left-0 z-40 w-full h-16 bg-neutral-50 bg-opacity-70 backdrop-blur text-gray-800 flex items-center justify-evenly px-4 max-w-sc">
         <div className="max-w-[1527px] w-full flex flex-row items-center align-middle justify-between">
-          {/* <div className="flex items-center gap-4"> */}
           <img
             src={Logo}
             className="w-24 cursor-pointer"
             onClick={() => {
-              navigate("/top");
+              if (
+                url.includes("/about") ||
+                url.includes("/login") ||
+                url.includes("/settings")
+              ) {
+                navigate("/");
+              }
+              var top = document.getElementById("top");
+              if (top) {
+                top.scrollIntoView({ behavior: "smooth" });
+              }
               setDropdownOpen(false);
-              // var top = document.getElementById("top");
-              // top.scrollIntoView({ behavior: "smooth" });
             }}
           />
-          {/* <p
-              onClick={() => {
-                navigate("/top");
-                // var top = document.getElementById("top");
-                // top.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors"
-            >
-              Can We Cook?
-            </p>
-          </div> */}
           <div className="hidden sm:flex items-center justify-between gap-8">
             <p
               onClick={() => {
-                navigate("/home");
+                if (
+                  url.includes("/about") ||
+                  url.includes("/login") ||
+                  url.includes("/settings")
+                ) {
+                  navigate("/");
+                }
+                var top = document.getElementById("top");
+                if (top) {
+                  top.scrollIntoView({ behavior: "smooth" });
+                }
                 setDropdownOpen(false);
-                // var top = document.getElementById("top");
-                // top.scrollIntoView({ behavior: "smooth" });
               }}
               className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors navbar-item"
             >
@@ -121,12 +125,18 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             </p>
             <p
               onClick={() => {
-                navigate("/restaurants");
+                if (
+                  url.includes("/about") ||
+                  url.includes("/login") ||
+                  url.includes("/settings")
+                ) {
+                  navigate("/restaurants");
+                }
+                var top = document.getElementById("restaurants");
+                if (top) {
+                  top.scrollIntoView({ behavior: "smooth" });
+                }
                 setDropdownOpen(false);
-                // var about = document.getElementById("about");
-                // about.scrollIntoView({
-                //   behavior: "smooth",
-                // });
               }}
               className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
             >
@@ -134,11 +144,18 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             </p>
             <p
               onClick={() => {
-                navigate("/map");
+                if (
+                  url.includes("/about") ||
+                  url.includes("/login") ||
+                  url.includes("/settings")
+                ) {
+                  navigate("/map");
+                }
+                var top = document.getElementById("map");
+                if (top) {
+                  top.scrollIntoView({ behavior: "smooth" });
+                }
                 setDropdownOpen(false);
-
-                // var contact = document.getElementById("contact");
-                // contact.scrollIntoView({ behavior: "smooth" });
               }}
               className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
             >
@@ -148,38 +165,11 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               onClick={() => {
                 navigate("/about");
                 setDropdownOpen(false);
-                // var contact = document.getElementById("contact");
-                // contact.scrollIntoView({ behavior: "smooth" });
               }}
               className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
             >
               About Us
             </p>
-            {/* {firebase.auth().currentUser ? (
-              <div className="flex flex-row items-center gap-4">
-                {profilePic && (
-                  <img src={profilePic} className="w-8 h-8 rounded-full" />
-                )}
-                <p
-                  onClick={() => {
-                    firebase.auth().signOut();
-                    navigate("/");
-                  }}
-                  className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
-                >
-                  Hi, {customerName}
-                </p>
-              </div>
-            ) : (
-              <p
-                onClick={() => {
-                  navigate("/login");
-                }}
-                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
-              >
-                Login/Signup
-              </p>
-            )} */}
             {firebase.auth().currentUser ? (
               <div className="relative">
                 <div
@@ -230,17 +220,6 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 Login/Signup
               </p>
             )}
-            {/* <p
-              onClick={() => {
-                navigate("/business");
-                setDropdownOpen(false);
-                // var contact = document.getElementById("contact");
-                // contact.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
-            >
-              Temp go to business
-            </p> */}
           </div>
           <div className="sm:hidden">
             <button
@@ -274,28 +253,22 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       >
         <p
           onClick={() => {
-            if (url.includes("currency-converter-privacy-policy")) {
-              navigate("/");
-            }
             var top = document.getElementById("top");
-            // top.scrollIntoView({ behavior: "smooth" });
+            if (top) {
+              top.scrollIntoView({ behavior: "smooth" });
+            }
             handleToggle();
           }}
           className="text-2xl mb-4 cursor-pointer"
         >
           Home
         </p>
-        {/* <a
-          target="_self"
-          href="https://blog.shlok.tech"
-          className="text-2xl mb-4 cursor-pointer"
-        >
-          BLOG
-        </a> */}
         <p
           onClick={() => {
-            navigate("/restaurants");
-            // about.scrollIntoView({ behavior: "smooth" });
+            var top = document.getElementById("restaurants");
+            if (top) {
+              top.scrollIntoView({ behavior: "smooth" });
+            }
             handleToggle();
           }}
           className="text-2xl mb-4 cursor-pointer"
@@ -304,9 +277,10 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         </p>
         <p
           onClick={() => {
-            navigate("/map");
-            var contact = document.getElementById("contact");
-            // contact.scrollIntoView({ behavior: "smooth" });
+            var top = document.getElementById("map");
+            if (top) {
+              top.scrollIntoView({ behavior: "smooth" });
+            }
             handleToggle();
           }}
           className="text-2xl mb-4 cursor-pointer"
@@ -315,10 +289,8 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         </p>
         <p
           onClick={() => {
-            navigate("/about");
-            // var contact = document.getElementById("contact");
-            // contact.scrollIntoView({ behavior: "smooth" });
             handleToggle();
+            navigate("/about");
           }}
           className="text-2xl mb-4 cursor-pointer"
         >
@@ -335,16 +307,6 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
         >
           Login/Signup
-        </p>
-        <p
-          onClick={() => {
-            navigate("/business");
-            // var contact = document.getElementById("contact");
-            // contact.scrollIntoView({ behavior: "smooth" });
-          }}
-          className="text-2xl mb-4 cursor-pointer"
-        >
-          Temp go to business
         </p>
         <button
           className="mt-8 text-xl text-gray-300"
