@@ -1,6 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import { firebaseConfig } from "../FirebaseConfig";
+import { doc } from "firebase/firestore"; // If you're using modular SDK
 
 // Your web app's Firebase configuration
 
@@ -145,7 +146,27 @@ const addRestaurantName = async (businessID: string, name: string) => {
     console.error("Error updating restaurant name: ", error);
   }
 };
+const getRestuarantfromOwnerID = async (
+  ownerID: string
+): Promise<string | undefined> => {
+  try {
+    const ownerRef = firestore.doc(`/owners/${ownerID}`);
 
+    const snapshot = await firestore
+      .collection("businesses")
+      .where("ownerID", "==", ownerRef) // Use the reference here
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) return undefined;
+
+    const data = snapshot.docs[0].data();
+    return snapshot.docs[0].id;
+  } catch (error) {
+    console.error("Error getting restaurant data:", error);
+    return undefined;
+  }
+};
 const createCustomer = async (
   name: string,
   uid: string,
@@ -163,11 +184,7 @@ const createCustomer = async (
   }
 };
 
-const createOwner = async (
-  name: string,
-  uid: string,
-  profilePic: string
-) => {
+const createOwner = async (name: string, uid: string, profilePic: string) => {
   try {
     await firestore.collection("owners").doc().set({
       name: name,
@@ -191,6 +208,7 @@ export {
   getOwnerFromUID,
   addRestaurantName,
   createCustomer,
-  createOwner
+  createOwner,
+  getRestuarantfromOwnerID,
 };
 export type { DocumentData };

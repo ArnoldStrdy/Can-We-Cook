@@ -8,6 +8,7 @@ import Logo from "../assets/logoNameIcon.png";
 import { AuthErrorCodes } from "firebase/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { toast } from "sonner";
+import { getOwnerFromUID } from "./FirebaseAPI";
 import { stat } from "fs";
 
 const LoginPageBusiness: React.FC = () => {
@@ -28,10 +29,17 @@ const LoginPageBusiness: React.FC = () => {
       await auth.setPersistence(persistance);
       await auth.signInWithEmailAndPassword(email, password);
       console.log("User logged in successfully");
-      toast.success("User logged in successfully");
       if (auth.currentUser) {
         console.log(auth.currentUser.uid);
-        navigate("/business");
+        const owner = await getOwnerFromUID(auth.currentUser.uid);
+        if (owner) {
+          toast.success("User logged in successfully");
+          console.log("Owner found: ", owner);
+          navigate("/business");
+        } else {
+          console.log("No owner found for this user");
+          toast.error("No owner found for this user");
+        }
       } else {
         console.log("No user is currently logged in");
       }
@@ -166,17 +174,17 @@ const LoginPageBusiness: React.FC = () => {
                     className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
                   />
                 </div>
-                { status !== "Reset" && (
-                <div className="mb-6">
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
-                  />
-                </div>
+                {status !== "Reset" && (
+                  <div className="mb-6">
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+                    />
+                  </div>
                 )}
                 <div className="mb-10">
                   <button
@@ -202,9 +210,9 @@ const LoginPageBusiness: React.FC = () => {
                 </div>
               </form>
               <p className="text-base text-body-color dark:text-dark-6 mb-2">
-                <span className="pr-0.5">Temp go business dashboard?</span>
+                <span className="pr-0.5">Not a Business?</span>
                 <span
-                  onClick={() => navigate("/business")}
+                  onClick={() => navigate("/login")}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
                 >
                   Login here
@@ -215,7 +223,6 @@ const LoginPageBusiness: React.FC = () => {
                 <span
                   onClick={() => {
                     setStatus("Reset");
-                    
                   }}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
                 >
@@ -238,11 +245,7 @@ const LoginPageBusiness: React.FC = () => {
                   }}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
                 >
-                  {
-                    status === "Login"
-                      ? "Sign Up"
-                      : "Log In"
-                  }
+                  {status === "Login" ? "Sign Up" : "Log In"}
                 </span>
               </p>
 

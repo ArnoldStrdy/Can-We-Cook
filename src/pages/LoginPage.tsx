@@ -8,6 +8,7 @@ import Logo from "../assets/logoNameIcon.png";
 import { AuthErrorCodes } from "firebase/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { toast } from "sonner";
+import { getCustomerFromUID } from "./FirebaseAPI";
 import { stat } from "fs";
 
 const LoginPage: React.FC = () => {
@@ -28,10 +29,17 @@ const LoginPage: React.FC = () => {
       await auth.setPersistence(persistance);
       await auth.signInWithEmailAndPassword(email, password);
       console.log("User logged in successfully");
-      toast.success("User logged in successfully");
       if (auth.currentUser) {
         console.log(auth.currentUser.uid);
-        navigate("/");
+        const customer = await getCustomerFromUID(auth.currentUser.uid);
+        if (customer) {
+          console.log("Customer data: ", customer);
+          toast.success("User logged in successfully");
+          navigate("/");
+        } else {
+          console.log("No customer data found for this UID.");
+          toast.error("No customer data found for this UID.");
+        }
       } else {
         console.log("No user is currently logged in");
       }
@@ -165,17 +173,17 @@ const LoginPage: React.FC = () => {
                     className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
                   />
                 </div>
-                { status !== "Reset" && (
-                <div className="mb-6">
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
-                  />
-                </div>
+                {status !== "Reset" && (
+                  <div className="mb-6">
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+                    />
+                  </div>
                 )}
                 <div className="mb-10">
                   <button
@@ -201,7 +209,7 @@ const LoginPage: React.FC = () => {
                 </div>
               </form>
               <p className="text-base text-body-color dark:text-dark-6 mb-2">
-                <span className="pr-0.5">Restaurant Owner?</span>
+                <span className="pr-0.5">Are you a Business?</span>
                 <span
                   onClick={() => navigate("/loginBusiness")}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
@@ -214,7 +222,6 @@ const LoginPage: React.FC = () => {
                 <span
                   onClick={() => {
                     setStatus("Reset");
-                    
                   }}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
                 >
@@ -237,11 +244,7 @@ const LoginPage: React.FC = () => {
                   }}
                   className="text-[#FF6F00] hover:underline hover:cursor-pointer"
                 >
-                  {
-                    status === "Login"
-                      ? "Sign Up"
-                      : "Log In"
-                  }
+                  {status === "Login" ? "Sign Up" : "Log In"}
                 </span>
               </p>
 
