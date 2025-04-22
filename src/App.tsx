@@ -8,7 +8,7 @@ import Error from "./pages/Error";
 import CustomerNavbar from "@/components/CustomerNav";
 import BusinessCreate from "./pages/BusinessCreate";
 import LoginPage from "./pages/LoginPage";
-import LoginPageBusiness from "./pages/LoginPageBusiness"
+import LoginPageBusiness from "./pages/LoginPageBusiness";
 import UserSettings from "./pages/UserSettings";
 import firebase from "firebase/compat/app";
 import { useLocation } from "react-router-dom";
@@ -48,23 +48,22 @@ function App() {
   }, [cookies.uid]);
 
   // Hide navbar only on /business route
-  const hideNavbar = location.pathname === "/business";
+  const hideNavbar = location.pathname.startsWith("/business");
 
   return (
     <div>
-  
       {!hideNavbar && <CustomerNavbar uid={uid} setUID={setUID} />}
       <Toaster richColors position="bottom-right" />
       <Routes>
         <Route path="/" element={<CustomerDash />} />
-        <Route path="/business" element={<BusinessDash />} />
         <Route path="/settings" element={<UserSettings />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/createBusiness" element={<BusinessCreate />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/business" element={<BusinessDash />} />
         <Route path="/:section" element={<CustomerDash />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
-        <Route path="/loginBusiness" element={<LoginPageBusiness/>} />
+        <Route path="/loginBusiness" element={<LoginPageBusiness />} />
         <Route path="*" element={<Error />} />
       </Routes>
     </div>
