@@ -175,6 +175,28 @@ function BusinessDash() {
 
   const navigate = useNavigate();
 
+  const postMenuItemMutation = useMutation({
+    mutationFn: postNewMenuItem,
+    onSuccess: () => {queryClient.invalidateQueries({
+      queryKey: ["getMenuByBusinessId", businessId],
+    });
+    toast.success("Succesfuly added a menu item");},
+    onError: (e) => {
+      toast.error(`Error adding menu item: ${e}`);
+    },
+  })
+
+  const deleteMenuItemMutation = useMutation({
+    mutationFn: deleteMenuItem,
+    onSuccess: () => {queryClient.invalidateQueries({
+      queryKey: ["getMenuByBusinessId", businessId],
+    });
+    toast.success("Succesfuly deleted a menu item");},
+    onError: (e) => {
+      toast.error(`Error deleting menu item: ${e}`);
+    },
+  })
+
   const handleAddMenu = (name: string, price: string) => {
     const menuItem: TMenu = {itemName: name, itemPrice: +price, itemImage: ""}
     postMenuItemMutation.mutate({menuItem, businessId})
