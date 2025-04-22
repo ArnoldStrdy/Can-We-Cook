@@ -2,10 +2,11 @@ import { db } from "@/FirebaseConfig";
 import { uploadImage } from "@/pages/WrapperObjects";
 import {
   TCustomer,
-  TExistingMenu,
-  TNewReview,
-  TExistingReview,
-  TMenu,
+  IExistingMenu,
+  INewReview,
+  IExistingReview,
+  IMenu,
+  TRestaurant,
 } from "@/Types/RestaurantTypes";
 import {
   addDoc,
@@ -22,9 +23,36 @@ import {
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 
+export const getAllBusinesses = async (): Promise<TRestaurant[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "businesses"));
+    const documents = querySnapshot.docs.map(
+      (doc) =>
+        ({
+          businessId: doc.id,
+          ...doc.data(),
+        } as TRestaurant)
+    );
+    return documents;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+export const getBusinessById = async (businessID: string): Promise<TRestaurant|undefined> => {
+  try{
+    const docRef = doc(db, "businesses", businessID)
+    const docSnap = getDoc(docRef)
+    return (await docSnap).data() as TRestaurant
+  } catch(error) {
+    console.error(error)
+  }
+}
+
 export const getReviewByBusinessId = async (
   businessId: string
-): Promise<TExistingReview[]> => {
+): Promise<IExistingReview[]> => {
   try {
     // Convert businessId string into a Firestore reference
     const businessRef = doc(db, "businesses", businessId);
@@ -39,7 +67,7 @@ export const getReviewByBusinessId = async (
     const querySnapshot = await getDocs(reviewsQuery);
 
     // Extract reviews with business & customer references
-    const reviewsData: TExistingReview[] = await Promise.all(
+    const reviewsData: IExistingReview[] = await Promise.all(
       querySnapshot.docs.map(async (doc) => {
         const data = doc.data();
         let customerName = "Anonymous";
@@ -77,7 +105,7 @@ export const getReviewByBusinessId = async (
 
 export const getMenuByBusinessId = async (
   businessId: string
-): Promise<TExistingMenu[]> => {
+): Promise<IExistingMenu[]> => {
   try {
     const docRef = doc(db, "businesses", businessId);
 
@@ -100,7 +128,7 @@ export const postReview = async ({
   businessID,
   customerUid,
 }: {
-  newReview: TNewReview;
+  newReview: INewReview;
   businessID: string;
   customerUid: string;
 }): Promise<undefined> => {
@@ -132,7 +160,7 @@ export const postNewMenuItem = async ({
   menuItem,
   businessId,
 }: {
-  menuItem: TMenu;
+  menuItem: IMenu;
   businessId: string;
 }): Promise<undefined> => {
   try {
@@ -162,7 +190,7 @@ export const deleteMenuItem = async ({
 
       // Filter out the item with itemID === 2
       const updatedArray = currentArray.filter(
-        (item: TExistingMenu) => item.itemID !== itemID
+        (item: IExistingMenu) => item.itemID !== itemID
       );
 
       await updateDoc(businessRef, {

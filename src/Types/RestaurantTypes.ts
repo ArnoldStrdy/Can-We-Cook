@@ -1,29 +1,45 @@
 import { Timestamp } from "firebase/firestore";
 
-interface TReview {
-  anonymous: boolean
+export interface TRestaurant {
+  businessId: string;
+  businessAddress: string;
+  businessCertifications: string[];
+  businessDescription: string;
+  businessLocation: number[];
+  businessLogo: string;
+  businessName: string;
+  businessPictures: string[];
+  cuisineType: string;
+  menu: IExistingMenu[];
+  ownerId: string;
+  weeklyAggregateReviews: number;
+  weeklyAggregateScore: number;
+}
+
+interface IReview {
+  anonymous: boolean;
   dateTime: Timestamp;
   rating: number;
   reviewText: string;
   verified: boolean;
 }
 
-export interface TNewReview extends TReview{
+export interface INewReview extends IReview{
   pictures: File[]
 }
 
-export interface TExistingReview extends TReview {
+export interface IExistingReview extends IReview {
   customerName: string;
   pictures: string[];
 }
 
-export interface TMenu {
+export interface IMenu {
   itemImage: string;
   itemName: string;
   itemPrice: number;
 }
 
-export interface TExistingMenu extends TMenu {
+export interface IExistingMenu extends IMenu {
   itemID: string;
 }
 

@@ -4,6 +4,8 @@ import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Ratings from "@/components/ui/ratings";
+import { useQuery } from "@tanstack/react-query";
+import { getAllBusinesses } from "@/API/RestaurantAPI";
 
 const sampleTopRestaurants = [
   {
@@ -111,11 +113,30 @@ const sampleRestaurants = [
   },
 ];
 
+type TCuisine = "All"|
+            "American"|
+            "Italian"|
+            "Chinese"|
+            "Mexican"|
+            "Indian"|
+            "Thai"|
+            "Korean"|
+            "Japanese"
+
+const cuisines: TCuisine[] = ["All",
+            "American",
+            "Italian",
+            "Chinese",
+            "Mexican",
+            "Indian",
+            "Thai",
+            "Korean",
+            "Japanese"]
+
 function CustomerDash() {
   const navigate = useNavigate();
-  const [filteredRestaurants, setFilteredRestaurants] =
-    useState(sampleRestaurants);
-
+  const [cuisine, setCuisine] = useState<TCuisine>("All")
+  const [query, setQuery] = useState<string>("")
   const { section } = useParams();
   useEffect(() => {
     if (section) {
@@ -126,6 +147,11 @@ function CustomerDash() {
     }
     window.history.replaceState(null, "", "/");
   }, [section]);
+
+  const getAllBusinessesQuery = useQuery({
+    queryFn: () => getAllBusinesses(),
+    queryKey: ["getAllBusinesses"],
+  })
 
   return (
     <div className="bg-white dark:bg-black flex flex-col items-center justify-center text-black">
@@ -138,22 +164,22 @@ function CustomerDash() {
           <p>Highest Average Ratings Every Week</p>
         </div>
         <div className="flex flex-col justify-center gap-4 w-full">
-          {sampleTopRestaurants.map((restaurant, index) => (
+          {getAllBusinessesQuery.data?.map((restaurant, index) => (
             <div
               key={index}
               className="flex flex-row items-center justify-between border rounded-lg py-8 gap-16 px-10 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+              onClick={() => navigate(`/restaurant/${restaurant.businessId}`)}
             >
               <div className="flex flex-row items-center justify-between gap-4">
-                <img src={restaurant.logo} className="w-12 h-12" />
+                <img src={restaurant.businessLogo} className="w-12 h-12" />
                 <div className="text-lg font-bold">
                   {index + 1 + ". "}
-                  {restaurant.name}
+                  {restaurant.businessName}
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center gap-2">
-                <div>{restaurant.rating}</div>
-                <Ratings stars={restaurant.rating} />
+                <div>{restaurant.weeklyAggregateScore}</div>
+                <Ratings stars={restaurant.weeklyAggregateScore} />
                 {/* <div className="flex flex-row items-center justify-center gap-1">
                   {[1, 2, 3, 4, 5].map((value) => (
                     <Star
@@ -176,27 +202,12 @@ function CustomerDash() {
         </div>
 
         <div className="flex flex-row items-center justify-start gap-4 overflow-x-auto w-full">
-          {[
-            "All",
-            "American",
-            "Italian",
-            "Chinese",
-            "Mexican",
-            "Indian",
-            "Thai",
-            "Korean",
-            "Japanese",
-          ].map((cuisine, index) => (
+          {cuisines.map((cuisine, index) => (
             <div
               key={index}
               className="border rounded-full px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={() =>
-                setFilteredRestaurants(
-                  sampleRestaurants.filter(
-                    (restaurant) =>
-                      restaurant.cuisine === cuisine || cuisine === "All"
-                  )
-                )
+                setCuisine(cuisine)
               }
             >
               {cuisine}
@@ -207,43 +218,33 @@ function CustomerDash() {
             className="border rounded-full px-4 py-2 w-full min-w-fit"
             placeholder="Search for a restaurant"
             onChange={(e) => {
-              setFilteredRestaurants(
-                sampleRestaurants.filter(
-                  (restaurant) =>
-                    restaurant.name
-                      .toLowerCase()
-                      .includes(e.target.value.toLowerCase()) ||
-                    restaurant.cuisine
-                      .toLowerCase()
-                      .includes(e.target.value.toLowerCase())
-                )
-              );
+              setQuery(e.target.value)
             }}
           />
         </div>
 
         <div className="flex flex-col justify-center gap-4 w-full">
-          {filteredRestaurants.map((restaurant, index) => (
+          {getAllBusinessesQuery.data?.filter((restaurant) => (cuisine !== "All" ? restaurant.cuisineType == cuisine : true)  && (restaurant.businessName.toLowerCase().includes(query.toLowerCase()) || restaurant.cuisineType.toLowerCase().includes(cuisine.toLowerCase()))).map((restaurant, index) => (
             <div
               key={index}
               className="flex flex-row items-center justify-between border rounded-lg py-8 gap-16 px-10 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+              onClick={() => navigate(`/restaurant/${restaurant.businessId}`)}
             >
               <div className="flex flex-row items-center justify-between gap-4">
-                <img src={restaurant.logo} className="w-12 h-12" />
+                <img src={restaurant.businessLogo} className="w-12 h-12" />
                 <div className="text-lg font-bold">
                   {index + 1 + ". "}
-                  {restaurant.name}
+                  {restaurant.businessName}
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center gap-2">
-                <div>{restaurant.rating}</div>
+                <div>{restaurant.weeklyAggregateScore}</div>
                 <div className="flex flex-row items-center justify-center gap-1">
                   {[1, 2, 3, 4, 5].map((value) => (
                     <Star
                       key={value}
                       className={`${
-                        restaurant.rating >= value ? "fill-[#FFD233]" : ""
+                        restaurant.weeklyAggregateScore >= value ? "fill-[#FFD233]" : ""
                       }`}
                     />
                   ))}

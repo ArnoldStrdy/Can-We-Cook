@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Check, Trash2, Verified, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteMenuItem, getMenuByBusinessId, getReviewByBusinessId, postNewMenuItem } from "@/API/RestaurantAPI";
-import { TExistingMenu, TExistingReview, TMenu } from "@/Types/RestaurantTypes";
+import { IExistingMenu, IExistingReview, IMenu } from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
 
 
@@ -194,7 +194,7 @@ function BusinessDash() {
   })
 
   const handleAddMenu = (name: string, price: string) => {
-    const menuItem: TMenu = {itemName: name, itemPrice: +price, itemImage: ""}
+    const menuItem: IMenu = {itemName: name, itemPrice: +price, itemImage: ""}
     postMenuItemMutation.mutate({menuItem, businessId})
     setMenu((prev) => [...prev, { name, price }]);
   };
@@ -692,7 +692,7 @@ function BusinessDash() {
   );
 }
 
-const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => (
+const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => (
   <div className="mt-4 space-y-6">
     {/* <Card>
       <CardContent className="p-4 text-gray-800 dark:text-gray-200">
@@ -739,7 +739,7 @@ const MenuTabContent = ({
   menu,
   onDelete,
 }: {
-  menu: TExistingMenu[];
+  menu: IExistingMenu[];
   onDelete?: (index: string) => void;
 }) => (
   <Table className="mt-4">

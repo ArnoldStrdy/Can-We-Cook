@@ -26,9 +26,9 @@ import { Textarea } from "@/components/ui/textarea";
 import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerFromUID } from "./FirebaseAPI";
-import { Business, Review } from "./WrapperObjects";
-import { TExistingMenu, TExistingReview } from "@/Types/RestaurantTypes";
+import { IExistingMenu, IExistingReview } from "@/Types/RestaurantTypes";
 import {
+  getBusinessById,
   getMenuByBusinessId,
   getReviewByBusinessId,
   postReview,
@@ -37,7 +37,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Timestamp } from "firebase/firestore";
-import { generateReviewSummary } from "../API/gemini";
 
 const reviews = [
   {
@@ -114,15 +113,11 @@ type ReviewType = {
 
 function RestaurantDetails() {
   const businessId = useParams().id;
-  const Buisness = useQuery({
-    queryFn: () => {
-      const business = new Business();
-      business.initBusiness(businessId!);
-      
-      return business;
-    },
-    queryKey: ["getBusinessById", businessId],
-  });
+
+  const getBusinessQuery = useQuery({
+    queryFn: () => getBusinessById(businessId!),
+    queryKey: ["getBusinessById", businessId]
+  })
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
     queryKey: ["getReviewByBusinessId", businessId],
@@ -132,13 +127,6 @@ function RestaurantDetails() {
     queryFn: () => getMenuByBusinessId(businessId!),
     queryKey: ["getMenuByBusinessId", businessId],
   });
-
-  const menu = Buisness.data?.menu;
-  const pics = Buisness.data?.businessPictures;
-  const reviews = Buisness.data?.getAllReviews();
-  console.log("Menu: ", menu);
-  console.log("Pics: ", pics);
-  console.log("Reviews: ", reviews);
   
   // const pictures = business.businessPictures;
   const auth = firebase.auth();
@@ -148,19 +136,13 @@ function RestaurantDetails() {
     <div className="mx-[20%] mt-[5%] space-y-6">
       <div className="flex">
         <div className="flex-3/4 text-left space-y-4 pr-[10%]">
-          <h1 className="text-4xl font-bold">Restaurant 1</h1>
+          <h1 className="text-4xl font-bold">{getBusinessQuery.data?.businessName}</h1>
           <span className="text-lg">
-            Welcome to Savor & Sip, a cozy neighborhood restaurant where
-            delicious comfort food meets a relaxed, welcoming atmosphere. Our
-            menu features a delightful blend of classic dishes with a modern
-            twist, crafted using fresh, locally sourced ingredients. Whether
-            you're here for a quick bite, a hearty meal, or just to enjoy our
-            signature cocktails and desserts, we promise an unforgettable dining
-            experience.
+            {getBusinessQuery.data?.businessDescription}  
           </span>
         </div>
         <div className="flex-1/4 m-auto">
-          <img src="/src\assets\logoIcon.png" className="w-[60%] mx-auto" />
+          <img src={getBusinessQuery.data?.businessLogo} className="w-[60%] mx-auto" />
         </div>
       </div>
       <div className="w-min mx-auto">
@@ -180,7 +162,7 @@ function RestaurantDetails() {
           <MenuTabContent menu={getMenuQuery.data!} />
         </TabsContent>
         <TabsContent value="pictures" className="px-4">
-          <PicturesTabContent pics={pics}/>
+          <PicturesTabContent pics={getBusinessQuery.data?.businessPictures!}/>
         </TabsContent>
         <TabsContent value="map" className="px-4">
           <div className="aspect-2/1 w-full">
@@ -201,7 +183,7 @@ function RestaurantDetails() {
   );
 }
 
-const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => {
+const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
   return (
     <div className="mt-4 space-y-6">
       {reviews?.map((review, index) => {
@@ -250,7 +232,7 @@ const ReviewsTabContent = ({ reviews }: { reviews: TExistingReview[] }) => {
   );
 };
 
-const MenuTabContent = ({ menu }: { menu: TExistingMenu[] }) => {
+const MenuTabContent = ({ menu }: { menu: IExistingMenu[] }) => {
   console.log(menu);
   return (
     <Table className="mt-4">
@@ -418,7 +400,6 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
       const MAX_IMAGE = 3;
       if (e.target.files) {
         const fileArray = Array.from(e.target.files);
-        // const imgUrls = fileArray.map((file) => URL.createObjectURL(file));
         const remaining = MAX_IMAGE - newReview.pictures.length;
         if (fileArray.length > remaining) {
           toast.error("Max 3 images");
