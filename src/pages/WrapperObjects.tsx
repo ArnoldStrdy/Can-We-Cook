@@ -122,6 +122,8 @@ type businessData = {
   menu: Array<menuItem>;
   weeklyAggregatedScore: number;
   weeklyAggregatedReviews: number;
+  aggregatedReviews: number;
+  aggregatedScore: number;
   businessDescription: string;
 };
 
@@ -139,6 +141,8 @@ class Business {
   menu: Array<menuItem>;
   weeklyAggregatedScore: number;
   weeklyAggregatedReviews: number;
+  aggregatedReviews: number;
+  aggregatedScore: number;
   businessDescription: string;
   constructor(businessData?: businessData | string) {
     if (typeof businessData == "string") {
@@ -158,6 +162,8 @@ class Business {
       this.businessLocation = businessData.businessLocation ?? [0, 0];
       this.weeklyAggregatedReviews = businessData.weeklyAggregatedReviews ?? 0;
       this.weeklyAggregatedScore = businessData.weeklyAggregatedScore ?? 0;
+      this.aggregatedReviews = businessData.aggregatedReviews ?? 0;
+      this.aggregatedScore = businessData.aggregatedScore ?? 0;
     } else {
       this.businessName = "";
       this.businessAddress = "";
@@ -172,6 +178,8 @@ class Business {
       this.businessLocation = [0, 0];
       this.weeklyAggregatedReviews = 0;
       this.weeklyAggregatedScore = 0;
+      this.aggregatedReviews = 0;
+      this.aggregatedScore = 0;
     }
   }
   async initBusiness(businessID: string | undefined) {
@@ -207,20 +215,24 @@ class Business {
       this.businessLocation = doc.data.businessLocation;
       this.weeklyAggregatedReviews = doc.data.weeklyAggregatedReviews;
       this.weeklyAggregatedScore = doc.data.weeklyAggregatedScore;
+      this.aggregatedReviews = doc.data.aggregatedReviews;
+      this.aggregatedScore = doc.data.aggregatedScore;
     }
     console.log(this);
     //console.log("Business ID: " + businessData);
     return;
   }
   createBusiness() {
+    console.log("Creating business...");
     if (this.businessID !== undefined) {
       console.error("Business already exists");
       return;
     }
+    console.log(this.ownerID);
     const data = {
       businessName: this.businessName,
       businessAddress: this.businessAddress,
-      ownerID: firestore().doc("owners/" + this.ownerID.toString()),
+      ownerID: this.ownerID,
       menu: this.menu.map((item) => item.getItem()),
       businessDescription: this.businessDescription,
       businessLogo: this.businessLogo,
@@ -230,7 +242,10 @@ class Business {
       businessLocation: this.businessLocation,
       weeklyAggregatedReviews: this.weeklyAggregatedReviews,
       weeklyAggregatedScore: this.weeklyAggregatedScore,
+      aggregatedReviews: this.aggregatedReviews,
+      aggregatedScore: this.aggregatedScore,
     };
+    console.log(data);
     addDocument(this.collection, data)
       .then((id) => {
         if (id != "") {
@@ -243,6 +258,7 @@ class Business {
       .catch((error) => {
         console.error("Error adding business: ", error);
       });
+      console.log("DONE")
   }
   setBusinessName(businessName: string) {
     this.businessName = businessName;
