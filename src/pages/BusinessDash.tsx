@@ -302,7 +302,10 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [changePasswordError, setChangePasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
-
+  const [restaurantName, setRestaurantName] = useState("Restaurant 1");
+  const [restaurantDesc, setRestaurantDesc] = useState(
+    "Welcome to Savor & Sip, where comfort food meets cozy vibes."
+  );
   useEffect(() => {
     setUID(uid);
     firebase.auth().onAuthStateChanged((user) => {
@@ -349,12 +352,21 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         setPictures(
           business.businessPictures.length > 0 ? business.businessPictures : []
         );
+        setRestaurantName(business.businessName);
+        setRestaurantDesc(business.businessDescription);
+        console.log("Business ID:", businessId, business.businessID);
+        console.log("Business Pictures:", pictures, business.businessPictures);
+        console.log("Business:", restaurantName, business.businessName);
+        console.log("Business Desc:", restaurantDesc, business.businessDescription);
       });
       return business;
     },
     queryKey: ["getBusinessById", businessId],
   });
-
+  console.log("Business ID:", businessId, Buisness.data?.businessID);
+  console.log("Business Pictures:", pictures, Buisness.data?.businessPictures);
+  console.log("Business:", restaurantName, Buisness.data?.businessName);
+  console.log("Business Desc:", restaurantDesc, Buisness.data?.businessDescription);
   const queryClient = useQueryClient();
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
@@ -433,10 +445,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     console.log("Business Pictures:", Buisness.data!.businessPictures);
   };
 
-  const [restaurantName, setRestaurantName] = useState("Restaurant 1");
-  const [restaurantDesc, setRestaurantDesc] = useState(
-    "Welcome to Savor & Sip, where comfort food meets cozy vibes."
-  );
+  
   const [isEditing, setIsEditing] = useState(false);
 
   const cancelEdit = () => {
@@ -637,9 +646,9 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           <div className="mx-[20%] mt-[5%] space-y-6">
             <div className="flex">
               <div className="flex-3/4 text-left space-y-4 pr-[10%]">
-                <h1 className="text-4xl font-bold">Restaurant 1</h1>
+                <h1 className="text-4xl font-bold">{restaurantName}</h1>
                 <span className="text-lg">
-                  Welcome to Savor & Sip, where comfort food meets cozy vibes.
+                  {restaurantDesc}
                 </span>
               </div>
               <div className="flex-1/4 m-auto">
