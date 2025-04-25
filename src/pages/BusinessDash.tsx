@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Ratings from "@/components/ui/ratings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,7 +37,7 @@ import firebase from "firebase/compat/app";
 import model from "@/API/gemini";
 
 import { useNavigate } from "react-router-dom";
-import { Check, Trash2, Verified, X } from "lucide-react";
+import { Check, Trash2, Upload, Verified, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteMenuItem,
@@ -57,6 +57,7 @@ import {
   getOwnerNameFromUID,
 } from "./FirebaseAPI";
 import { Sidebar } from "./ReactSidebar";
+import { Input } from "@/components/ui/input";
 
 type Review = {
   reviewer: string;
@@ -420,6 +421,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         queryKey: ["getMenuByBusinessId", businessId],
       });
       toast.success("Succesfuly added a menu item");
+      setMenuImage(undefined)
     },
     onError: (e) => {
       toast.error(`Error adding menu item: ${e}`);
@@ -579,7 +581,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       </div>
     );
   };
-
+  const imageInput = useRef<HTMLInputElement | null>(null);
+  const [menuImage, setMenuImage] = useState<File>();
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-black">
       <motion.nav
@@ -843,7 +846,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   const price = (
                     form.elements.namedItem("price") as HTMLInputElement
                   ).value;
-                  handleAddMenu(name, price);
+                  handleAddMenu(name, price, menuImage!);
                   setIsEditingMenu(false);
                 }}
               >
@@ -857,6 +860,44 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   placeholder="Price"
                   className="w-full p-2 border rounded"
                 />
+                {!menuImage && (
+                  <div>
+                    <Input
+                      name="image"
+                      type="file"
+                      ref={imageInput}
+                      className="hidden"
+                      onChange={(e) =>
+                        setMenuImage(Array.from(e.target.files!)[0])
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-min"
+                      onClick={() => imageInput.current!.click()}
+                    >
+                      <Upload />
+                    </Button>
+                  </div>
+                )}
+
+                {menuImage && (
+                  <div className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-56 p-6 border flex items-center justify-center relative">
+                    <img
+                      src={URL.createObjectURL(menuImage)}
+                      alt=""
+                      className="w-full h-auto object-contain"
+                    />
+                    <button
+                      onClick={() => setMenuImage(undefined)}
+                      className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:text-red-800"
+                    >
+                      <X />
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex space-x-4">
                   <button
                     type="submit"

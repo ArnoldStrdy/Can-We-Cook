@@ -5,7 +5,7 @@ import {
   IExistingMenu,
   INewReview,
   IExistingReview,
-  IMenu,
+  INewMenu,
   TRestaurant,
 } from "@/Types/RestaurantTypes";
 import {
@@ -40,20 +40,21 @@ export const getAllBusinesses = async (): Promise<TRestaurant[]> => {
   }
 };
 
-export const getBusinessById = async (businessID: string): Promise<TRestaurant|undefined> => {
-  try{
-    const docRef = doc(db, "businesses", businessID)
-    const docSnap = getDoc(docRef)
-    return (await docSnap).data() as TRestaurant
-  } catch(error) {
-    console.error(error)
+export const getBusinessById = async (
+  businessID: string
+): Promise<TRestaurant | undefined> => {
+  try {
+    const docRef = doc(db, "businesses", businessID);
+    const docSnap = getDoc(docRef);
+    return (await docSnap).data() as TRestaurant;
+  } catch (error) {
+    console.error(error);
   }
-}
+};
 
 export const getReviewByBusinessId = async (
   businessId: string
 ): Promise<IExistingReview[]> => {
-  try {
     // Convert businessId string into a Firestore reference
     const businessRef = doc(db, "businesses", businessId);
 
@@ -97,16 +98,11 @@ export const getReviewByBusinessId = async (
     );
 
     return reviewsData;
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-    return [];
-  }
 };
 
 export const getMenuByBusinessId = async (
   businessId: string
 ): Promise<IExistingMenu[]> => {
-  try {
     const docRef = doc(db, "businesses", businessId);
 
     const docSnap = await getDoc(docRef);
@@ -116,11 +112,9 @@ export const getMenuByBusinessId = async (
       return data.menu;
     } else {
       console.log("No such document!");
+      return [];
     }
-  } catch (error) {
-    console.error("Error getting document:", error);
-  }
-  return [];
+  
 };
 
 export const postReview = async ({
@@ -132,45 +126,53 @@ export const postReview = async ({
   businessID: string;
   customerUid: string;
 }): Promise<undefined> => {
-  try {
     const imgUrls = await Promise.all(
       newReview.pictures.map((img) => uploadImage(img))
     );
-    const customerQuery = query(
-      collection(db, "customers"),
-      where("uid", "==", customerUid)
-    );
-    const querySnapshot = await getDocs(customerQuery);
-    const customerID = querySnapshot.docs[0].id;
     const businessRef = doc(db, "businesses", businessID);
-    const customerRef = doc(db, "customers", customerID);
-    const docRef = await addDoc(collection(db, "reviews"), {
-      ...newReview,
-      pictures: imgUrls,
-      businessID: businessRef,
-      customerID: customerRef,
-    });
-    console.log("Document added with ID: ", docRef.id);
-  } catch (e) {
-    console.error("Error adding document: ", e);
-  }
+    console.log(customerUid)
+    if (customerUid) {
+      const customerQuery = query(
+        collection(db, "customers"),
+        where("uid", "==", customerUid)
+      );
+      const querySnapshot = await getDocs(customerQuery);
+      const customerID = querySnapshot.docs[0].id;
+      const customerRef = doc(db, "customers", customerID);
+
+      const docRef = await addDoc(collection(db, "reviews"), {
+        ...newReview,
+        pictures: imgUrls,
+        businessID: businessRef,
+        customerID: customerRef,
+      });
+      console.log("Document added with ID: ", docRef);
+    } else {
+      const docRef = await addDoc(collection(db, "reviews"), {
+        ...newReview,
+        pictures: imgUrls,
+        businessID: businessRef,
+      });
+        console.log("Document added with ID: ", docRef);
+      }
 };
 
 export const postNewMenuItem = async ({
   menuItem,
   businessId,
 }: {
-  menuItem: IMenu;
+  menuItem: INewMenu;
   businessId: string;
 }): Promise<undefined> => {
-  try {
     const businessRef = doc(db, "businesses", businessId);
     const itemID = uuidv4();
-    await updateDoc(businessRef, { menu: arrayUnion({ itemID, ...menuItem }) });
+    if (menuItem.itemImage) {
+      const itemImage = await uploadImage(menuItem.itemImage!)
+      await updateDoc(businessRef, { menu: arrayUnion({ itemID, ...menuItem, itemImage }) });
+    } else {
+      await updateDoc(businessRef, { menu: arrayUnion({ itemID, ...menuItem, itemImage:"" }) });
+    }
     console.log("Menu item added with ID: ");
-  } catch (e) {
-    console.error("Error adding menu item: ", e);
-  }
 };
 
 export const deleteMenuItem = async ({
@@ -180,7 +182,6 @@ export const deleteMenuItem = async ({
   itemID: string;
   businessId: string;
 }): Promise<undefined> => {
-  try {
     const businessRef = doc(db, "businesses", businessId);
 
     const docSnap = await getDoc(businessRef);
@@ -198,7 +199,4 @@ export const deleteMenuItem = async ({
       });
     }
     console.log(`Deleted menu item with id: ${itemID}`);
-  } catch (e) {
-    console.error("Error adding menu item: ", e);
-  }
 };

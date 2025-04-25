@@ -143,7 +143,7 @@ function RestaurantDetails() {
           </span>
         </div>
         <div className="flex-1/4 m-auto">
-          <img src={getBusinessQuery.data?.businessLogo} className="w-[60%] mx-auto" />
+          {getBusinessQuery.data?.businessLogo.length! > 0 && <img src={getBusinessQuery.data?.businessLogo} className="w-[60%] mx-auto" />}
         </div>
       </div>
       <div className="w-min mx-auto">

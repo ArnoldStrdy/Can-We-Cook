@@ -33,14 +33,19 @@ export interface IExistingReview extends IReview {
   pictures: string[];
 }
 
+
 export interface IMenu {
-  itemImage: string;
   itemName: string;
   itemPrice: number;
 }
 
+export interface INewMenu extends IMenu {
+  itemImage?: File;
+}
+
 export interface IExistingMenu extends IMenu {
   itemID: string;
+  itemImage: string
 }
 
 export type TCustomer = {
