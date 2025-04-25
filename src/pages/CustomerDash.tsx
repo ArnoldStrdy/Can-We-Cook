@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import Ratings from "@/components/ui/ratings";
 import { useQuery } from "@tanstack/react-query";
 import { getAllBusinesses } from "@/API/RestaurantAPI";
+import { BusinessCard } from "@/components/custom/businessCard";
 
 const sampleTopRestaurants = [
   {
@@ -165,33 +166,7 @@ function CustomerDash() {
         </div>
         <div className="flex flex-col justify-center gap-4 w-full">
           {getAllBusinessesQuery.data?.map((restaurant, index) => (
-            <div
-              key={index}
-              className="flex flex-row items-center justify-between border rounded-lg py-8 gap-16 px-10 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => navigate(`/restaurant/${restaurant.businessId}`)}
-            >
-              <div className="flex flex-row items-center justify-between gap-4">
-                <img src={restaurant.businessLogo} className="w-12 h-12" />
-                <div className="text-lg font-bold">
-                  {index + 1 + ". "}
-                  {restaurant.businessName}
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2">
-                <div>{restaurant.weeklyAggregateScore}</div>
-                <Ratings stars={restaurant.weeklyAggregateScore} />
-                {/* <div className="flex flex-row items-center justify-center gap-1">
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <Star
-                      key={value}
-                      className={`${
-                        restaurant.rating >= value ? "fill-[#FFD233]" : ""
-                      }`}
-                    />
-                  ))}
-                </div> */}
-              </div>
-            </div>
+            <BusinessCard index={index} key={index} restaurant={restaurant}/>
           ))}
         </div>
       </div>
@@ -225,32 +200,7 @@ function CustomerDash() {
 
         <div className="flex flex-col justify-center gap-4 w-full">
           {getAllBusinessesQuery.data?.filter((restaurant) => (cuisine !== "All" ? restaurant.cuisineType == cuisine : true)  && (restaurant.businessName.toLowerCase().includes(query.toLowerCase()) || restaurant.cuisineType.toLowerCase().includes(cuisine.toLowerCase()))).map((restaurant, index) => (
-            <div
-              key={index}
-              className="flex flex-row items-center justify-between border rounded-lg py-8 gap-16 px-10 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => navigate(`/restaurant/${restaurant.businessId}`)}
-            >
-              <div className="flex flex-row items-center justify-between gap-4">
-                <img src={restaurant.businessLogo} className="w-12 h-12" />
-                <div className="text-lg font-bold">
-                  {index + 1 + ". "}
-                  {restaurant.businessName}
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2">
-                <div>{restaurant.weeklyAggregateScore}</div>
-                <div className="flex flex-row items-center justify-center gap-1">
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <Star
-                      key={value}
-                      className={`${
-                        restaurant.weeklyAggregateScore >= value ? "fill-[#FFD233]" : ""
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
+            <BusinessCard index={index} key={index} restaurant={restaurant}/>
           ))}
         </div>
         <div id="map" className="h-28"></div>

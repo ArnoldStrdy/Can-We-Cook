@@ -37,6 +37,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Timestamp } from "firebase/firestore";
+import { ReviewCard } from "@/components/custom/reviewCard";
 
 const reviews = [
   {
@@ -189,43 +190,7 @@ const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
       {reviews?.map((review, index) => {
         // console.log("[XX]Review: ", review);
         return (
-          <Card key={index}>
-            <CardContent className="text-lg space-y-2">
-              <div className="flex">
-                <div className="flex-3/5 font-bold flex">
-                  {review.customerName}
-                  {review.verified && (
-                    <Verified color="#4ECB71" className="ml-2" />
-                  )}
-                </div>
-                <div className=" flex flex-2/5">
-                  <div className="flex ml-auto space-x-6">
-                    <div className="text-gray-600 text-right">
-                      {review.dateTime.toDate().toLocaleDateString()}
-                    </div>
-                    <div className="">
-                      <Ratings stars={review.rating} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>{review.reviewText}</div>
-              <div className="grid grid-cols-6 gap-2 place-items-center">
-                {review.pictures?.map((url) => (
-                  <div
-                    key={url}
-                    className="rounded-lg bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
-                  >
-                    <img
-                      src={url}
-                      alt=""
-                      className="w-full h-auto object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <ReviewCard key={index} review={review}/>
         );
       })}
     </div>
@@ -269,7 +234,7 @@ const PicturesTabContent = ({ pics }: { pics: string[] }) => (
     {pics?.map((url, index) => (
       <div
         key={index}
-        className="rounded-lg bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
+        className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
       >
         <img src={url} alt="" className="w-full h-auto object-contain" />
       </div>
@@ -329,6 +294,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
 
   const handleSubmit = () => {
     console.log(newReview);
+    console.log(auth.currentUser)
     if (newReview.rating === 0) {
       toast.error("Rating is required");
     } else if (newReview.reviewText.length === 0) {
@@ -459,7 +425,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
             return (
               <div
                 key={url}
-                className="rounded-lg bg-gray-500 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
+                className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
               >
                 <img
                   src={url}

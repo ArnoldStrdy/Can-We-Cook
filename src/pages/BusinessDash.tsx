@@ -45,7 +45,11 @@ import {
   getReviewByBusinessId,
   postNewMenuItem,
 } from "@/API/RestaurantAPI";
-import { IExistingMenu, IExistingReview, IMenu } from "@/Types/RestaurantTypes";
+import {
+  IExistingMenu,
+  IExistingReview,
+  INewMenu,
+} from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
 import {
   getOwnerFromUID,
@@ -435,11 +439,11 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     },
   });
 
-  const handleAddMenu = (name: string, price: string) => {
-    const menuItem: IMenu = {
+  const handleAddMenu = (name: string, price: string, image: File) => {
+    const menuItem: INewMenu = {
       itemName: name,
       itemPrice: +price,
-      itemImage: "",
+      itemImage: image,
     };
     if (businessId) {
       postMenuItemMutation.mutate({ menuItem, businessId });
