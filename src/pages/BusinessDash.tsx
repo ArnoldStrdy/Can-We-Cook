@@ -601,7 +601,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             selected={currentPage}
             setSelected={setCurrentPage}
             open={open}
-            notifs={getReviewsQuery.data!.length}
+            notifs={getReviewsQuery.data?.length!}
           />
           <Option
             Icon={IoRestaurantOutline}
