@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import BusinessDash from "./pages/BusinessDash";
 import CustomerDash from "./pages/CustomerDash";
 import RestaurantDetails from "./pages/RestaurantDetails";
@@ -14,7 +14,7 @@ import firebase from "firebase/compat/app";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import { CookiesProvider, useCookies } from "react-cookie";
-import { getCustomerFromUID } from "./pages/FirebaseAPI";
+import { getCustomerFromUID, getOwnerFromUID } from "./pages/FirebaseAPI";
 
 const auth = firebase.auth();
 console.log(auth.currentUser);
@@ -24,6 +24,23 @@ function App() {
   const [name, setName] = useState<string | null>(null);
   const [cookies, setCookie] = useCookies(["uid", "name"]); // Use react-cookie to access cookies
   const location = useLocation(); // Current route location
+  const [isOwner, setIsOwner] = useState(false);
+
+  // Check if the user is an owner
+  useEffect(() => {
+    const checkIfOwner = async () => {
+      if (uid) {
+        const owner = await getOwnerFromUID(uid);
+        if (owner) {
+          setIsOwner(true);
+        } else {
+          setIsOwner(false);
+        }
+      }
+    };
+    checkIfOwner();
+    console.log("Is ownerrrrrrrrrrrrrrrrrrrrrrrrr: ", isOwner);
+  }, [uid]);
 
   useEffect(() => {
     if (cookies.uid) {

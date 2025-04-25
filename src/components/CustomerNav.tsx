@@ -92,7 +92,9 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               if (
                 url.includes("/about") ||
                 url.includes("/login") ||
-                url.includes("/settings")
+                url.includes("/settings") ||
+                url.includes("/restaurant") ||
+                url.includes("/createBusiness")
               ) {
                 navigate("/");
               }
@@ -109,7 +111,9 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 if (
                   url.includes("/about") ||
                   url.includes("/login") ||
-                  url.includes("/settings")
+                  url.includes("/settings") ||
+                  url.includes("/restaurant") ||
+                  url.includes("/createBusiness")
                 ) {
                   navigate("/");
                 }
@@ -128,7 +132,9 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 if (
                   url.includes("/about") ||
                   url.includes("/login") ||
-                  url.includes("/settings")
+                  url.includes("/settings") ||
+                  url.includes("/restaurant") ||
+                  url.includes("/createBusiness")
                 ) {
                   navigate("/restaurants");
                 }
@@ -147,7 +153,9 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 if (
                   url.includes("/about") ||
                   url.includes("/login") ||
-                  url.includes("/settings")
+                  url.includes("/settings") ||
+                  url.includes("/restaurant") ||
+                  url.includes("/createBusiness")
                 ) {
                   navigate("/map");
                 }
