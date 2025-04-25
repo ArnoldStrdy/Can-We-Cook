@@ -39,18 +39,24 @@ function BusinessCreate() {
     }
   });
   const [businessAddress, setBusinessAddress] = useState("");
+  const [businessCountry, setBusinessCountry] = useState("");
+  const [businessCity, setBusinessCity] = useState("");
+  const [businessState, setBusinessState] = useState("");
+  const [businessZip, setBusinessZip] = useState("");
   const [menu, setMenu] = useState<menuItem[]>([]);
   const [businessDescription, setBusinessDescription] = useState("");
   const [businessLogo, setBusinessLogo] = useState("");
   const [cuisineType, setCuisineType] = useState("");
   const [pictures, setPictures] = useState<string[]>([]);
   const [useAddress, setUseAddress] = useState(true);
-  const [latitude, setLatitude] = useState<number | null>(0);
-  const [longitude, setLongitude] = useState<number | null>(0);
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
   const [menuItemName, setItemName] = useState("");
   const [menuItemPrice, setItemPrice] = useState(0);
   const [menuItemImage, setItemImage] = useState("");
-
+  let lat = 0;
+  let lon = 0;
+  let addr = "";
   const addMenuItem = () => {
     const newMenuItem = new menuItem(
       menuItemName,
@@ -71,6 +77,28 @@ function BusinessCreate() {
       });
     }
   };
+  const generateBusiness = () => {
+    console.log("Generating business...");
+    console.log("Lon Lan", latitude, longitude, lat, lon);
+    const data: businessData = {
+      businessName: businessName,
+      businessAddress: addr,
+      ownerID: ownerID,
+      menu: menu,
+      businessDescription: businessDescription,
+      businessLogo: businessLogo,
+      cuisineType: cuisineType,
+      businessID: undefined,
+      businessCertifications: [],
+      businessLocation: [lat ?? 0, lon ?? 0],
+      businessPictures: pictures,
+      weeklyAggregatedScore: 0,
+      weeklyAggregatedReviews: 0,
+    };
+    const newBusiness = new Business(data);
+    newBusiness.createBusiness();
+    navigate("/business");
+  }
   const createBusiness = () => {
     console.log("Creating business...");
     if (useAddress) {
@@ -82,10 +110,18 @@ function BusinessCreate() {
       fetch(url)
         .then((response) => response.json())
         .then((data) => {
-          const lat = data.features[0].properties.lat;
-          const lon = data.features[0].properties.lon;
+          console.log(data);
+          lat = data.features[0].properties.lat;
+          lon = data.features[0].properties.lon;
+          return { lat, lon };
+        }).then(({lat, lon}) => {
+          console.log("Latitude:", lat, "Longitude:", lon);
           setLatitude(lat);
           setLongitude(lon);
+          console.log("Latitude:", latitude, "Longitude:", longitude);
+          //console.log("Latitude:", lat, "Longitude:", lon);
+          generateBusiness();
+          return;
         })
         .catch((error) => {
           console.error("Error fetching coordinates:", error);
@@ -100,31 +136,18 @@ function BusinessCreate() {
         .then((response) => response.json())
         .then((data) => {
           const address = data.features[0].properties.formatted;
+          return address;
+        }).then((address) => {
           setBusinessAddress(address);
+          addr = address;
+          generateBusiness();
         })
         .catch((error) => {
           console.error("Error fetching address:", error);
         });
     }
-    const data: businessData = {
-      businessName: businessName,
-      businessAddress: businessAddress,
-      ownerID: ownerID,
-      menu: menu,
-      businessDescription: businessDescription,
-      businessLogo: businessLogo,
-      cuisineType: cuisineType,
-      businessID: undefined,
-      businessCertifications: [],
-      businessLocation: [latitude ?? 0, longitude ?? 0],
-      businessPictures: pictures,
-      weeklyAggregatedScore: 0,
-      weeklyAggregatedReviews: 0,
-    };
-    const newBusiness = new Business(data);
-    newBusiness.createBusiness();
-    navigate("/business");
   };
+
   return (
     <div className="flex flex-col items-center justify-center mt-20 max-w-sm mx-auto gap-4">
       <h1>Create Business</h1>
@@ -166,14 +189,22 @@ function BusinessCreate() {
             type="number"
             placeholder="Latitude"
             value={latitude || ""}
-            onChange={(e) => setLatitude(Number(e.target.value))}
+            onChange={(e) => {
+              setLatitude(Number(e.target.value))
+              lat = Number(e.target.value)
+            }
+          }
           />
           <input
             className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
             type="number"
             placeholder="Longitude"
             value={longitude || ""}
-            onChange={(e) => setLongitude(Number(e.target.value))}
+            onChange={(e) => {
+              setLongitude(Number(e.target.value))
+              lon = Number(e.target.value)
+            }
+          }
           />
         </div>
       )}
