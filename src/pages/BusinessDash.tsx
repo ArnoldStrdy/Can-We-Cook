@@ -12,6 +12,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  FiBarChart,
+  FiChevronDown,
+  FiChevronsRight,
+  FiDollarSign,
+  FiHome,
+  FiMonitor,
+  FiShoppingCart,
+  FiTag,
+  FiUsers,
+} from "react-icons/fi";
+import { MdOutlineReviews } from "react-icons/md";
+import { IoRestaurantOutline } from "react-icons/io5";
+import { BiFoodMenu } from "react-icons/bi";
+import { AiOutlinePicture } from "react-icons/ai";
+import { IoSettingsOutline } from "react-icons/io5";
+import { RiLogoutBoxLine } from "react-icons/ri";
+import { motion } from "framer-motion";
 
 import imgUrl from "../assets/logoIcon.png";
 import { useCookies } from "react-cookie";
@@ -30,6 +48,7 @@ import {
 import { IExistingMenu, IExistingReview, IMenu } from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
 import { getOwnerFromUID, getRestuarantfromOwnerID } from "./FirebaseAPI";
+import { Sidebar } from "./ReactSidebar";
 
 type Review = {
   reviewer: string;
@@ -135,13 +154,140 @@ type SummarizedReviews = {
 const dummyBusiness = new Business();
 const dummyPictures = [imgUrl, imgUrl];
 
+interface OptionProps {
+  Icon: React.ComponentType;
+  title: string;
+  selected: string;
+  setSelected: (value: string) => void;
+  open: boolean;
+  notifs?: number;
+}
+
+const Option: React.FC<OptionProps> = ({
+  Icon,
+  title,
+  selected,
+  setSelected,
+  open,
+  notifs,
+}) => {
+  return (
+    <motion.button
+      layout
+      onClick={() => setSelected(title)}
+      className={`relative flex h-10 w-full items-center rounded-md transition-colors ${
+        selected === title
+          ? "bg-indigo-100 text-indigo-800"
+          : "text-slate-500 hover:bg-slate-100"
+      }`}
+    >
+      <motion.div
+        layout
+        className="grid h-full w-10 place-content-center text-lg"
+      >
+        <Icon />
+      </motion.div>
+      {open && (
+        <motion.span
+          layout
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.125 }}
+          className="text-xs font-medium"
+        >
+          {title}
+        </motion.span>
+      )}
+      {notifs && open && (
+        <motion.span
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          style={{ y: "-50%" }}
+          transition={{ delay: 0.5 }}
+          className="absolute right-2 top-1/2 size-4 rounded bg-indigo-500 text-xs text-white"
+        >
+          {notifs}
+        </motion.span>
+      )}
+    </motion.button>
+  );
+};
+
+interface TitleSectionProps {
+  open: boolean;
+}
+
+const Logo = () => {
+  return (
+    <motion.div
+      layout
+      className="grid size-10 shrink-0 place-content-center rounded-md bg-indigo-600"
+    >
+      <svg
+        width="24"
+        height="auto"
+        viewBox="0 0 50 39"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="fill-slate-50"
+      >
+        <path
+          d="M16.4992 2H37.5808L22.0816 24.9729H1L16.4992 2Z"
+          stopColor="#000000"
+        ></path>
+        <path
+          d="M17.4224 27.102L11.4192 36H33.5008L49 13.0271H32.7024L23.2064 27.102H17.4224Z"
+          stopColor="#000000"
+        ></path>
+      </svg>
+    </motion.div>
+  );
+};
+
+interface ToggleCloseProps {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const ToggleClose: React.FC<ToggleCloseProps> = ({ open, setOpen }) => {
+  return (
+    <motion.button
+      layout
+      onClick={() => setOpen((prev) => !prev)}
+      className="absolute bottom-0 left-0 right-0 border-t border-slate-300 transition-colors hover:bg-slate-100"
+    >
+      <div className="flex items-center p-2">
+        <motion.div
+          layout
+          className="grid size-10 place-content-center text-lg"
+        >
+          <FiChevronsRight
+            className={`transition-transform ${open && "rotate-180"}`}
+          />
+        </motion.div>
+        {open && (
+          <motion.span
+            layout
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.125 }}
+            className="text-xs font-medium"
+          >
+            Hide
+          </motion.span>
+        )}
+      </div>
+    </motion.button>
+  );
+};
+
 interface CustomerNavbarProps {
   uid: string | null;
   setUID: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
-  const [currentPage, setCurrentPage] = useState("home");
+  const [currentPage, setCurrentPage] = useState("Dashboard");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -249,11 +395,15 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   });
 
   const handleAddMenu = (name: string, price: string) => {
-    const menuItem: IMenu = {itemName: name, itemPrice: +price, itemImage: ""}
+    const menuItem: IMenu = {
+      itemName: name,
+      itemPrice: +price,
+      itemImage: "",
+    };
     if (businessId) {
       postMenuItemMutation.mutate({ menuItem, businessId });
     }
-    
+
     setMenu((prev) => [...prev, { name, price }]);
   };
   const handlePictureLoad = (business: Business) => {
@@ -262,7 +412,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const handleDeleteMenu = (itemID: string) => {
     if (businessId) {
       deleteMenuItemMutation.mutate({ itemID, businessId });
-    }    
+    }
     // setMenu((prev) => prev.filter((_, index) => index !== indexToDelete));
   };
   const handleUpdateRestaurant = (name: string, description: string) => {
@@ -365,10 +515,97 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     }
   };
 
+  const [open, setOpen] = useState<boolean>(true);
+  const [selected, setSelected] = useState<string>("Dashboard");
+
+  const TitleSection: React.FC<TitleSectionProps> = ({ open }) => {
+    return (
+      <div className="mb-3 border-b border-slate-300 pb-3">
+        <div className="flex items-center justify-between rounded-md transition-colors">
+          <div className="flex items-center gap-2">
+            {/* <Logo /> */}
+            <img src={imgUrl} className="h-8 w-8" alt="Logo" />
+            {open && (
+              <div>
+                <span className="block text-xs font-semibold">Owner Name</span>
+                <span className="block text-xs text-slate-500">Restaurant</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-black">
+      <motion.nav
+        layout
+        className="sticky top-0 h-screen shrink-0 border-r border-slate-300 bg-white p-2"
+        style={{
+          width: open ? "225px" : "fit-content",
+        }}
+      >
+        <TitleSection open={open} />
+
+        <div className="space-y-1">
+          <Option
+            Icon={FiHome}
+            title="Dashboard"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+          <Option
+            Icon={MdOutlineReviews}
+            title="Reviews"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+            notifs={3}
+          />
+          <Option
+            Icon={IoRestaurantOutline}
+            title="Restaurant"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+          <Option
+            Icon={BiFoodMenu}
+            title="Menu"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+          <Option
+            Icon={AiOutlinePicture}
+            title="Update Pictures"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+          <Option
+            Icon={IoSettingsOutline}
+            title="Settings"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+          <Option
+            Icon={RiLogoutBoxLine}
+            title="Logout"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+        </div>
+
+        <ToggleClose open={open} setOpen={setOpen} />
+      </motion.nav>
+      {/* <div className="flex h-screen bg-gray-100 dark:bg-black"> */}
       {/* Sidebar */}
-      <div className="w-64 bg-white dark:bg-gray-900 p-6 shadow-lg">
+      {/* <div className="w-64 bg-white dark:bg-gray-900 p-6 shadow-lg">
         <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-white">
           Dashboard
         </h2>
@@ -392,11 +629,11 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             </li>
           ))}
         </ul>
-      </div>
+      </div> */}
 
       {/* Main Content */}
       <div className="flex-1 px-10 overflow-y-auto">
-        {currentPage === "home" && (
+        {currentPage === "Dashboard" && (
           <div className="mx-[20%] mt-[5%] space-y-6">
             <div className="flex">
               <div className="flex-3/4 text-left space-y-4 pr-[10%]">
@@ -458,7 +695,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </div>
         )}
 
-        {currentPage === "reviews" && (
+        {currentPage === "Reviews" && (
           <div className="mt-10">
             <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">
               Reviews
@@ -467,7 +704,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </div>
         )}
 
-        {currentPage === "restaurant" && (
+        {currentPage === "Restaurant" && (
           <div className="mt-10 max-w-2xl space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Update Restaurant Info
@@ -535,7 +772,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </div>
         )}
 
-        {currentPage === "menu" && (
+        {currentPage === "Menu" && (
           <div className="mt-10 max-w-3xl space-y-6">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Menu
@@ -599,7 +836,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </div>
         )}
 
-        {currentPage === "pictures" && (
+        {currentPage === "Update Pictures" && (
           <div className="mt-10 max-w-xl space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Update Pictures
@@ -657,7 +894,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </div>
         )}
 
-        {currentPage === "settings" && (
+        {currentPage === "Settings" && (
           <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               Change Password
@@ -691,7 +928,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </div>
         )}
 
-        {currentPage === "logout" && (
+        {currentPage === "Logout" && (
           <div className="mt-10 max-w-md mx-auto text-center space-y-6">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Logout
@@ -713,7 +950,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               </button>
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded"
-                onClick={() => setCurrentPage("home")}
+                onClick={() => setCurrentPage("Dashboard")}
               >
                 ❌ Cancel
               </button>
@@ -757,6 +994,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </>
         )}
       </div>
+      {/* </div> */}
     </div>
   );
 };
