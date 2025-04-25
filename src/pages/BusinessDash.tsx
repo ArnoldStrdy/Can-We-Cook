@@ -357,7 +357,11 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         console.log("Business ID:", businessId, business.businessID);
         console.log("Business Pictures:", pictures, business.businessPictures);
         console.log("Business:", restaurantName, business.businessName);
-        console.log("Business Desc:", restaurantDesc, business.businessDescription);
+        console.log(
+          "Business Desc:",
+          restaurantDesc,
+          business.businessDescription
+        );
       });
       return business;
     },
@@ -366,7 +370,11 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   console.log("Business ID:", businessId, Buisness.data?.businessID);
   console.log("Business Pictures:", pictures, Buisness.data?.businessPictures);
   console.log("Business:", restaurantName, Buisness.data?.businessName);
-  console.log("Business Desc:", restaurantDesc, Buisness.data?.businessDescription);
+  console.log(
+    "Business Desc:",
+    restaurantDesc,
+    Buisness.data?.businessDescription
+  );
   const queryClient = useQueryClient();
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
@@ -445,7 +453,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     console.log("Business Pictures:", Buisness.data!.businessPictures);
   };
 
-  
   const [isEditing, setIsEditing] = useState(false);
 
   const cancelEdit = () => {
@@ -647,9 +654,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <div className="flex">
               <div className="flex-3/4 text-left space-y-4 pr-[10%]">
                 <h1 className="text-4xl font-bold">{restaurantName}</h1>
-                <span className="text-lg">
-                  {restaurantDesc}
-                </span>
+                <span className="text-lg">{restaurantDesc}</span>
               </div>
               <div className="flex-1/4 m-auto">
                 <img src={imgUrl} className="w-[60%] mx-auto" />
