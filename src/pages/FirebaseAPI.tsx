@@ -112,6 +112,27 @@ const getOwnerFromUID = async (uid: string): Promise<string | undefined> => {
   }
 };
 
+export const getOwnerNameFromUID = async (
+  uid: string
+): Promise<string | undefined> => {
+  try {
+    const snapshot = await firestore
+      .collection("owners")
+      .where("uid", "==", uid)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) return undefined;
+
+    const data = snapshot.docs[0].data();
+    console.log("Owner data:", data);
+    return data.name as string;
+  } catch (error) {
+    console.error("Error getting owner data:", error);
+    return undefined;
+  }
+};
+
 export const getCustomerFromUID = async (
   uid: string
 ): Promise<{ name: string; profilePic: string; id: string } | undefined> => {

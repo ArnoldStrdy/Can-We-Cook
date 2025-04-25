@@ -47,7 +47,11 @@ import {
 } from "@/API/RestaurantAPI";
 import { IExistingMenu, IExistingReview, IMenu } from "@/Types/RestaurantTypes";
 import { Button } from "@/components/ui/button";
-import { getOwnerFromUID, getRestuarantfromOwnerID } from "./FirebaseAPI";
+import {
+  getOwnerFromUID,
+  getRestuarantfromOwnerID,
+  getOwnerNameFromUID,
+} from "./FirebaseAPI";
 import { Sidebar } from "./ReactSidebar";
 
 type Review = {
@@ -297,6 +301,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   // const persistance = firebase.auth.Auth.Persistence.LOCAL;
   const [menu, setMenu] = useState(dummyMenu);
   const [pictures, setPictures] = useState(dummyPictures);
+  const [ownerName, setOwnerName] = useState("Owner Name");
+  const [businessName, setBusinessName] = useState("Business Name");
   const [reviews] = useState(dummyReviews);
   const [newPassword, setNewPassword] = useState("");
   const [changePasswordError, setChangePasswordError] = useState("");
@@ -320,6 +326,9 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       if (!uid) return;
       const owner = await getOwnerFromUID(uid);
       setOwnerID(owner!);
+      const ownerName = await getOwnerNameFromUID(uid);
+      setOwnerName(ownerName!);
+      console.log("Owner Name:", ownerName);
 
       console.log("Owner ID:", owner);
     };
@@ -341,6 +350,18 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     };
     fetchBusinessID();
   }, [ownerID]);
+
+  // // get owner name from firebase
+  // useEffect(() => {
+  //   const fetchOwnerName = async () => {
+  //     if (ownerID) {
+  //       const owner = await getOwnerNameFromUID(ownerID);
+  //       setOwnerName(owner!);
+  //       console.log("Owner Name:", owner);
+  //     }
+  //   };
+  //   fetchOwnerName();
+  // }, [ownerID]);
 
   // const businessId = getRestuarantfromOwnerID(id!);
   // const businessId = "odCe5cYwH8M3oHTcYmav";
@@ -543,8 +564,10 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <img src={imgUrl} className="h-8 w-8" alt="Logo" />
             {open && (
               <div>
-                <span className="block text-xs font-semibold">Owner Name</span>
-                <span className="block text-xs text-slate-500">Restaurant</span>
+                <span className="block text-xs font-semibold">{ownerName}</span>
+                <span className="block text-xs text-slate-500">
+                  {restaurantName}
+                </span>
               </div>
             )}
           </div>
@@ -578,7 +601,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             selected={currentPage}
             setSelected={setCurrentPage}
             open={open}
-            notifs={3}
+            notifs={getReviewsQuery.data!.length}
           />
           <Option
             Icon={IoRestaurantOutline}
