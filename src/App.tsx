@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { use, useEffect, useState } from "react";
 import BusinessDash from "./pages/BusinessDash";
 import CustomerDash from "./pages/CustomerDash";
@@ -29,17 +29,21 @@ function App() {
   // Check if the user is an owner
   useEffect(() => {
     const checkIfOwner = async () => {
-      if (uid) {
-        const owner = await getOwnerFromUID(uid);
-        if (owner) {
-          setIsOwner(true);
-        } else {
-          setIsOwner(false);
+      firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+        if (user) {
+          getOwnerFromUID(user.uid).then((customer) => {
+            if (customer) {
+              setIsOwner(true);
+              console.log("User is an owner.");
+            } else {
+              setIsOwner(false);
+              console.log("User is not an owner.");
+            }
+          });
         }
-      }
+      });
     };
     checkIfOwner();
-    console.log("Is ownerrrrrrrrrrrrrrrrrrrrrrrrr: ", isOwner);
   }, [uid]);
 
   useEffect(() => {
@@ -81,8 +85,6 @@ function App() {
           path="/business"
           element={<BusinessDash uid={uid} setUID={setUID} />}
         />
-        <Route path="/:section" element={<CustomerDash />} />
-        <Route path="/restaurant/:id" element={<RestaurantDetails />} />
         <Route path="/loginBusiness" element={<LoginPageBusiness />} />
         <Route path="*" element={<Error />} />
       </Routes>

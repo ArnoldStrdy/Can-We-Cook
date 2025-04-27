@@ -39,6 +39,7 @@ const LoginPage: React.FC = () => {
         } else {
           console.log("No customer data found for this UID.");
           toast.error("No customer data found for this UID.");
+          firebase.auth().signOut();
         }
       } else {
         console.log("No user is currently logged in");

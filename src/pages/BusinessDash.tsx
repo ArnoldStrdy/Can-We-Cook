@@ -27,6 +27,7 @@ import { MdOutlineReviews } from "react-icons/md";
 import { IoRestaurantOutline } from "react-icons/io5";
 import { BiFoodMenu } from "react-icons/bi";
 import { AiOutlinePicture } from "react-icons/ai";
+import { PiCertificate } from "react-icons/pi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { motion } from "framer-motion";
@@ -226,33 +227,6 @@ interface TitleSectionProps {
   open: boolean;
 }
 
-const Logo = () => {
-  return (
-    <motion.div
-      layout
-      className="grid size-10 shrink-0 place-content-center rounded-md bg-indigo-600"
-    >
-      <svg
-        width="24"
-        height="auto"
-        viewBox="0 0 50 39"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="fill-slate-50"
-      >
-        <path
-          d="M16.4992 2H37.5808L22.0816 24.9729H1L16.4992 2Z"
-          stopColor="#000000"
-        ></path>
-        <path
-          d="M17.4224 27.102L11.4192 36H33.5008L49 13.0271H32.7024L23.2064 27.102H17.4224Z"
-          stopColor="#000000"
-        ></path>
-      </svg>
-    </motion.div>
-  );
-};
-
 interface ToggleCloseProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -301,22 +275,18 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-  const [cookies, setCookie] = useCookies(["uid", "name"]); // Initialize react-cookie
+  const [cookies, setCookie] = useCookies(["uid", "name"]);
   const auth = firebase.auth();
-  // const persistance = firebase.auth.Auth.Persistence.LOCAL;
   const [menu, setMenu] = useState(dummyMenu);
   const [pictures, setPictures] = useState(dummyPictures);
   const [ownerName, setOwnerName] = useState("Owner Name");
-  const [businessName, setBusinessName] = useState("Business Name");
   const [reviews] = useState(dummyReviews);
   const [newPassword, setNewPassword] = useState("");
   const [changePasswordError, setChangePasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
-  const [restaurantName, setRestaurantName] = useState("Restaurant 1");
-  const [restaurantDesc, setRestaurantDesc] = useState(
-    "Welcome to Savor & Sip, where comfort food meets cozy vibes."
-  );
+  const [restaurantName, setRestaurantName] = useState("Restaurant Name");
+  const [restaurantDesc, setRestaurantDesc] = useState("Description");
   useEffect(() => {
     setUID(uid);
     firebase.auth().onAuthStateChanged((user) => {
@@ -421,7 +391,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         queryKey: ["getMenuByBusinessId", businessId],
       });
       toast.success("Succesfuly added a menu item");
-      setMenuImage(undefined)
+      setMenuImage(undefined);
     },
     onError: (e) => {
       toast.error(`Error adding menu item: ${e}`);
@@ -620,6 +590,13 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           <Option
             Icon={BiFoodMenu}
             title="Menu"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+          <Option
+            Icon={PiCertificate}
+            title="Certifications"
             selected={currentPage}
             setSelected={setCurrentPage}
             open={open}
@@ -1149,7 +1126,7 @@ const MenuTabContent = ({
       </TableRow>
     </TableHeader>
     <TableBody>
-      {menu.map((item, index) => (
+      {menu?.map((item, index) => (
         <TableRow key={index}>
           <TableCell className="w-[7%] text-center">
             {item.itemImage.length > 0 && <img src={item.itemImage} />}

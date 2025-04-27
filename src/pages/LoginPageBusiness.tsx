@@ -39,6 +39,7 @@ const LoginPageBusiness: React.FC = () => {
         } else {
           console.log("No owner found for this user");
           toast.error("No owner found for this user");
+          firebase.auth().signOut();
         }
       } else {
         console.log("No user is currently logged in");

@@ -48,6 +48,8 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         setCustomerName(customerData.name);
         setProfilePic(customerData.profilePic);
       } else {
+        // logout
+        firebase.auth().signOut();
         setCustomerName("Guest"); // fallback
         setProfilePic(""); // fallback: empty or default avatar URL
       }
@@ -89,85 +91,19 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             src={Logo}
             className="w-24 cursor-pointer"
             onClick={() => {
-              if (
-                url.includes("/about") ||
-                url.includes("/login") ||
-                url.includes("/settings") ||
-                url.includes("/restaurant") ||
-                url.includes("/createBusiness")
-              ) {
-                navigate("/");
-              }
-              var top = document.getElementById("top");
-              if (top) {
-                top.scrollIntoView({ behavior: "smooth" });
-              }
+              navigate("/");
               setDropdownOpen(false);
             }}
           />
           <div className="hidden sm:flex items-center justify-between gap-8">
             <p
               onClick={() => {
-                if (
-                  url.includes("/about") ||
-                  url.includes("/login") ||
-                  url.includes("/settings") ||
-                  url.includes("/restaurant") ||
-                  url.includes("/createBusiness")
-                ) {
-                  navigate("/");
-                }
-                var top = document.getElementById("top");
-                if (top) {
-                  top.scrollIntoView({ behavior: "smooth" });
-                }
+                navigate("/");
                 setDropdownOpen(false);
               }}
               className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors navbar-item"
             >
               Home
-            </p>
-            <p
-              onClick={() => {
-                if (
-                  url.includes("/about") ||
-                  url.includes("/login") ||
-                  url.includes("/settings") ||
-                  url.includes("/restaurant") ||
-                  url.includes("/createBusiness")
-                ) {
-                  navigate("/restaurants");
-                }
-                var top = document.getElementById("restaurants");
-                if (top) {
-                  top.scrollIntoView({ behavior: "smooth" });
-                }
-                setDropdownOpen(false);
-              }}
-              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
-            >
-              Restaurants
-            </p>
-            <p
-              onClick={() => {
-                if (
-                  url.includes("/about") ||
-                  url.includes("/login") ||
-                  url.includes("/settings") ||
-                  url.includes("/restaurant") ||
-                  url.includes("/createBusiness")
-                ) {
-                  navigate("/map");
-                }
-                var top = document.getElementById("map");
-                if (top) {
-                  top.scrollIntoView({ behavior: "smooth" });
-                }
-                setDropdownOpen(false);
-              }}
-              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
-            >
-              Map
             </p>
             <p
               onClick={() => {
@@ -270,30 +206,6 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           className="text-2xl mb-4 cursor-pointer"
         >
           Home
-        </p>
-        <p
-          onClick={() => {
-            var top = document.getElementById("restaurants");
-            if (top) {
-              top.scrollIntoView({ behavior: "smooth" });
-            }
-            handleToggle();
-          }}
-          className="text-2xl mb-4 cursor-pointer"
-        >
-          Restaurants
-        </p>
-        <p
-          onClick={() => {
-            var top = document.getElementById("map");
-            if (top) {
-              top.scrollIntoView({ behavior: "smooth" });
-            }
-            handleToggle();
-          }}
-          className="text-2xl mb-4 cursor-pointer"
-        >
-          Map
         </p>
         <p
           onClick={() => {
