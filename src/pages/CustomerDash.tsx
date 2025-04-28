@@ -203,20 +203,7 @@ function CustomerDash() {
             <BusinessCard index={index} key={index} restaurant={restaurant}/>
           ))}
         </div>
-        <div id="map" className="h-28"></div>
-        <div className="max-w-6xl w-full h-screen min-h-[800px] flex flex-col items-start justify-center gap-6">
-          <div className="flex flex-col items-start justify-start gap-1">
-            <h1 className="text-3xl font-semibold">Map</h1>
-          </div>
-          <div className="flex flex-col justify-center gap-4 w-full">
-            <iframe
-              className="w-full h-[720px]"
-              src="https://use.mazemap.com/embed.html#v=1&campusid=159&zlevel=1&center=145.133167,-37.911460&zoom=16.4&utm_medium=iframe"
-              allow="geolocation"
-            ></iframe>
-            <br />
-          </div>
-        </div>
+
       </div>
     </div>
   );
