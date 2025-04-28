@@ -287,6 +287,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
   const [restaurantName, setRestaurantName] = useState("Restaurant Name");
   const [restaurantDesc, setRestaurantDesc] = useState("Description");
+  const [businessLogo, setBusinessLogo] = useState<string>(dummyBusiness.businessLogo);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     setUID(uid);
     firebase.auth().onAuthStateChanged((user) => {
@@ -451,6 +453,23 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   };
 
   const [isEditing, setIsEditing] = useState(false);
+  const handleChangeLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadImage(file)
+        .then((url) => {
+          if (url) {
+            setBusinessLogo(url);
+            Buisness.data?.setBusinessLogo(url);
+            toast.success("Logo updated successfully!");
+          }
+        })
+        .catch((error) => {
+          console.error("Error uploading logo:", error);
+          toast.error("Error uploading logo");
+        });
+    }
+  };
 
   const cancelEdit = () => {
     setIsEditing(false);
@@ -790,6 +809,37 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 </div>
               </form>
             )}
+            {/* Hidden File Input */}
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) => handleChangeLogo(e)}
+  ref={logoInputRef}
+  className="hidden"
+/>
+
+
+
+{businessLogo && (
+  <img
+    src={businessLogo}
+    alt="Business Logo"
+    className="w-32 h-32 mt-4 rounded object-cover border"
+  />
+)}
+    
+    <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8">
+      Change Business Logo
+    </h2>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => handleChangeLogo(e)}
+      className="w-full p-2 border rounded"
+    />
+    {businessLogo && (
+      <img src={businessLogo} alt="Business Logo" className="w-32 h-32 mt-4 rounded" />
+    )}
           </div>
         )}
 
@@ -953,39 +1003,43 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           </div>
         )}
 
-        {currentPage === "Settings" && (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Change Password
-            </h2>
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            <button
-              onClick={handleChangePassword}
-              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
-            >
-              ✔ Update Password
-            </button>
-            {changePasswordError && (
-              <p className="text-red-500">{changePasswordError}</p>
-            )}
-            {changePasswordSuccess && (
-              <p className="text-green-500">{changePasswordSuccess}</p>
-            )}
-          </div>
-        )}
+{currentPage === "Settings" && (
+  <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
+    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+      Change Password
+    </h2>
+    {/* Change Password Section */}
+    <input
+      type="password"
+      placeholder="New Password"
+      value={newPassword}
+      onChange={(e) => setNewPassword(e.target.value)}
+      className="w-full p-2 border rounded"
+    />
+    <input
+      type="password"
+      placeholder="Confirm Password"
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+      className="w-full p-2 border rounded"
+    />
+    <button
+      onClick={handleChangePassword}
+      className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+    >
+      ✔ Update Password
+    </button>
+    {changePasswordError && (
+      <p className="text-red-500">{changePasswordError}</p>
+    )}
+    {changePasswordSuccess && (
+      <p className="text-green-500">{changePasswordSuccess}</p>
+    )}
+ 
+
+
+  </div>
+)}
 
         {currentPage === "Logout" && (
           <div className="mt-10 max-w-md mx-auto text-center space-y-6">
