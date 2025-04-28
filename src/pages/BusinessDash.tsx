@@ -287,8 +287,10 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
   const [restaurantName, setRestaurantName] = useState("Restaurant Name");
   const [restaurantDesc, setRestaurantDesc] = useState("Description");
+  const persistance = firebase.auth.Auth.Persistence.SESSION;
   useEffect(() => {
     setUID(uid);
+    auth.setPersistence(persistance);
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         setUID(user.uid);
@@ -302,6 +304,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       const owner = await getOwnerFromUID(uid);
       setOwnerID(owner!);
       const ownerName = await getOwnerNameFromUID(uid);
+      if (!ownerName) return;
       setOwnerName(ownerName!);
       console.log("Owner Name:", ownerName);
 
