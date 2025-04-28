@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import Ratings from "@/components/ui/ratings";
 import {
   Table,
   TableBody,
@@ -10,7 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import imgUrl from "../assets/logoIcon.png";
 import {
   Dialog,
   DialogContent,
@@ -38,71 +35,12 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Timestamp } from "firebase/firestore";
 import { ReviewCard } from "@/components/custom/reviewCard";
+import { receiptModel } from "@/API/gemini";
+import { Quantum } from "ldrs/react";
+import "ldrs/react/Quantum.css";
 
-const reviews = [
-  {
-    reviewer: "Jeff Bezos",
-    verified: false,
-    date: "05/07/2024",
-    rating: 5,
-    review:
-      "I had an amazing dinner at Savor & Sip last night! The ambiance was warm and inviting, and the staff were super friendly. I ordered the grilled salmon, and it was cooked to perfection—crispy on the outside and tender inside.",
-  },
-  {
-    reviewer: "Jeff Bezos",
-    verified: true,
-    date: "05/07/2024",
-    rating: 3,
-    review:
-      "I had an amazing dinner at Savor & Sip last night! The ambiance was warm and inviting, and the staff were super friendly. I ordered the grilled salmon, and it was cooked to perfection—crispy on the outside and tender inside.",
-  },
-  {
-    reviewer: "Jeff Bezos",
-    verified: true,
-    date: "05/07/2024",
-    rating: 2,
-    review:
-      "I had an amazing dinner at Savor & Sip last night! The ambiance was warm and inviting, and the staff were super friendly. I ordered the grilled salmon, and it was cooked to perfection—crispy on the outside and tender inside.",
-  },
-  {
-    reviewer: "Jeff Bezos",
-    verified: false,
-    date: "05/07/2024",
-    rating: 5,
-    review:
-      "I had an amazing dinner at Savor & Sip last night! The ambiance was warm and inviting, and the staff were super friendly. I ordered the grilled salmon, and it was cooked to perfection—crispy on the outside and tender inside.",
-  },
-];
-
-const menu = [
-  {
-    picture: imgUrl,
-    name: "Item 1",
-    price: "5",
-  },
-  {
-    picture: imgUrl,
-    name: "Item 1",
-    price: "5",
-  },
-  {
-    picture: imgUrl,
-    name: "Item 1",
-    price: "5",
-  },
-  {
-    picture: imgUrl,
-    name: "Item 1",
-    price: "5",
-  },
-  {
-    picture: imgUrl,
-    name: "Item 1",
-    price: "5",
-  },
-];
-
-const pics = [imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl, imgUrl];
+// Default values shown
+<Quantum size="45" speed="1.75" color="black" />;
 
 type ReviewType = {
   rating: number;
@@ -128,10 +66,6 @@ function RestaurantDetails() {
     queryFn: () => getMenuByBusinessId(businessId!),
     queryKey: ["getMenuByBusinessId", businessId],
   });
-
-  // const pictures = business.businessPictures;
-  const auth = firebase.auth();
-  const navigate = useNavigate();
 
   return (
     <div className="mx-[20%] mt-[5%] space-y-6">
@@ -324,7 +258,61 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
     }
   };
 
+  const [receiptVerified, setReceiptVerified] = useState(false);
+
   const FirstPage = () => {
+    const [uploadingReceipt, setUploadingReceipt] = useState(false);
+
+    const handleUploadReceipt = (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setUploadingReceipt(true);
+
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const base64String = reader.result as string;
+          const prompt = "Is this a receipt?";
+
+          const response = await receiptModel.generateContent({
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { text: prompt },
+                  {
+                    inlineData: {
+                      mimeType: "image/jpeg",
+                      data: base64String.split(",")[1],
+                    },
+                  },
+                ],
+              },
+            ],
+          });
+
+          const resultJson = JSON.parse(response.response.text());
+
+          if (resultJson.isReceipt) {
+            toast.success("Receipt verified successfully!");
+            setReceiptVerified(true);
+            setPage(2);
+            setReview((prev) => ({ ...prev, verified: true }));
+          } else {
+            toast.error("This doesn't look like a valid receipt. Try again.");
+          }
+        } catch (error) {
+          console.error("Error verifying receipt:", error);
+          toast.error("Failed to verify receipt. Try again later.");
+        } finally {
+          setUploadingReceipt(false); // ✅ move this here INSIDE onloadend
+        }
+      };
+
+      reader.readAsDataURL(file);
+    };
+
     return (
       <>
         {auth.currentUser ? (
@@ -361,16 +349,35 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
           Upload a picture of your receipt to show a{" "}
           <Verified className="inline" color="#4ECB71" /> beside your name
         </span>
-        <Button className="mx-auto w-min">
-          <Upload />
-        </Button>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={handleUploadReceipt}
+          className="hidden"
+          ref={imageInput}
+        />
+        {uploadingReceipt ? (
+          <div className="flex justify-center">
+            <Quantum size="45" speed="1.75" color="black" />
+          </div>
+        ) : (
+          <Button
+            className="mx-auto w-min"
+            onClick={() => imageInput.current?.click()}
+            disabled={uploadingReceipt}
+          >
+            <Upload />
+          </Button>
+        )}
+
         {auth.currentUser && (
           <Button
             className="mx-auto"
             variant="ghost"
             onClick={() => setPage(2)}
           >
-            Skip <ChevronRight className="inline" />
+            {receiptVerified ? "Next" : "Skip"}{" "}
+            <ChevronRight className="inline" />
           </Button>
         )}
       </>
