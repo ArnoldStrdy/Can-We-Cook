@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export interface TRestaurant {
+  aggregatedScore: number;
   businessId: string;
   businessAddress: string;
   businessCertifications: string[];
@@ -24,15 +25,14 @@ interface IReview {
   verified: boolean;
 }
 
-export interface INewReview extends IReview{
-  pictures: File[]
+export interface INewReview extends IReview {
+  pictures: File[];
 }
 
 export interface IExistingReview extends IReview {
   customerName: string;
   pictures: string[];
 }
-
 
 export interface IMenu {
   itemName: string;
@@ -45,9 +45,9 @@ export interface INewMenu extends IMenu {
 
 export interface IExistingMenu extends IMenu {
   itemID: string;
-  itemImage: string
+  itemImage: string;
 }
 
 export type TCustomer = {
-  name: string
-}
+  name: string;
+};
