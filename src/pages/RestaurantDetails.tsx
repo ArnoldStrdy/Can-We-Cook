@@ -221,6 +221,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
         verified: false,
         anonymous: auth.currentUser ? false : true,
       });
+      setAnon(false)
       setDialogOpen(false);
       setPage(1);
     },
