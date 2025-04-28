@@ -85,6 +85,7 @@ function App() {
           path="/business"
           element={<BusinessDash uid={uid} setUID={setUID} />}
         />
+        <Route path="/restaurant/:id" element={<RestaurantDetails />} />
         <Route path="/loginBusiness" element={<LoginPageBusiness />} />
         <Route path="*" element={<Error />} />
       </Routes>
