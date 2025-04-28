@@ -176,7 +176,7 @@ function RestaurantDetails() {
           <div className="aspect-2/1 w-full">
             <iframe
               className="size-full"
-              src="https://use.mazemap.com/embed.html#v=1&zlevel=1&center=145.132766,-37.914154&zoom=18&campusid=159&sharepoitype=poi&sharepoi=1034799&utm_medium=iframe"
+              src={`https://use.mazemap.com/embed.html#v=1&zlevel=1&center=${getBusinessQuery.data?.businessLocation[1]!},${getBusinessQuery.data?.businessLocation[0]!}&zoom=18.5&campusid=159${getBusinessQuery.data?.businessLocation[2] && "&sharepoitype=poi&sharepoi=" + getBusinessQuery.data?.businessLocation[2]! + "&utm_medium=iframe"}`}
               style={{ border: "1px solid grey" }}
               allow="geolocation"
             ></iframe>
