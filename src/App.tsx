@@ -69,7 +69,7 @@ function App() {
   }, [cookies.uid]);
 
   // Hide navbar only on /business route
-  const hideNavbar = location.pathname.startsWith("/business");
+  const hideNavbar = location.pathname.startsWith("/business") || location.pathname.startsWith("/createBusiness");
 
   return (
     <div>

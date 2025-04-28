@@ -289,8 +289,14 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
   const [restaurantName, setRestaurantName] = useState("Restaurant Name");
   const [restaurantDesc, setRestaurantDesc] = useState("Description");
+  const [businessLogo, setBusinessLogo] = useState<string>(
+    dummyBusiness.businessLogo
+  );
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const persistance = firebase.auth.Auth.Persistence.SESSION;
   useEffect(() => {
     setUID(uid);
+    auth.setPersistence(persistance);
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         setUID(user.uid);
@@ -304,6 +310,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       const owner = await getOwnerFromUID(uid);
       setOwnerID(owner!);
       const ownerName = await getOwnerNameFromUID(uid);
+      if (!ownerName) return;
       setOwnerName(ownerName!);
       console.log("Owner Name:", ownerName);
 
@@ -453,6 +460,23 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   };
 
   const [isEditing, setIsEditing] = useState(false);
+  const handleChangeLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadImage(file)
+        .then((url) => {
+          if (url) {
+            setBusinessLogo(url);
+            Buisness.data?.setBusinessLogo(url);
+            toast.success("Logo updated successfully!");
+          }
+        })
+        .catch((error) => {
+          console.error("Error uploading logo:", error);
+          toast.error("Error uploading logo");
+        });
+    }
+  };
 
   const cancelEdit = () => {
     setIsEditing(false);
@@ -792,6 +816,39 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 </div>
               </form>
             )}
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleChangeLogo(e)}
+              ref={logoInputRef}
+              className="hidden"
+            />
+
+            {businessLogo && (
+              <img
+                src={businessLogo}
+                alt="Business Logo"
+                className="w-32 h-32 mt-4 rounded object-cover border"
+              />
+            )}
+
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8">
+              Change Business Logo
+            </h2>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleChangeLogo(e)}
+              className="w-full p-2 border rounded"
+            />
+            {businessLogo && (
+              <img
+                src={businessLogo}
+                alt="Business Logo"
+                className="w-32 h-32 mt-4 rounded"
+              />
+            )}
           </div>
         )}
 
@@ -960,6 +1017,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               Change Password
             </h2>
+            {/* Change Password Section */}
             <input
               type="password"
               placeholder="New Password"
