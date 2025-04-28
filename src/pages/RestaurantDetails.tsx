@@ -117,8 +117,8 @@ function RestaurantDetails() {
 
   const getBusinessQuery = useQuery({
     queryFn: () => getBusinessById(businessId!),
-    queryKey: ["getBusinessById", businessId]
-  })
+    queryKey: ["getBusinessById", businessId],
+  });
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
     queryKey: ["getReviewByBusinessId", businessId],
@@ -128,7 +128,7 @@ function RestaurantDetails() {
     queryFn: () => getMenuByBusinessId(businessId!),
     queryKey: ["getMenuByBusinessId", businessId],
   });
-  
+
   // const pictures = business.businessPictures;
   const auth = firebase.auth();
   const navigate = useNavigate();
@@ -137,13 +137,20 @@ function RestaurantDetails() {
     <div className="mx-[20%] mt-[5%] space-y-6">
       <div className="flex">
         <div className="flex-3/4 text-left space-y-4 pr-[10%]">
-          <h1 className="text-4xl font-bold">{getBusinessQuery.data?.businessName}</h1>
+          <h1 className="text-4xl font-bold">
+            {getBusinessQuery.data?.businessName}
+          </h1>
           <span className="text-lg">
-            {getBusinessQuery.data?.businessDescription}  
+            {getBusinessQuery.data?.businessDescription}
           </span>
         </div>
         <div className="flex-1/4 m-auto">
-          {getBusinessQuery.data?.businessLogo.length! > 0 && <img src={getBusinessQuery.data?.businessLogo} className="w-[60%] mx-auto" />}
+          {getBusinessQuery.data?.businessLogo.length! > 0 && (
+            <img
+              src={getBusinessQuery.data?.businessLogo}
+              className="w-[60%] mx-auto"
+            />
+          )}
         </div>
       </div>
       <div className="w-min mx-auto">
@@ -163,7 +170,7 @@ function RestaurantDetails() {
           <MenuTabContent menu={getMenuQuery.data!} />
         </TabsContent>
         <TabsContent value="pictures" className="px-4">
-          <PicturesTabContent pics={getBusinessQuery.data?.businessPictures!}/>
+          <PicturesTabContent pics={getBusinessQuery.data?.businessPictures!} />
         </TabsContent>
         <TabsContent value="map" className="px-4">
           <div className="aspect-2/1 w-full">
@@ -189,9 +196,7 @@ const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
     <div className="mt-4 space-y-6">
       {reviews?.map((review, index) => {
         // console.log("[XX]Review: ", review);
-        return (
-          <ReviewCard key={index} review={review}/>
-        );
+        return <ReviewCard key={index} review={review} />;
       })}
     </div>
   );
@@ -294,7 +299,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
 
   const handleSubmit = () => {
     console.log(newReview);
-    console.log(auth.currentUser)
+    console.log(auth.currentUser);
     if (newReview.rating === 0) {
       toast.error("Rating is required");
     } else if (newReview.reviewText.length === 0) {
@@ -482,4 +487,3 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
 };
 
 export default RestaurantDetails;
-
