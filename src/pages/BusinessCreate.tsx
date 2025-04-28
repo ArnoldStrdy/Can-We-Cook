@@ -211,75 +211,10 @@ function BusinessCreate() {
       <input
         className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
         type="text"
-        placeholder="Cusiine Type"
+        placeholder="Cusine Type"
         value={cuisineType}
         onChange={(e) => setCuisineType(e.target.value)}
       />
-      <div>
-        <h2>Add Menu Item</h2>
-        <input
-          className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-          type="text"
-          placeholder="Menu Item Name"
-          value={menuItemName}
-          onChange={(e) => setItemName(e.target.value)}
-        />
-        <input
-          className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-          type="number"
-          placeholder="Menu Item Price"
-          min="0"
-          step="0.01"
-          value={menuItemPrice}
-          onChange={(e) => setItemPrice(Number(e.target.value))}
-        />
-        <button
-          onClick={addMenuItem}
-          className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl hover:bg-gray-100 cursor-pointer"
-        >
-          Add Menu Item
-        </button>
-        <ul>
-          {menu.map((item, index) => (
-            <li key={index}>
-              {item.itemName} - ${item.itemPrice}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <input
-        className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-        type="file"
-        accept="image/*"
-        onChange={addLogo}
-      ></input>
-      <div>
-        <h2>Add Business Pictures</h2>
-        <input
-          className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const files = e.target.files;
-            if (files) {
-              const urls: string[] = [];
-              for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                uploadImage(file).then((url) => {
-                  urls.push(url);
-                  setPictures(urls);
-                });
-              }
-            }
-          }}
-        />
-      </div>
-      <button
-        onClick={createBusiness}
-        className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl hover:bg-gray-100 cursor-pointer"
-      >
-        Create
-      </button>
     </div>
   );
 }
