@@ -163,10 +163,10 @@ function CustomerDash() {
   });
 
   return (
-    <div className="bg-white dark:bg-black flex flex-col items-center justify-center text-black">
+    <div className="bg-white dark:bg-black flex flex-col items-center pt-20 text-black gap-10">
       <div
         id="top"
-        className="max-w-6xl w-full h-screen min-h-[800px] flex flex-col items-start justify-center gap-6"
+        className="max-w-6xl w-full flex flex-col items-start justify-center gap-6"
       >
         <div className="flex flex-col items-start justify-start gap-1">
           <h1 className="text-3xl font-semibold">Top Pics</h1>
@@ -185,13 +185,12 @@ function CustomerDash() {
             ))}
         </div>
       </div>
-      <div id="restaurants" className="h-28"></div>
-      <div className="max-w-6xl w-full min-h-[800px] flex flex-col items-start justify-center gap-6">
+      <div className="max-w-6xl w-full flex flex-col items-start justify-center gap-6 mb-6">
         <div className="flex flex-col items-start justify-start gap-1">
           <h1 className="text-3xl font-semibold">Restaurants</h1>
         </div>
 
-        <div className="flex flex-row items-center justify-start gap-4 overflow-x-auto w-full">
+        <div className="flex flex-row items-center justify-start gap-4 overflow-x-auto w-full py-2 px-1">
           {cuisines.map((cuisine, index) => (
             <div
               key={index}
