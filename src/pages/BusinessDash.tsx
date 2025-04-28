@@ -59,6 +59,8 @@ import {
 } from "./FirebaseAPI";
 import { Sidebar } from "./ReactSidebar";
 import { Input } from "@/components/ui/input";
+import { ReviewCard } from "@/components/custom/reviewCard";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 type Review = {
   reviewer: string;
@@ -1072,31 +1074,7 @@ const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => (
     </Card> */}
 
     {reviews?.map((review, index) => {
-      return (
-        <Card key={index}>
-          <CardContent className="text-lg space-y-2">
-            <div className="flex">
-              <div className="flex-3/5 font-bold flex">
-                {review.customerName}
-                {review.verified && (
-                  <Verified color="#4ECB71" className="ml-2" />
-                )}
-              </div>
-              <div className=" flex flex-2/5">
-                <div className="flex ml-auto space-x-6">
-                  <div className="text-gray-600 text-right">
-                    {review.dateTime.toDate().toLocaleDateString()}
-                  </div>
-                  <div className="">
-                    <Ratings stars={review.rating} />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div>{review.reviewText}</div>
-          </CardContent>
-        </Card>
-      );
+      return <ReviewCard review={review} key={index} />;
     })}
   </div>
 );
@@ -1154,18 +1132,28 @@ const PicturesTabContent = ({
   onDelete?: (index: number) => void;
 }) => (
   <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4">
-    {pictures.map((picture, index) => (
-      <div key={index} className="relative group">
-        <img src={picture} className="aspect-square w-full rounded shadow" />
-        {onDelete && (
-          <button
-            onClick={() => onDelete(index)}
-            className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:text-red-800"
-          >
-            🗑️
-          </button>
-        )}
-      </div>
+    {pictures.map((url, index) => (
+      <Dialog key={url}>
+        <DialogTrigger asChild>
+          <div key={index} className="relative group">
+            <img
+              src={url}
+              className="aspect-square w-full rounded shadow object-contain"
+            />
+            {onDelete && (
+              <button
+                onClick={() => onDelete(index)}
+                className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:text-red-800"
+              >
+                <X />
+              </button>
+            )}
+          </div>
+        </DialogTrigger>
+        <DialogContent className="p-10">
+          <img src={url} alt="" className="w-full h-auto object-contain" />
+        </DialogContent>
+      </Dialog>
     ))}
   </div>
 );

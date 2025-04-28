@@ -2,6 +2,7 @@ import { IExistingReview } from "@/Types/RestaurantTypes";
 import { Card, CardContent } from "../ui/card";
 import { Verified } from "lucide-react";
 import Ratings from "../ui/ratings";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
 export function ReviewCard({ review }: { review: IExistingReview }) {
   return (
@@ -26,12 +27,24 @@ export function ReviewCard({ review }: { review: IExistingReview }) {
         <div>{review.reviewText}</div>
         <div className="grid grid-cols-6 gap-2 place-items-center">
           {review.pictures?.map((url) => (
-            <div
-              key={url}
-              className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
-            >
-              <img src={url} alt="" className="w-full h-auto object-contain" />
-            </div>
+            <Dialog key={url}>
+              <DialogTrigger asChild>
+                <div className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-full border flex items-center justify-center relative">
+                  <img
+                    src={url}
+                    alt=""
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+              </DialogTrigger>
+              <DialogContent className="p-10">
+                <img
+                  src={url}
+                  alt=""
+                  className="w-full h-auto object-contain"
+                />
+              </DialogContent>
+            </Dialog>
           ))}
         </div>
       </CardContent>

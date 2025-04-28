@@ -176,7 +176,14 @@ function RestaurantDetails() {
           <div className="aspect-2/1 w-full">
             <iframe
               className="size-full"
-              src={`https://use.mazemap.com/embed.html#v=1&zlevel=1&center=${getBusinessQuery.data?.businessLocation[1]!},${getBusinessQuery.data?.businessLocation[0]!}&zoom=18.5&campusid=159${getBusinessQuery.data?.businessLocation[2] && "&sharepoitype=poi&sharepoi=" + getBusinessQuery.data?.businessLocation[2]! + "&utm_medium=iframe"}`}
+              src={`https://use.mazemap.com/embed.html#v=1&zlevel=1&center=${getBusinessQuery
+                .data?.businessLocation[1]!},${getBusinessQuery.data
+                ?.businessLocation[0]!}&zoom=18.5&campusid=159${
+                getBusinessQuery.data?.businessLocation[2] &&
+                "&sharepoitype=poi&sharepoi=" +
+                  getBusinessQuery.data?.businessLocation[2]! +
+                  "&utm_medium=iframe"
+              }`}
               style={{ border: "1px solid grey" }}
               allow="geolocation"
             ></iframe>
@@ -237,12 +244,16 @@ const MenuTabContent = ({ menu }: { menu: IExistingMenu[] }) => {
 const PicturesTabContent = ({ pics }: { pics: string[] }) => (
   <div className="grid grid-cols-4 gap-8 mt-4">
     {pics?.map((url, index) => (
-      <div
-        key={index}
-        className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-full border flex items-center justify-center relative"
-      >
-        <img src={url} alt="" className="w-full h-auto object-contain" />
-      </div>
+      <Dialog key={url}>
+        <DialogTrigger asChild>
+          <div className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-full border flex items-center justify-center relative">
+            <img src={url} alt="" className="w-full h-auto object-contain" />
+          </div>
+        </DialogTrigger>
+        <DialogContent className="p-10">
+          <img src={url} alt="" className="w-full h-auto object-contain" />
+        </DialogContent>
+      </Dialog>
     ))}
   </div>
 );
