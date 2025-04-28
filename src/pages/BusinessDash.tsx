@@ -293,16 +293,37 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     dummyBusiness.businessLogo
   );
   const logoInputRef = useRef<HTMLInputElement | null>(null);
-  const persistance = firebase.auth.Auth.Persistence.SESSION;
+  // Change this line
+  const persistance = firebase.auth.Auth.Persistence.LOCAL; // Use LOCAL instead of SESSION
+
   useEffect(() => {
-    setUID(uid);
-    auth.setPersistence(persistance);
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        setUID(user.uid);
-      }
-    });
-  }, []);
+    auth
+      .setPersistence(persistance)
+      .then(() => {
+        // Existing onAuthStateChanged listener setup
+        const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            console.log("Auth state changed: User found", user.uid);
+            setUID(user.uid);
+            // Optionally set cookie here too for redundancy, though LOCAL persistence should handle it
+            setCookie("uid", user.uid, { path: "/" });
+          } else {
+            console.log("Auth state changed: No user found");
+            setUID(null);
+            // Optionally clear cookie if needed
+            // removeCookie("uid", { path: "/" });
+          }
+        });
+        return unsubscribe; // Cleanup listener on component unmount
+      })
+      .catch((error) => {
+        console.error("Error setting persistence:", error);
+      });
+
+    // Note: Removed setUID(uid) from here as it was redundant with onAuthStateChanged
+    // The initial uid prop might be useful if passed down correctly,
+    // but onAuthStateChanged is the primary mechanism.
+  }, [auth, setCookie, setUID]); // Add dependencies
 
   useEffect(() => {
     const fetchCustomerData = async () => {
@@ -334,21 +355,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     };
     fetchBusinessID();
   }, [ownerID]);
-
-  // // get owner name from firebase
-  // useEffect(() => {
-  //   const fetchOwnerName = async () => {
-  //     if (ownerID) {
-  //       const owner = await getOwnerNameFromUID(ownerID);
-  //       setOwnerName(owner!);
-  //       console.log("Owner Name:", owner);
-  //     }
-  //   };
-  //   fetchOwnerName();
-  // }, [ownerID]);
-
-  // const businessId = getRestuarantfromOwnerID(id!);
-  // const businessId = "odCe5cYwH8M3oHTcYmav";
 
   const Buisness = useQuery({
     queryFn: () => {
