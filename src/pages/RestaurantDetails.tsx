@@ -218,6 +218,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
         verified: false,
         anonymous: auth.currentUser ? false : true,
       });
+      setAnon(false)
       setDialogOpen(false);
       setPage(1);
     },
@@ -240,8 +241,6 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
   }, [auth.currentUser]);
 
   const handleSubmit = () => {
-    console.log(newReview);
-    console.log(auth.currentUser);
     if (newReview.rating === 0) {
       toast.error("Rating is required");
     } else if (newReview.reviewText.length === 0) {
@@ -250,7 +249,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
       postReviewMutation.mutate({
         newReview: { ...newReview, dateTime: Timestamp.fromDate(new Date()) },
         businessID: businessId!,
-        customerUid: auth.currentUser!.uid,
+        customerUid: newReview.anonymous ? undefined : auth.currentUser?.uid!,
       });
     }
   };

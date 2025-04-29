@@ -124,7 +124,7 @@ export const postReview = async ({
 }: {
   newReview: INewReview;
   businessID: string;
-  customerUid: string;
+  customerUid?: string;
 }): Promise<undefined> => {
     const imgUrls = await Promise.all(
       newReview.pictures.map((img) => uploadImage(img))
