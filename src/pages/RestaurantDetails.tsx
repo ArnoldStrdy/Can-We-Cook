@@ -39,9 +39,6 @@ import { receiptModel } from "@/API/gemini";
 import { Quantum } from "ldrs/react";
 import "ldrs/react/Quantum.css";
 
-// Default values shown
-<Quantum size="45" speed="1.75" color="black" />;
-
 type ReviewType = {
   rating: number;
   reviewText: string;

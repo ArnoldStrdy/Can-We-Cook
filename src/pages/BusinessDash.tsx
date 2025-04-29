@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import Ratings from "@/components/ui/ratings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Business, uploadImage } from "@/pages/WrapperObjects";
 import { toast } from "sonner";
@@ -12,17 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  FiBarChart,
-  FiChevronDown,
-  FiChevronsRight,
-  FiDollarSign,
-  FiHome,
-  FiMonitor,
-  FiShoppingCart,
-  FiTag,
-  FiUsers,
-} from "react-icons/fi";
+import { FiChevronsRight, FiHome } from "react-icons/fi";
 import { MdOutlineReviews } from "react-icons/md";
 import { IoRestaurantOutline } from "react-icons/io5";
 import { BiFoodMenu } from "react-icons/bi";
@@ -38,7 +27,7 @@ import firebase from "firebase/compat/app";
 import model from "@/API/gemini";
 
 import { useNavigate } from "react-router-dom";
-import { Check, Trash2, Upload, Verified, X } from "lucide-react";
+import { Check, Trash2, Upload, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteMenuItem,
@@ -57,10 +46,11 @@ import {
   getRestuarantfromOwnerID,
   getOwnerNameFromUID,
 } from "./FirebaseAPI";
-import { Sidebar } from "./ReactSidebar";
 import { Input } from "@/components/ui/input";
 import { ReviewCard } from "@/components/custom/reviewCard";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Quantum } from "ldrs/react";
+import "ldrs/react/Quantum.css";
 
 type Review = {
   reviewer: string;
@@ -69,94 +59,6 @@ type Review = {
   rating: number;
   review: string;
 };
-
-const dummyReviews: Review[] = [
-  {
-    reviewer: "Jeff Bezos",
-    verified: true,
-    date: "05/07/2024",
-    rating: 4,
-    review: "Amazing food and cozy vibes. The salmon was perfect!",
-  },
-  {
-    reviewer: "Elon Musk",
-    verified: false,
-    date: "06/07/2024",
-    rating: 5,
-    review: "Delicious! The steak was out of this world.",
-  },
-  {
-    reviewer: "Taylor Swift",
-    verified: true,
-    date: "07/07/2024",
-    rating: 3,
-    review: "Nice ambiance, but the dessert was a bit too sweet for me.",
-  },
-  {
-    reviewer: "Oprah Winfrey",
-    verified: true,
-    date: "08/07/2024",
-    rating: 5,
-    review: "Absolutely loved it! The service was exceptional.",
-  },
-  {
-    reviewer: "Barack Obama",
-    verified: true,
-    date: "09/07/2024",
-    rating: 4,
-    review: "A solid dining experience. Great for family dinners.",
-  },
-  {
-    reviewer: "Bill Gates",
-    verified: false,
-    date: "10/07/2024",
-    rating: 2,
-    review: "The food was average, and the service was slow.",
-  },
-  {
-    reviewer: "Emma Watson",
-    verified: true,
-    date: "11/07/2024",
-    rating: 4,
-    review: "Lovely place! The pasta was delicious.",
-  },
-  {
-    reviewer: "Leonardo DiCaprio",
-    verified: true,
-    date: "12/07/2024",
-    rating: 5,
-    review: "Best restaurant in town! Highly recommend the seafood.",
-  },
-  {
-    reviewer: "Scarlett Johansson",
-    verified: false,
-    date: "13/07/2024",
-    rating: 3,
-    review: "Good food, but the wait time was too long.",
-  },
-  {
-    reviewer: "Dwayne Johnson",
-    verified: true,
-    date: "14/07/2024",
-    rating: 4,
-    review: "Great atmosphere! Perfect for a night out.",
-  },
-  {
-    reviewer: "Natalie Portman",
-    verified: true,
-    date: "15/07/2024",
-    rating: 5,
-    review: "Incredible experience! The wine selection is top-notch.",
-  },
-];
-
-const dummyMenu = [
-  { name: "Classic Cheeseburger", price: "12.99" },
-  { name: "Spaghetti Carbonara", price: "15.50" },
-  { name: "Grilled Chicken Salad", price: "13.00" },
-  { name: "Margherita Pizza", price: "14.00" },
-  { name: "Chocolate Lava Cake", price: "7.50" },
-];
 
 type SummarizedReviews = {
   summary: string;
@@ -279,10 +181,10 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [cookies, setCookie] = useCookies(["uid", "name"]);
   const auth = firebase.auth();
-  const [menu, setMenu] = useState(dummyMenu);
+  const [menu, setMenu] = useState([]);
   const [pictures, setPictures] = useState(dummyPictures);
   const [ownerName, setOwnerName] = useState("Owner Name");
-  const [reviews] = useState(dummyReviews);
+  const [reviews] = useState([]);
   const [newPassword, setNewPassword] = useState("");
   const [changePasswordError, setChangePasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -365,6 +267,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         );
         setRestaurantName(business.businessName);
         setRestaurantDesc(business.businessDescription);
+        setBusinessLogo(business.businessLogo);
         console.log("Business ID:", businessId, business.businessID);
         console.log("Business Pictures:", pictures, business.businessPictures);
         console.log("Business:", restaurantName, business.businessName);
@@ -569,7 +472,11 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         <div className="flex items-center justify-between rounded-md transition-colors">
           <div className="flex items-center gap-2">
             {/* <Logo /> */}
-            <img src={imgUrl} className="h-8 w-8" alt="Logo" />
+            <img
+              src={businessLogo ? businessLogo : imgUrl}
+              className="h-8 w-8"
+              alt="Logo"
+            />
             {open && (
               <div>
                 <span className="block text-xs font-semibold">{ownerName}</span>
@@ -658,53 +565,47 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
         <ToggleClose open={open} setOpen={setOpen} />
       </motion.nav>
-      {/* <div className="flex h-screen bg-gray-100 dark:bg-black"> */}
-      {/* Sidebar */}
-      {/* <div className="w-64 bg-white dark:bg-gray-900 p-6 shadow-lg">
-        <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-white">
-          Dashboard
-        </h2>
-        <ul className="space-y-4">
-          {[
-            "home",
-            "reviews",
-            "restaurant",
-            "menu",
-            "pictures",
-            "settings",
-            "logout",
-          ].map((page) => (
-            <li key={page}>
-              <button
-                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
-                onClick={() => setCurrentPage(page)}
-              >
-                {page.charAt(0).toUpperCase() + page.slice(1)}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div> */}
-
-      {/* Main Content */}
       <div className="flex-1 px-10 overflow-y-auto">
         {currentPage === "Dashboard" && (
           <div className="mx-[20%] mt-[5%] space-y-6">
-            <div className="flex">
+            <div className="flex justify-between">
               <div className="flex-3/4 text-left space-y-4 pr-[10%]">
                 <h1 className="text-4xl font-bold">{restaurantName}</h1>
                 <span className="text-lg">{restaurantDesc}</span>
               </div>
-              <div className="flex-1/4 m-auto">
-                <img src={imgUrl} className="w-[60%] mx-auto" />
+              <div className="flex-1/4 justify-end flex">
+                <img
+                  src={businessLogo ? businessLogo : imgUrl}
+                  className="w-40 h-40 object-contain"
+                />
               </div>
             </div>
-            <button
-              onClick={handleSubmit}
-              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
-            >
-              Summarize Reviews
-            </button>
+            <div className="flex justify-center items-center">
+              <button
+                onClick={handleSubmit}
+                className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+              >
+                Summarize Reviews
+              </button>
+            </div>
+            {isLoading && (
+              <Card className="mb-4">
+                <CardContent className="p-4 flex justify-center items-center">
+                  <Quantum size="45" speed="1.75" color="black" />
+                </CardContent>
+              </Card>
+            )}
+            {!isLoading && summarizedReviews && (
+              <Card className="mb-4">
+                <CardContent className="p-4">
+                  <strong>AI Summary: </strong>
+                  {summarizedReviews.summary}
+                  <br />
+                  <strong>Overall Sentiment: </strong>
+                  {summarizedReviews.overallSentiment}
+                </CardContent>
+              </Card>
+            )}
             <Tabs defaultValue="reviews" className="w-full">
               <TabsList className="w-full">
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
@@ -712,30 +613,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 <TabsTrigger value="pictures">Pictures</TabsTrigger>
               </TabsList>
               <TabsContent value="reviews">
-                {isLoading && (
-                  <Card className="mb-4">
-                    <CardContent className="p-4">
-                      <strong>Loading...</strong>
-                    </CardContent>
-                  </Card>
-                )}
-                {summarizedReviews && (
-                  <Card className="mb-4">
-                    <CardContent className="p-4">
-                      <strong>AI Summary: </strong>
-                      {summarizedReviews.summary}
-                      <br />
-                      <strong>Overall Sentiment: </strong>
-                      {summarizedReviews.overallSentiment}
-                    </CardContent>
-                  </Card>
-                )}
-                {/* <Card className="mb-4">
-                  <CardContent className="p-4">
-                    <strong>AI Summary:</strong> Great ambiance, loved dishes.
-                    Overall sentiment: Positive.
-                  </CardContent>
-                </Card> */}
                 <ReviewsTabContent reviews={getReviewsQuery.data!} />
               </TabsContent>
               <TabsContent value="menu">
