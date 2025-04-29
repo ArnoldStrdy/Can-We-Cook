@@ -583,28 +583,36 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <div className="flex justify-center items-center">
               <button
                 onClick={handleSubmit}
-                className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+                className="bg-[#7367e6] text-white px-4 py-2 rounded"
               >
                 Summarize Reviews
               </button>
             </div>
             {isLoading && (
-              <Card className="mb-4">
-                <CardContent className="p-4 flex justify-center items-center">
-                  <Quantum size="45" speed="1.75" color="black" />
-                </CardContent>
-              </Card>
+              // <Card className="mb-4">
+              //   <CardContent className="p-4 flex justify-center items-center">
+              //     <Quantum size="45" speed="1.75" color="black" />
+              //   </CardContent>
+              // </Card>
+              <div className="card bg-[linear-gradient(#7367e6,#71affe)] p-2 rounded-xl relative">
+                <div className="bg-white/75 rounded-lg shadow-md h-full p-3 flex justify-center items-center">
+                  <div className="my-6">
+                    <Quantum size="45" speed="1.75" color="black" />
+                  </div>
+                </div>
+              </div>
             )}
             {!isLoading && summarizedReviews && (
-              <Card className="mb-4">
-                <CardContent className="p-4">
-                  <strong>AI Summary: </strong>
-                  {summarizedReviews.summary}
-                  <br />
-                  <strong>Overall Sentiment: </strong>
-                  {summarizedReviews.overallSentiment}
-                </CardContent>
-              </Card>
+              <div className="card bg-[linear-gradient(#7367e6,#71affe)] p-2 rounded-xl relative">
+                <div className="bg-white/75 rounded-lg shadow-md h-full p-3">
+                  <h2 className="font-black">AI Summary:</h2>
+                  <h2 className="z-50">{summarizedReviews.summary}</h2>
+                  <h2 className="font-black pt-2">Overall Sentiment:</h2>
+                  <h2 className="card__title z-50">
+                    {summarizedReviews.overallSentiment}
+                  </h2>
+                </div>
+              </div>
             )}
             <Tabs defaultValue="reviews" className="w-full">
               <TabsList className="w-full">
