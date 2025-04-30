@@ -327,6 +327,24 @@ class Business {
       });
       console.log("DONE")
   }
+  setBusinessCertifications(
+    businessCertifications: Array<string> | undefined
+  ) {
+    this.businessCertifications = businessCertifications;
+    if (this.businessID === undefined) {
+      console.error("Business ID is undefined");
+      return;
+    }
+    updateDocument(this.collection, this.businessID, {
+      businessCertifications: businessCertifications,
+    }).then((bool) => {
+      if (bool) {
+        console.log("Business certifications updated successfully");
+      } else {
+        console.error("Error updating business certifications");
+      }
+    });
+  }
   setBusinessName(businessName: string) {
     this.businessName = businessName;
     if (this.businessID === undefined) {
