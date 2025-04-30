@@ -162,28 +162,39 @@ function CustomerDash() {
     queryKey: ["getAllBusinesses"],
   });
 
+  const topBusiness = getTopBusinessesQuery.data
+    ?.filter((restaurant) => restaurant.aggregatedReviews > 0)
+    .sort(
+      (a, b) =>
+        b.aggregatedScore / b.aggregatedReviews -
+        a.aggregatedScore / a.aggregatedReviews
+    )
+    .slice(0, 5)
+    .map((restaurant, index) => (
+      <BusinessCard
+        index={index}
+        key={restaurant.businessId || index}
+        restaurant={restaurant}
+      />
+    ));
+
   return (
     <div className="bg-white dark:bg-black flex flex-col items-center pt-20 text-black gap-10">
       <div
         id="top"
         className="max-w-6xl w-full flex flex-col items-start justify-center gap-6"
       >
-        <div className="flex flex-col items-start justify-start gap-1">
-          <h1 className="text-3xl font-semibold">Top Pics</h1>
-          <p>Highest Average Ratings Every Week</p>
-        </div>
-        <div className="flex flex-col justify-center gap-4 w-full">
-          {getTopBusinessesQuery.data
-            ?.sort((a, b) => b.aggregatedScore - a.aggregatedScore)
-            .slice(0, 5)
-            .map((restaurant, index) => (
-              <BusinessCard
-                index={index}
-                key={restaurant.businessId || index}
-                restaurant={restaurant}
-              />
-            ))}
-        </div>
+        {topBusiness?.length! > 0 && (
+          <>
+            <div className="flex flex-col items-start justify-start gap-1">
+              <h1 className="text-3xl font-semibold">Top Pics</h1>
+              <p>Highest Average Ratings Updated Weekly</p>
+            </div>
+            <div className="flex flex-col justify-center gap-4 w-full">
+              {topBusiness}
+            </div>
+          </>
+        )}
       </div>
       <div className="max-w-6xl w-full flex flex-col items-start justify-center gap-6 mb-6">
         <div className="flex flex-col items-start justify-start gap-1">
@@ -228,7 +239,6 @@ function CustomerDash() {
               <BusinessCard index={index} key={index} restaurant={restaurant} />
             ))}
         </div>
-
       </div>
     </div>
   );
