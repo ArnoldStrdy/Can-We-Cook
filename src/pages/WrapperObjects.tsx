@@ -7,6 +7,73 @@ import {
 } from "./FirebaseAPI";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { firestore, DocumentData } from "./FirebaseAPI";
+import { Cron } from "croner"
+
+const weeklyCronJob = new Cron("0 0 * * 0", async () => {
+  console.log("Running weekly cron job...");
+
+  try {
+    // Fetch all businesses
+    const businesses = await getCollection("businesses");
+
+    // Reset weekly aggregated scores and reviews for each business
+    if (!businesses) {
+      console.error("No businesses found.");
+      return;
+    }
+    for (const business of businesses.docs) {
+      const businessID = business.id;
+      const buisness = new Business();
+      await buisness.initBusiness(businessID);
+      const reviewsSnapshot = await firestore.collection("reviews")
+        .where("businessID", "==", doc(firestore, "businesses", businessID)
+      ).get();
+      const reviews = reviewsSnapshot.docs.map((doc) => {
+        const data = new Review(
+          doc.id,
+          doc.data().customerID,
+          doc.data().businessID,
+          doc.data().dateTime.toDate(),
+          doc.data().reviewText,
+          doc.data().verified,
+          doc.data().rating
+        )
+        return data;
+      });
+      const aggregatedScore = reviews?.reduce(
+        (acc: number, review: Review) => acc + review.rating,
+        0
+      );
+      const aggregatedReviews = reviews?.length;
+      const today = new Date();
+      const priorDate = new Date()
+      priorDate.setDate(today.getDate() - 7);
+      const weeklyReviews = reviews?.filter(
+        (review: Review) => {
+          console.log(review.dateTime, priorDate, today);
+          console.log(review.dateTime >= priorDate, review.dateTime <= today);
+          return review.dateTime >= priorDate && review.dateTime <= today
+        }
+      );
+      const weeklyAggregatedScore = weeklyReviews?.reduce(
+        (acc: number, review: Review) => acc + review.rating,
+        0
+      );
+      const weeklyAggregatedReviews = weeklyReviews?.length;
+      console.log(
+        `Business ID: ${businessID}, Aggregated Score: ${aggregatedScore}, Aggregated Reviews: ${aggregatedReviews}, Weekly Aggregated Score: ${weeklyAggregatedScore}, Weekly Aggregated Reviews: ${weeklyAggregatedReviews}`
+      );
+      buisness.setAggregatedScore(aggregatedScore || 0);
+      buisness.setAggregatedReviews(aggregatedReviews || 0);
+      buisness.setweeklyAggregatedScore(weeklyAggregatedScore || 0);
+      buisness.setweeklyAggregatedReviews(weeklyAggregatedReviews || 0);
+      console.log(`Reset weekly data for business ID: ${businessID}`);
+    }
+    console.log("Weekly cron job completed successfully.");
+  } catch (error) {
+    console.error("Error running weekly cron job:", error);
+  }
+});
 
 class menuItem {
   businessID: string;
@@ -273,6 +340,70 @@ class Business {
         console.log("Business name updated successfully");
       } else {
         console.error("Error updating business name");
+      }
+    });
+  }
+  setweeklyAggregatedScore(weeklyAggregatedScore: number) {
+    this.weeklyAggregatedScore = weeklyAggregatedScore;
+    if (this.businessID === undefined) {
+      console.error("Business ID is undefined");
+      return;
+    }
+    updateDocument(this.collection, this.businessID, {
+      weeklyAggregatedScore: weeklyAggregatedScore,
+    }).then((bool) => {
+      if (bool) {
+        console.log("Weekly aggregated score updated successfully");
+      } else {
+        console.error("Error updating weekly aggregated score");
+      }
+    });
+  }
+  setweeklyAggregatedReviews(weeklyAggregatedReviews: number) {
+    this.weeklyAggregatedReviews = weeklyAggregatedReviews;
+    if (this.businessID === undefined) {
+      console.error("Business ID is undefined");
+      return;
+    }
+    updateDocument(this.collection, this.businessID, {
+      weeklyAggregatedReviews: weeklyAggregatedReviews,
+    }).then((bool) => {
+      if (bool) {
+        console.log("Weekly aggregated reviews updated successfully");
+      } else {
+        console.error("Error updating weekly aggregated reviews");
+      }
+    });
+  }
+  setAggregatedReviews(aggregatedReviews: number) {
+    this.aggregatedReviews = aggregatedReviews;
+    if (this.businessID === undefined) {
+      console.error("Business ID is undefined");
+      return;
+    }
+    updateDocument(this.collection, this.businessID, {
+      aggregatedReviews: aggregatedReviews,
+    }).then((bool) => {
+      if (bool) {
+        console.log("Aggregated reviews updated successfully");
+      } else {
+        console.error("Error updating aggregated reviews");
+      }
+    });
+  }
+  setAggregatedScore(aggregatedScore: number) {
+    this.aggregatedScore = aggregatedScore;
+    if (this.businessID === undefined) {
+      console.error("Business ID is undefined");
+      return;
+    }
+    updateDocument(this.collection, this.businessID, {
+      aggregatedScore: aggregatedScore,
+    }).then((bool) => {
+      if (bool) {
+        console.log("Aggregated score updated successfully");
+      } else {
+        console.error("Error updating aggregated score");
       }
     });
   }

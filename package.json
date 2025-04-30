@@ -22,6 +22,7 @@
     "@types/react-cookies": "^0.1.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "croner": "^9.0.0",
     "firebaseui": "^6.1.0",
     "framer-motion": "^12.5.0",
     "ldrs": "^1.1.7",
