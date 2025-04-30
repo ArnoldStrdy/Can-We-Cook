@@ -2,6 +2,7 @@ import { Timestamp } from "firebase/firestore";
 
 export interface TRestaurant {
   aggregatedScore: number;
+  aggregatedReviews: number;
   businessId: string;
   businessAddress: string;
   businessCertifications: string[];
