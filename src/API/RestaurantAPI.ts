@@ -12,6 +12,7 @@ import {
   addDoc,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   DocumentReference,
   getDoc,
@@ -86,6 +87,7 @@ export const getReviewByBusinessId = async (
         }
 
         return {
+          reviewId: doc.id,
           anonymous: data.anonymous,
           customerName: customerName,
           dateTime: data.dateTime,
@@ -200,3 +202,8 @@ export const deleteMenuItem = async ({
     }
     console.log(`Deleted menu item with id: ${itemID}`);
 };
+
+export const deleteReviewById = async (reviewId: string): Promise<undefined> => {
+  await deleteDoc(doc(db, "reviews", reviewId))
+  console.log("Successfult deleted review: ", reviewId)
+}

@@ -28,9 +28,10 @@ import model from "@/API/gemini";
 
 import { useNavigate } from "react-router-dom";
 import { Check, Trash2, Upload, X } from "lucide-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, UseMutationResult, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteMenuItem,
+  deleteReviewById,
   getMenuByBusinessId,
   getReviewByBusinessId,
   postNewMenuItem,
@@ -338,6 +339,19 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     },
   });
 
+  const deleteReviewMutation = useMutation({
+    mutationFn: deleteReviewById,
+    onSuccess:  () => {
+      queryClient.invalidateQueries({
+        queryKey: ["getReviewByBusinessId", businessId],
+      });
+      toast.success("Succesfuly deleted a review");
+    },
+    onError: (e) => {
+      toast.error(`Error deleting review: ${e}`);
+    },
+  })
+
   const handleAddMenu = (name: string, price: string, image: File) => {
     const menuItem: INewMenu = {
       itemName: name,
@@ -348,7 +362,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       postMenuItemMutation.mutate({ menuItem, businessId });
     }
 
-    setMenu((prev) => [...prev, { name, price }]);
+    // setMenu((prev) => [...prev, { name, price }]);
   };
   const handlePictureLoad = (business: Business) => {
     setPictures(business.businessPictures);
@@ -625,7 +639,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 <TabsTrigger value="pictures">Pictures</TabsTrigger>
               </TabsList>
               <TabsContent value="reviews">
-                <ReviewsTabContent reviews={getReviewsQuery.data!} />
+                <ReviewsTabContent reviews={getReviewsQuery.data!} deleteReviewMutation={deleteReviewMutation}/>
               </TabsContent>
               <TabsContent value="menu">
                 <MenuTabContent menu={getMenuQuery.data!} />
@@ -642,7 +656,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">
               Reviews
             </h1>
-            <ReviewsTabContent reviews={getReviewsQuery.data!} />
+            <ReviewsTabContent reviews={getReviewsQuery.data!} deleteReviewMutation={deleteReviewMutation}/>
           </div>
         )}
 
@@ -1034,7 +1048,13 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   );
 };
 
-const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => (
+const ReviewsTabContent = ({ reviews, deleteReviewMutation }: { reviews: IExistingReview[], deleteReviewMutation: UseMutationResult<undefined, Error, string, unknown> }) => {
+
+  const handleDeleteReview = (reviewId: string) => {
+    deleteReviewMutation.mutate(reviewId)
+  }
+
+  return (
   <div className="mt-4 space-y-6">
     {/* <Card>
       <CardContent className="p-4 text-gray-800 dark:text-gray-200">
@@ -1048,10 +1068,10 @@ const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => (
     </Card> */}
 
     {reviews?.map((review, index) => {
-      return <ReviewCard review={review} key={index} />;
+      return <ReviewCard review={review} key={index} onDelete={() => handleDeleteReview(review.reviewId)}/>;
     })}
   </div>
-);
+)};
 const MenuTabContent = ({
   menu,
   onDelete,

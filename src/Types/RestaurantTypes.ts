@@ -31,6 +31,7 @@ export interface INewReview extends IReview {
 }
 
 export interface IExistingReview extends IReview {
+  reviewId: string;
   customerName: string;
   pictures: string[];
 }

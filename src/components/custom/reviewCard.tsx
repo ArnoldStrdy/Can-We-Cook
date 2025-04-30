@@ -1,10 +1,10 @@
 import { IExistingReview } from "@/Types/RestaurantTypes";
 import { Card, CardContent } from "../ui/card";
-import { Verified } from "lucide-react";
+import { Trash2, Verified } from "lucide-react";
 import Ratings from "../ui/ratings";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
-export function ReviewCard({ review }: { review: IExistingReview }) {
+export function ReviewCard({ review, onDelete }: { review: IExistingReview, onDelete?: () => void }) {
   return (
     <Card>
       <CardContent className="text-lg space-y-2">
@@ -25,6 +25,7 @@ export function ReviewCard({ review }: { review: IExistingReview }) {
           </div>
         </div>
         <div>{review.reviewText}</div>
+        <div className="flex relative">
         <div className="grid grid-cols-6 gap-2 place-items-center">
           {review.pictures?.map((url) => (
             <Dialog key={url}>
@@ -47,6 +48,10 @@ export function ReviewCard({ review }: { review: IExistingReview }) {
             </Dialog>
           ))}
         </div>
+        {onDelete && <div className="absolute bottom-0 right-0"><button onClick={() => onDelete()}><Trash2/></button></div>}
+        </div>
+        
+        
       </CardContent>
     </Card>
   );
