@@ -589,11 +589,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               </button>
             </div>
             {isLoading && (
-              // <Card className="mb-4">
-              //   <CardContent className="p-4 flex justify-center items-center">
-              //     <Quantum size="45" speed="1.75" color="black" />
-              //   </CardContent>
-              // </Card>
               <div className="card bg-[linear-gradient(#7367e6,#71affe)] p-2 rounded-xl relative">
                 <div className="bg-white/75 rounded-lg shadow-md h-full p-3 flex justify-center items-center">
                   <div className="my-6">
