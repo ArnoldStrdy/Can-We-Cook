@@ -30,7 +30,7 @@ export function BusinessCard({
 
         <div className="flex flex-col items-end gap-2">
           <div>{restaurant.weeklyAggregateScore}</div>
-          <Ratings stars={restaurant.weeklyAggregateScore} />
+          <Ratings stars={restaurant.aggregatedScore/restaurant.aggregatedReviews} />
         </div>
       </CardContent>
     </Card>
