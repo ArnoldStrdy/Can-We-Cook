@@ -174,8 +174,14 @@ interface CustomerNavbarProps {
   setUID: React.Dispatch<React.SetStateAction<string | null>>;
 }
 const certificate = [
-  "Halal", "Kosher", "Vegan", "Vegetarian", "Gluten Free", "Organic", "Non-GMO",
-]
+  "Halal",
+  "Kosher",
+  "Vegan",
+  "Vegetarian",
+  "Gluten Free",
+  "Organic",
+  "Non-GMO",
+];
 const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [currentPage, setCurrentPage] = useState("Dashboard");
   const [email, setEmail] = useState("");
@@ -200,7 +206,9 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   // Change this line
   const persistance = firebase.auth.Auth.Persistence.LOCAL; // Use LOCAL instead of SESSION
-  const handleUpdateCertifications = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleUpdateCertifications = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const selectedOptions = Array.from(event.target.selectedOptions).map(
       (option) => option.value
     );
@@ -253,7 +261,9 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   }, [uid]);
 
   const [ownerID, setOwnerID] = useState<string | null>(null);
-  const [selectedCertificates, setSelectedCertificates] = useState<string[]>([]);
+  const [selectedCertificates, setSelectedCertificates] = useState<string[]>(
+    []
+  );
   const [businessId, setbusinesID] = useState<string>();
 
   useEffect(() => {
@@ -545,6 +555,13 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           <Option
             Icon={IoRestaurantOutline}
             title="Restaurant"
+            selected={currentPage}
+            setSelected={setCurrentPage}
+            open={open}
+          />
+          <Option
+            Icon={IoRestaurantOutline}
+            title="Promotions"
             selected={currentPage}
             setSelected={setCurrentPage}
             open={open}
@@ -957,24 +974,24 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
         {currentPage === "Certificates" && (
           <div className="mt-10 max-w-md mx-auto text-center space-y-6">
-          <select
-            className="mt-4 space-y-6"
-            name="certificates"
-            id="certificates"
-            multiple
-            value = {selectedCertificates}
-            onChange={handleUpdateCertifications}
-          >
-            {certificate?.map((certificate: string, index: number) => {
-              console.log("Certificate:", certificate);
-              return (
-                <option key={index} value={certificate}>
-                  {certificate}
-                </option>
-              );
-            })}
-          </select>
-        </div>
+            <select
+              className="mt-4 space-y-6"
+              name="certificates"
+              id="certificates"
+              multiple
+              value={selectedCertificates}
+              onChange={handleUpdateCertifications}
+            >
+              {certificate?.map((certificate: string, index: number) => {
+                console.log("Certificate:", certificate);
+                return (
+                  <option key={index} value={certificate}>
+                    {certificate}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
         )}
         {currentPage === "Logout" && (
           <div className="mt-10 max-w-md mx-auto text-center space-y-6">
@@ -1043,7 +1060,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
       </div>
       {/* </div> */}
-      
     </div>
   );
 };
