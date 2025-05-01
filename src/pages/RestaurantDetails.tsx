@@ -38,6 +38,7 @@ import { ReviewCard } from "@/components/custom/reviewCard";
 import { receiptModel } from "@/API/gemini";
 import { Quantum } from "ldrs/react";
 import "ldrs/react/Quantum.css";
+import { PicturesTabContent } from "@/components/custom/PicturesTabContent";
 
 type ReviewType = {
   rating: number;
@@ -101,7 +102,7 @@ function RestaurantDetails() {
           <MenuTabContent menu={getMenuQuery.data!} />
         </TabsContent>
         <TabsContent value="pictures" className="px-4">
-          <PicturesTabContent pics={getBusinessQuery.data?.businessPictures!} />
+          <PicturesTabContent pictures={getBusinessQuery.data?.businessPictures!} />
         </TabsContent>
         <TabsContent value="map" className="px-4">
           <div className="aspect-2/1 w-full">
@@ -171,23 +172,6 @@ const MenuTabContent = ({ menu }: { menu: IExistingMenu[] }) => {
     </Table>
   );
 };
-
-const PicturesTabContent = ({ pics }: { pics: string[] }) => (
-  <div className="grid grid-cols-4 gap-8 mt-4">
-    {pics?.map((url, index) => (
-      <Dialog key={url}>
-        <DialogTrigger asChild>
-          <div className="rounded-lg bg-gray-100 overflow-hidden aspect-square w-full border flex items-center justify-center relative">
-            <img src={url} alt="" className="w-full h-auto object-contain" />
-          </div>
-        </DialogTrigger>
-        <DialogContent className="p-10">
-          <img src={url} alt="" className="w-full h-auto object-contain" />
-        </DialogContent>
-      </Dialog>
-    ))}
-  </div>
-);
 
 const ReviewDialog = ({ businessId }: { businessId: string }) => {
   const auth = firebase.auth();

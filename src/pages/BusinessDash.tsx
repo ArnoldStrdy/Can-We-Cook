@@ -28,7 +28,12 @@ import model from "@/API/gemini";
 
 import { useNavigate } from "react-router-dom";
 import { Check, Trash2, Upload, X } from "lucide-react";
-import { useMutation, UseMutationResult, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   deleteMenuItem,
   deleteReviewById,
@@ -52,6 +57,7 @@ import { ReviewCard } from "@/components/custom/reviewCard";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Quantum } from "ldrs/react";
 import "ldrs/react/Quantum.css";
+import { PicturesTabContent } from "@/components/custom/PicturesTabContent";
 
 type Review = {
   reviewer: string;
@@ -351,7 +357,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   const deleteReviewMutation = useMutation({
     mutationFn: deleteReviewById,
-    onSuccess:  () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["getReviewByBusinessId", businessId],
       });
@@ -360,7 +366,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     onError: (e) => {
       toast.error(`Error deleting review: ${e}`);
     },
-  })
+  });
 
   const handleAddMenu = (name: string, price: string, image: File) => {
     const menuItem: INewMenu = {
@@ -507,7 +513,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             {/* <Logo /> */}
             <img
               src={businessLogo ? businessLogo : imgUrl}
-              className="h-8 w-8"
+              className="h-8 w-8 object-contain"
               alt="Logo"
             />
             {open && (
@@ -525,6 +531,100 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   };
   const imageInput = useRef<HTMLInputElement | null>(null);
   const [menuImage, setMenuImage] = useState<File>();
+
+  const RestaurantPage = () => {
+    return (
+      <div className="mt-10 max-w-2xl space-y-4">
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+          Update Restaurant Info
+        </h1>
+
+        {!isEditing ? (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-2">
+            <h2 className="text-xl font-bold">{restaurantName}</h2>
+            <p className="text-gray-700 dark:text-gray-300">{restaurantDesc}</p>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="mt-2 px-4 py-2 bg-[#FF6F00] text-white rounded"
+            >
+              + Edit
+            </button>
+          </div>
+        ) : (
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const name = (form.elements.namedItem("name") as HTMLInputElement)
+                .value;
+              const desc = (
+                form.elements.namedItem("description") as HTMLTextAreaElement
+              ).value;
+              handleUpdateRestaurant(name, desc);
+            }}
+          >
+            <input
+              name="name"
+              defaultValue={restaurantName}
+              placeholder="Restaurant Name"
+              className="w-full p-2 border rounded"
+            />
+            <textarea
+              name="description"
+              defaultValue={restaurantDesc}
+              placeholder="Description"
+              className="w-full p-2 border rounded"
+            />
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-4 py-2 rounded flex"
+              >
+                <Check className="mr-2" /> Save
+              </button>
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="bg-red-500 text-white px-4 py-2 rounded flex"
+              >
+                <X className="mr-2" /> Cancel
+              </button>
+            </div>
+          </form>
+        )}
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleChangeLogo(e)}
+          ref={logoInputRef}
+          className="hidden"
+        />
+
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8">
+          Business Logo
+        </h2>
+        {businessLogo ? (
+          <img
+            src={businessLogo}
+            alt="Business Logo"
+            className="w-32 mt-4 rounded"
+          />
+        ) : (
+          <div className="w-32 h-32 rounded outline">No logo</div>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          className="w-min"
+          onClick={() => logoInputRef.current!.click()}
+        >
+          <Upload /> Upload new logo
+        </Button>
+      </div>
+    );
+  };
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-black">
       <motion.nav
@@ -656,7 +756,10 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 <TabsTrigger value="pictures">Pictures</TabsTrigger>
               </TabsList>
               <TabsContent value="reviews">
-                <ReviewsTabContent reviews={getReviewsQuery.data!} deleteReviewMutation={deleteReviewMutation}/>
+                <ReviewsTabContent
+                  reviews={getReviewsQuery.data!}
+                  deleteReviewMutation={deleteReviewMutation}
+                />
               </TabsContent>
               <TabsContent value="menu">
                 <MenuTabContent menu={getMenuQuery.data!} />
@@ -673,110 +776,14 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">
               Reviews
             </h1>
-            <ReviewsTabContent reviews={getReviewsQuery.data!} deleteReviewMutation={deleteReviewMutation}/>
+            <ReviewsTabContent
+              reviews={getReviewsQuery.data!}
+              deleteReviewMutation={deleteReviewMutation}
+            />
           </div>
         )}
 
-        {currentPage === "Restaurant" && (
-          <div className="mt-10 max-w-2xl space-y-4">
-            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
-              Update Restaurant Info
-            </h1>
-
-            {!isEditing ? (
-              <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-2">
-                <h2 className="text-xl font-bold">{restaurantName}</h2>
-                <p className="text-gray-700 dark:text-gray-300">
-                  {restaurantDesc}
-                </p>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="mt-2 px-4 py-2 bg-[#FF6F00] text-white rounded"
-                >
-                  + Edit
-                </button>
-              </div>
-            ) : (
-              <form
-                className="space-y-4"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const form = e.target as HTMLFormElement;
-                  const name = (
-                    form.elements.namedItem("name") as HTMLInputElement
-                  ).value;
-                  const desc = (
-                    form.elements.namedItem(
-                      "description"
-                    ) as HTMLTextAreaElement
-                  ).value;
-                  handleUpdateRestaurant(name, desc);
-                }}
-              >
-                <input
-                  name="name"
-                  defaultValue={restaurantName}
-                  placeholder="Restaurant Name"
-                  className="w-full p-2 border rounded"
-                />
-                <textarea
-                  name="description"
-                  defaultValue={restaurantDesc}
-                  placeholder="Description"
-                  className="w-full p-2 border rounded"
-                />
-                <div className="flex space-x-4">
-                  <button
-                    type="submit"
-                    className="bg-green-600 text-white px-4 py-2 rounded flex"
-                  >
-                    <Check className="mr-2" /> Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="bg-red-500 text-white px-4 py-2 rounded flex"
-                  >
-                    <X className="mr-2" /> Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-            {/* Hidden File Input */}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleChangeLogo(e)}
-              ref={logoInputRef}
-              className="hidden"
-            />
-
-            {businessLogo && (
-              <img
-                src={businessLogo}
-                alt="Business Logo"
-                className="w-32 h-32 mt-4 rounded object-cover border"
-              />
-            )}
-
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8">
-              Change Business Logo
-            </h2>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleChangeLogo(e)}
-              className="w-full p-2 border rounded"
-            />
-            {businessLogo && (
-              <img
-                src={businessLogo}
-                alt="Business Logo"
-                className="w-32 h-32 mt-4 rounded"
-              />
-            )}
-          </div>
-        )}
+        {currentPage === "Restaurant" && <RestaurantPage />}
 
         {currentPage === "Menu" && (
           <div className="mt-10 max-w-3xl space-y-6">
@@ -881,7 +888,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Update Pictures" && (
-          <div className="mt-10 max-w-xl space-y-4">
+          <div className="mt-10 max-w-5xl space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Update Pictures
             </h1>
@@ -1003,7 +1010,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             </p>
             <div className="flex justify-center space-x-4">
               <button
-                className="bg-green-600 text-white px-4 py-2 rounded"
+                className="bg-green-600 text-white px-4 py-2 rounded flex gap-2"
                 onClick={() => {
                   // alert("Logged out!");
                   firebase.auth().signOut();
@@ -1011,13 +1018,13 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   navigate("/");
                 }}
               >
-                ✔ Confirm
+                <Check/> Confirm
               </button>
               <button
-                className="bg-red-500 text-white px-4 py-2 rounded"
+                className="bg-red-500 text-white px-4 py-2 rounded flex gap-2"
                 onClick={() => setCurrentPage("Dashboard")}
               >
-                ❌ Cancel
+                <X/> Cancel
               </button>
             </div>
           </div>
@@ -1064,15 +1071,20 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   );
 };
 
-const ReviewsTabContent = ({ reviews, deleteReviewMutation }: { reviews: IExistingReview[], deleteReviewMutation: UseMutationResult<undefined, Error, string, unknown> }) => {
-
+const ReviewsTabContent = ({
+  reviews,
+  deleteReviewMutation,
+}: {
+  reviews: IExistingReview[];
+  deleteReviewMutation: UseMutationResult<undefined, Error, string, unknown>;
+}) => {
   const handleDeleteReview = (reviewId: string) => {
-    deleteReviewMutation.mutate(reviewId)
-  }
+    deleteReviewMutation.mutate(reviewId);
+  };
 
   return (
-  <div className="mt-4 space-y-6">
-    {/* <Card>
+    <div className="my-4 space-y-6">
+      {/* <Card>
       <CardContent className="p-4 text-gray-800 dark:text-gray-200">
         <strong>🧠 AI Summary:</strong>
         <br />
@@ -1083,11 +1095,18 @@ const ReviewsTabContent = ({ reviews, deleteReviewMutation }: { reviews: IExisti
       </CardContent>
     </Card> */}
 
-    {reviews?.map((review, index) => {
-      return <ReviewCard review={review} key={index} onDelete={() => handleDeleteReview(review.reviewId)}/>;
-    })}
-  </div>
-)};
+      {reviews?.map((review, index) => {
+        return (
+          <ReviewCard
+            review={review}
+            key={index}
+            onDelete={() => handleDeleteReview(review.reviewId)}
+          />
+        );
+      })}
+    </div>
+  );
+};
 const MenuTabContent = ({
   menu,
   onDelete,
@@ -1133,38 +1152,5 @@ const MenuTabContent = ({
   </Table>
 );
 
-const PicturesTabContent = ({
-  pictures,
-  onDelete,
-}: {
-  pictures: string[];
-  onDelete?: (index: number) => void;
-}) => (
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4">
-    {pictures.map((url, index) => (
-      <Dialog key={url}>
-        <DialogTrigger asChild>
-          <div key={index} className="relative group">
-            <img
-              src={url}
-              className="aspect-square w-full rounded shadow object-contain"
-            />
-            {onDelete && (
-              <button
-                onClick={() => onDelete(index)}
-                className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:text-red-800"
-              >
-                <X />
-              </button>
-            )}
-          </div>
-        </DialogTrigger>
-        <DialogContent className="p-10">
-          <img src={url} alt="" className="w-full h-auto object-contain" />
-        </DialogContent>
-      </Dialog>
-    ))}
-  </div>
-);
 
 export default BusinessDash;
