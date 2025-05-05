@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Business, uploadImage } from "@/pages/WrapperObjects";
+import { Business, uploadImage, Banner } from "@/pages/WrapperObjects";
 import { toast } from "sonner";
 import {
   Table,
@@ -210,6 +210,9 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [businessLogo, setBusinessLogo] = useState<string>(
     dummyBusiness.businessLogo
   );
+
+  const [bannerFile, setBannerFile] = useState<File>();
+  const [expireDate, setExpireDate] = useState<string>(""); // e.g. "2025-05-31"
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   // Change this line
   const persistance = firebase.auth.Auth.Persistence.LOCAL; // Use LOCAL instead of SESSION
@@ -355,6 +358,25 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     },
   });
 
+  const handleUploadBanner = async () => {
+    if (!bannerFile || !expireDate || !businessId) {
+      toast.error("Please upload an image and select an expiration date.");
+      return;
+    }
+
+    try {
+      const url = await uploadImage(bannerFile);
+      const expiresAt = new Date(expireDate);
+      const banner = new Banner(businessId, url, expiresAt);
+      banner.createBanner();
+      toast.success("Banner uploaded successfully!");
+      setBannerFile(undefined);
+      setExpireDate("");
+    } catch (error) {
+      console.error("Error uploading banner:", error);
+      toast.error("Failed to upload banner.");
+    }
+  };
   const deleteMenuItemMutation = useMutation({
     mutationFn: deleteMenuItem,
     onSuccess: () => {
@@ -992,6 +1014,33 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             {changePasswordSuccess && (
               <p className="text-green-500">{changePasswordSuccess}</p>
             )}
+          </div>
+        )}
+
+        {currentPage === "Promotions" && (
+          <div className="mt-10 max-w-xl space-y-6">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+              Upload Promotion Banner
+            </h1>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setBannerFile(e.target.files?.[0])}
+            />
+            <input
+              type="date"
+              value={expireDate}
+              onChange={(e) => setExpireDate(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+
+            <button
+              onClick={handleUploadBanner}
+              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+            >
+              Upload Banner
+            </button>
           </div>
         )}
         {currentPage === "Certifications" && (
