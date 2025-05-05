@@ -8,6 +8,7 @@ import {
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { firestore, DocumentData } from "./FirebaseAPI";
 import { Cron } from "croner"
+import { Timestamp } from "firebase/firestore";
 
 const weeklyCronJob = new Cron("0 0 * * 0", async () => {
   console.log("Running weekly cron job...");
@@ -74,6 +75,8 @@ const weeklyCronJob = new Cron("0 0 * * 0", async () => {
     console.error("Error running weekly cron job:", error);
   }
 });
+
+
 
 class menuItem {
   businessID: string;
@@ -634,5 +637,48 @@ const uploadImage = async (file: File): Promise<string> => {
   }
 };
 
-export { Business, menuItem, Customer, Review, Owner, uploadImage };
+class Banner {
+  collection: string = "promotions";
+  bannerID: string;
+  businessID: string;
+  imageURL: string;
+  expiresAt: Date;
+  constructor(bannerID: string, businessID: string, imageURL: string, expiresAt?: Date) {
+    this.bannerID = bannerID;
+    this.businessID = businessID;
+    this.imageURL = imageURL;
+    this.expiresAt = expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default to one week from now
+  }
+  public createBanner() {
+    const data = {
+      businessID: this.businessID,
+      imageURL: this.imageURL,
+      expiresAt: Timestamp.fromDate(this.expiresAt),
+    };
+    addDocument(this.collection, data)
+      .then((bool) => {
+        if (bool) {
+          console.log("Banner added successfully");
+        } else {
+          console.error("Error adding banner");
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding banner: ", error);
+      });
+  }
+
+}
+
+const getBanners = async (businessID: string): Promise<Banner[]> => {
+  const banners: Banner[] = [];
+  const snapshot = await firestore.collection("promotions").where("businessID", "==", businessID).get();
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const banner = new Banner(doc.id, data.businessID, data.imageURL, data.expiresAt.toDate());
+    banners.push(banner);
+  });
+  return banners;
+}
+export { Business, menuItem, Customer, Review, Owner, uploadImage, Banner, getBanners };
 export type { businessData };
