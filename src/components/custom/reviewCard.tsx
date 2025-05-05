@@ -28,7 +28,7 @@ export function ReviewCard({ review, onDelete }: { review: IExistingReview, onDe
         <div className="flex relative">
         <div className="grid grid-cols-6 gap-3 place-items-center">
           {review.pictures?.map((url) => (
-            <ClickablePicture url={url}/>
+            <ClickablePicture url={url} key={url}/>
           ))}
         </div>
         {onDelete && <div className="absolute bottom-0 right-0"><button onClick={() => onDelete()}><Trash2/></button></div>}
