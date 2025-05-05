@@ -76,7 +76,38 @@ const weeklyCronJob = new Cron("0 0 * * 0", async () => {
   }
 });
 
+const cleanExpiredBanners = new Cron("0 0 * * *", async () => {
 
+  console.log("Running daily cron job to clean expired banners...");
+
+  try {
+    // Fetch all banners
+    const bannersSnapshot = await getCollection("promotions");
+
+    // Check if there are any banners to process
+    if (bannersSnapshot?.empty) {
+      console.log("No banners found.");
+      return;
+    }
+
+    // Iterate through each banner and check for expiration
+    for (const bannerDoc of bannersSnapshot?.docs ?? []) {
+      const bannerData = bannerDoc.data();
+      const expiresAt = bannerData.expiresAt.toDate(); // Convert Timestamp to Date
+
+      // Check if the banner has expired
+      if (expiresAt < new Date()) {
+        // Delete the expired banner
+        await firestore.collection("promotions").doc(bannerDoc.id).delete();
+        console.log(`Deleted expired banner with ID: ${bannerDoc.id}`);
+      }
+    }
+
+    console.log("Daily cron job completed successfully.");
+  } catch (error) {
+    console.error("Error running daily cron job:", error);
+  }
+});
 
 class menuItem {
   businessID: string;
@@ -643,8 +674,8 @@ class Banner {
   businessID: string;
   imageURL: string;
   expiresAt: Date;
-  constructor(bannerID: string, businessID: string, imageURL: string, expiresAt?: Date) {
-    this.bannerID = bannerID;
+  constructor(businessID: string, imageURL: string, expiresAt?: Date, bannerID?: string) {
+    this.bannerID = bannerID || "";
     this.businessID = businessID;
     this.imageURL = imageURL;
     this.expiresAt = expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default to one week from now
@@ -675,7 +706,7 @@ const getBanners = async (businessID: string): Promise<Banner[]> => {
   const snapshot = await firestore.collection("promotions").where("businessID", "==", businessID).get();
   snapshot.forEach((doc) => {
     const data = doc.data();
-    const banner = new Banner(doc.id, data.businessID, data.imageURL, data.expiresAt.toDate());
+    const banner = new Banner(data.businessID, data.imageURL, data.expiresAt.toDate(), doc.id);
     banners.push(banner);
   });
   return banners;

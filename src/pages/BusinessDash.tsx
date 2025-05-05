@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Business, uploadImage } from "@/pages/WrapperObjects";
+import { Business, uploadImage, Banner } from "@/pages/WrapperObjects";
 import { toast } from "sonner";
 import {
   Table,
@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FiChevronsRight, FiHome } from "react-icons/fi";
 import { MdOutlineReviews } from "react-icons/md";
 import { IoRestaurantOutline } from "react-icons/io5";
@@ -209,18 +210,33 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [businessLogo, setBusinessLogo] = useState<string>(
     dummyBusiness.businessLogo
   );
+
+  const [bannerFile, setBannerFile] = useState<File>();
+  const [expireDate, setExpireDate] = useState<string>(""); // e.g. "2025-05-31"
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   // Change this line
   const persistance = firebase.auth.Auth.Persistence.LOCAL; // Use LOCAL instead of SESSION
-  const handleUpdateCertifications = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const selectedOptions = Array.from(event.target.selectedOptions).map(
-      (option) => option.value
+  // const handleUpdateCertifications = (
+  //   event: React.ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   const selectedOptions = Array.from(event.target.selectedOptions).map(
+  //     (option) => option.value
+  //   );
+  //   Buisness.data?.setBusinessCertifications(selectedOptions);
+  //   toast.success("Certifications updated successfully!");
+  // };
+
+  const toggleCertificate = (cert: string) => {
+    setSelectedCertificates((prev) =>
+      prev.includes(cert) ? prev.filter((c) => c !== cert) : [...prev, cert]
     );
-    Buisness.data?.setBusinessCertifications(selectedOptions);
+  };
+
+  const handleUpdateCertifications = () => {
+    Buisness.data?.setBusinessCertifications(selectedCertificates);
     toast.success("Certifications updated successfully!");
   };
+
   useEffect(() => {
     auth
       .setPersistence(persistance)
@@ -342,6 +358,25 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     },
   });
 
+  const handleUploadBanner = async () => {
+    if (!bannerFile || !expireDate || !businessId) {
+      toast.error("Please upload an image and select an expiration date.");
+      return;
+    }
+
+    try {
+      const url = await uploadImage(bannerFile);
+      const expiresAt = new Date(expireDate);
+      const banner = new Banner(businessId, url, expiresAt);
+      banner.createBanner();
+      toast.success("Banner uploaded successfully!");
+      setBannerFile(undefined);
+      setExpireDate("");
+    } catch (error) {
+      console.error("Error uploading banner:", error);
+      toast.error("Failed to upload banner.");
+    }
+  };
   const deleteMenuItemMutation = useMutation({
     mutationFn: deleteMenuItem,
     onSuccess: () => {
@@ -785,6 +820,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
         {currentPage === "Restaurant" && <RestaurantPage />}
 
+        {currentPage === "Promotions" && <div></div>}
+
         {currentPage === "Menu" && (
           <div className="mt-10 max-w-3xl space-y-6">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
@@ -979,25 +1016,54 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             )}
           </div>
         )}
-        {currentPage === "Certificates" && (
-          <div className="mt-10 max-w-md mx-auto text-center space-y-6">
-            <select
-              className="mt-4 space-y-6"
-              name="certificates"
-              id="certificates"
-              multiple
-              value={selectedCertificates}
-              onChange={handleUpdateCertifications}
+
+        {currentPage === "Promotions" && (
+          <div className="mt-10 max-w-xl space-y-6">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+              Upload Promotion Banner
+            </h1>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setBannerFile(e.target.files?.[0])}
+            />
+            <input
+              type="date"
+              value={expireDate}
+              onChange={(e) => setExpireDate(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+
+            <button
+              onClick={handleUploadBanner}
+              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
             >
-              {certificate?.map((certificate: string, index: number) => {
-                console.log("Certificate:", certificate);
-                return (
-                  <option key={index} value={certificate}>
-                    {certificate}
-                  </option>
-                );
-              })}
-            </select>
+              Upload Banner
+            </button>
+          </div>
+        )}
+        {currentPage === "Certifications" && (
+          <div className="flex flex-col mt-10 max-w-md mx-auto space-y-4">
+            {certificate?.map((cert: string, index: number) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`cert-${index}`}
+                  checked={selectedCertificates.includes(cert)}
+                  onCheckedChange={() => toggleCertificate(cert)}
+                />
+                <label htmlFor={`cert-${index}`} className="text-sm">
+                  {cert}
+                </label>
+              </div>
+            ))}
+
+            <button
+              onClick={handleUpdateCertifications}
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Update Certifications
+            </button>
           </div>
         )}
         {currentPage === "Logout" && (
@@ -1018,13 +1084,13 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   navigate("/");
                 }}
               >
-                <Check/> Confirm
+                <Check /> Confirm
               </button>
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded flex gap-2"
                 onClick={() => setCurrentPage("Dashboard")}
               >
-                <X/> Cancel
+                <X /> Cancel
               </button>
             </div>
           </div>
@@ -1151,6 +1217,5 @@ const MenuTabContent = ({
     </TableBody>
   </Table>
 );
-
 
 export default BusinessDash;
