@@ -7,6 +7,7 @@ import {
   IExistingReview,
   INewMenu,
   TRestaurant,
+  TPromotion,
 } from "@/Types/RestaurantTypes";
 import {
   addDoc,
@@ -206,4 +207,18 @@ export const deleteMenuItem = async ({
 export const deleteReviewById = async (reviewId: string): Promise<undefined> => {
   await deleteDoc(doc(db, "reviews", reviewId))
   console.log("Successfult deleted review: ", reviewId)
+}
+
+export const getAllPromotions = async (): Promise<TPromotion[]> => {
+  try{
+    const snapshot = await getDocs(collection(db, "promotions"))
+    const  docs = snapshot.docs.map(doc =>(
+      {...doc.data(), promotionID: doc.id}) as TPromotion)
+      console.log(docs)
+    return docs
+    
+  } catch(error){
+    console.log(error)
+    return []
+  }
 }

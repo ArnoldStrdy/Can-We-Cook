@@ -53,3 +53,9 @@ export interface IExistingMenu extends IMenu {
 export type TCustomer = {
   name: string;
 };
+
+export type TPromotion = {
+  promotionID: string
+  imageURL: string;
+  businessID: string;
+}
