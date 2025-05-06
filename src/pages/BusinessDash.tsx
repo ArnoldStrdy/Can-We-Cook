@@ -20,6 +20,7 @@ import { AiOutlinePicture } from "react-icons/ai";
 import { PiCertificate } from "react-icons/pi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { RiLogoutBoxLine } from "react-icons/ri";
+import { GrAnnounce } from "react-icons/gr";
 import { motion } from "framer-motion";
 
 import imgUrl from "../assets/logoIcon.png";
@@ -59,6 +60,24 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Quantum } from "ldrs/react";
 import "ldrs/react/Quantum.css";
 import { PicturesTabContent } from "@/components/custom/PicturesTabContent";
+
+import Gluten from "@/assets/gluten.png";
+import Halal from "@/assets/halal.png";
+import Kosher from "@/assets/kosher.png";
+import NonGMO from "@/assets/nongmo.png";
+import Organic from "@/assets/organic.png";
+import Vegan from "@/assets/vegan.png";
+import Vegetarian from "@/assets/vegetarian.png";
+
+const mapCertToImg: { [key: string]: string } = {
+  "Halal": Halal,
+  "Kosher": Kosher,
+  "Vegan": Vegan,
+  "Vegetarian": Vegetarian,
+  "Gluten Free": Gluten,
+  "Organic": Organic,
+  "Non-GMO": NonGMO,
+};
 
 type Review = {
   reviewer: string;
@@ -569,18 +588,20 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   const RestaurantPage = () => {
     return (
-      <div className="mt-10 max-w-2xl space-y-4">
+      <div className="mt-10 mx-[20%] space-y-4">
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
           Update Restaurant Info
         </h1>
-
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8">
+          Name and Description
+        </h2>
         {!isEditing ? (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-2">
+          <div className="bg-card flex flex-col gap-6 rounded-md py-6 px-4">
             <h2 className="text-xl font-bold">{restaurantName}</h2>
             <p className="text-gray-700 dark:text-gray-300">{restaurantDesc}</p>
             <button
               onClick={() => setIsEditing(true)}
-              className="mt-2 px-4 py-2 bg-[#FF6F00] text-white rounded"
+              className="mt-2 px-4 py-2 w-fit bg-[#FF6F00] text-white rounded"
             >
               + Edit
             </button>
@@ -661,7 +682,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     );
   };
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-black">
+    <div className="flex h-screen bg-[#A7ACD9]/20">
       <motion.nav
         layout
         className="sticky top-0 h-screen shrink-0 border-r border-slate-300 bg-white p-2"
@@ -695,7 +716,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             open={open}
           />
           <Option
-            Icon={IoRestaurantOutline}
+            Icon={GrAnnounce}
             title="Promotions"
             selected={currentPage}
             setSelected={setCurrentPage}
@@ -745,14 +766,29 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
           <div className="mx-[20%] mt-[5%] space-y-6">
             <div className="flex justify-between">
               <div className="flex-3/4 text-left space-y-4 pr-[10%]">
-                <h1 className="text-4xl font-bold">{restaurantName}</h1>
-                <span className="text-lg">{restaurantDesc}</span>
+                <h1 className="text-4xl font-extrabold">{restaurantName}</h1>
+                <span className="text-lg font-semibold">{restaurantDesc}</span>
               </div>
-              <div className="flex-1/4 justify-end flex">
+              <div className="flex-1/4 flex-col justify-end flex">
                 <img
                   src={businessLogo ? businessLogo : imgUrl}
-                  className="w-40 h-40 object-contain"
+                  className="w-full h-40 object-contain"
                 />
+                <div className="flex flex-wrap gap-2 pt-8 align-middle justify-center">
+                  {selectedCertificates.map((cert) => (
+                    <div
+                      key={cert}
+                      className="flex items-center text-sm font-semibold text-gray-700"
+                    >
+                      <img
+                        src={mapCertToImg[cert]}
+                        alt={cert}
+                        className="w-12 h-12 mr-1"
+                        title={cert}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="flex justify-center items-center">
@@ -807,7 +843,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Reviews" && (
-          <div className="mt-10">
+          <div className="mt-10 mx-[20%] ">
             <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">
               Reviews
             </h1>
@@ -820,10 +856,49 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
         {currentPage === "Restaurant" && <RestaurantPage />}
 
-        {currentPage === "Promotions" && <div></div>}
+        {currentPage === "Promotions" && (
+          <div className="mt-10 mx-[20%] space-y-4">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+              Upload Promotion Banner
+            </h1>
+
+            <div className="bg-card flex flex-col gap-6 rounded-md py-6 px-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Select Banner Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setBannerFile(e.target.files?.[0])}
+                  className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#FF6F00] file:text-white hover:file:bg-[#e65c00] file:cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expiry Date
+                </label>
+                <input
+                  type="date"
+                  value={expireDate}
+                  onChange={(e) => setExpireDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00] dark:bg-gray-800 dark:text-white"
+                />
+              </div>
+
+              <button
+                onClick={handleUploadBanner}
+                className="mt-2 px-4 py-2 w-fit bg-[#FF6F00] text-white rounded cursor-pointer hover:file:bg-[#e65c00]"
+              >
+                Upload Banner
+              </button>
+            </div>
+          </div>
+        )}
 
         {currentPage === "Menu" && (
-          <div className="mt-10 max-w-3xl space-y-6">
+          <div className="mt-10 mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Menu
             </h1>
@@ -925,7 +1000,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Update Pictures" && (
-          <div className="mt-10 max-w-5xl space-y-4">
+          <div className="mt-10 mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Update Pictures
             </h1>
@@ -983,89 +1058,78 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Settings" && (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Change Password
-            </h2>
-            {/* Change Password Section */}
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            <button
-              onClick={handleChangePassword}
-              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
-            >
-              ✔ Update Password
-            </button>
-            {changePasswordError && (
-              <p className="text-red-500">{changePasswordError}</p>
-            )}
-            {changePasswordSuccess && (
-              <p className="text-green-500">{changePasswordSuccess}</p>
-            )}
+          <div className="mt-10 mx-[20%] space-y-4">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+              Settings
+            </h1>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Change Password
+              </h2>
+              {/* Change Password Section */}
+              <input
+                type="password"
+                placeholder="New Password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              <button
+                onClick={handleChangePassword}
+                className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+              >
+                ✔ Update Password
+              </button>
+              {changePasswordError && (
+                <p className="text-red-500">{changePasswordError}</p>
+              )}
+              {changePasswordSuccess && (
+                <p className="text-green-500">{changePasswordSuccess}</p>
+              )}
+            </div>
           </div>
         )}
 
-        {currentPage === "Promotions" && (
-          <div className="mt-10 max-w-xl space-y-6">
-            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
-              Upload Promotion Banner
+        {currentPage === "Certifications" && (
+          <div className="mt-10 mx-[20%] space-y-4">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              Select Your Certifications
             </h1>
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setBannerFile(e.target.files?.[0])}
-            />
-            <input
-              type="date"
-              value={expireDate}
-              onChange={(e) => setExpireDate(e.target.value)}
-              className="border rounded px-2 py-1"
-            />
-
-            <button
-              onClick={handleUploadBanner}
-              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
-            >
-              Upload Banner
-            </button>
-          </div>
-        )}
-        {currentPage === "Certifications" && (
-          <div className="flex flex-col mt-10 max-w-md mx-auto space-y-4">
-            {certificate?.map((cert: string, index: number) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`cert-${index}`}
-                  checked={selectedCertificates.includes(cert)}
-                  onCheckedChange={() => toggleCertificate(cert)}
-                />
-                <label htmlFor={`cert-${index}`} className="text-sm">
-                  {cert}
-                </label>
-              </div>
-            ))}
+            <div className="bg-card rounded shadow-sm px-6 py-4 space-y-3">
+              {certificate?.map((cert: string, index: number) => (
+                <div key={index} className="flex items-center gap-3">
+                  <Checkbox
+                    id={`cert-${index}`}
+                    checked={selectedCertificates.includes(cert)}
+                    onCheckedChange={() => toggleCertificate(cert)}
+                  />
+                  <label
+                    htmlFor={`cert-${index}`}
+                    className="text-sm font-medium text-gray-800 dark:text-gray-200"
+                  >
+                    {cert}
+                  </label>
+                </div>
+              ))}
+            </div>
 
             <button
               onClick={handleUpdateCertifications}
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="w-fit px-5 py-2 rounded bg-[#FF6F00] text-white font-medium hover:bg-[#e65c00] transition-colors"
             >
               Update Certifications
             </button>
           </div>
         )}
+
         {currentPage === "Logout" && (
           <div className="mt-10 max-w-md mx-auto text-center space-y-6">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
@@ -1150,17 +1214,6 @@ const ReviewsTabContent = ({
 
   return (
     <div className="my-4 space-y-6">
-      {/* <Card>
-      <CardContent className="p-4 text-gray-800 dark:text-gray-200">
-        <strong>🧠 AI Summary:</strong>
-        <br />
-        Customers generally praise the warm ambiance and attentive staff. The
-        grilled salmon is a standout favorite. However, some mention
-        inconsistent wait times. Overall sentiment is{" "}
-        <span className="text-green-600 font-bold">positive</span>.
-      </CardContent>
-    </Card> */}
-
       {reviews?.map((review, index) => {
         return (
           <ReviewCard
@@ -1183,15 +1236,17 @@ const MenuTabContent = ({
   <Table className="mt-4">
     <TableHeader>
       <TableRow className="text-lg">
-        <TableHead className="text-center font-bold text-black">
+        <TableHead className="text-center font-bold text-black w-1/3">
           Image
         </TableHead>
-        <TableHead className="text-center font-bold text-black">Name</TableHead>
-        <TableHead className="text-center font-bold text-black">
+        <TableHead className="text-center font-bold text-black w-1/3">
+          Name
+        </TableHead>
+        <TableHead className="text-center font-bold text-black w-1/3">
           Price
         </TableHead>
         {onDelete && (
-          <TableHead className="text-center font-bold text-black">
+          <TableHead className="text-center font-bold text-black w-1/3">
             Actions
           </TableHead>
         )}
@@ -1200,11 +1255,22 @@ const MenuTabContent = ({
     <TableBody>
       {menu?.map((item, index) => (
         <TableRow key={index}>
-          <TableCell className="w-[7%] text-center">
-            {item.itemImage.length > 0 && <img src={item.itemImage} />}
+          <TableCell className="w-[7%] p-0 text-center">
+            <div className="flex justify-center items-center w-full h-full">
+              {item.itemImage.length > 0 && (
+                <img
+                  src={item.itemImage}
+                  className="w-12 h-12 object-contain"
+                />
+              )}
+            </div>
           </TableCell>
-          <TableCell className="text-center">{item.itemName}</TableCell>
-          <TableCell className="text-center">${item.itemPrice}</TableCell>
+          <TableCell className="text-center">
+            <p className="text-base font-semibold">{item.itemName}</p>
+          </TableCell>
+          <TableCell className="text-center">
+            <p className="text-base font-semibold">${item.itemPrice}</p>
+          </TableCell>
           {onDelete && (
             <TableCell className="text-center">
               <Button variant="ghost" onClick={() => onDelete(item.itemID)}>

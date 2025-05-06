@@ -49,9 +49,11 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         setProfilePic(customerData.profilePic);
       } else {
         // logout
-        firebase.auth().signOut();
-        setCustomerName("Guest"); // fallback
-        setProfilePic(""); // fallback: empty or default avatar URL
+        if (!url.includes("/loginBusiness")) {
+          firebase.auth().signOut();
+          setCustomerName("Guest"); // fallback
+          setProfilePic(""); // fallback: empty or default avatar URL
+        }
       }
     };
 
@@ -85,11 +87,11 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   return (
     <>
-      <nav className="fixed top-0 right-0 left-0 z-40 w-full h-16 bg-neutral-50 bg-opacity-70 backdrop-blur text-gray-800 flex items-center justify-evenly px-4 max-w-sc">
+      <nav className="fixed top-0 right-0 left-0 z-40 w-full h-18 bg-white/80 backdrop-blur text-gray-800 flex items-center justify-evenly px-4 max-w-sc border-b border-[#554971] shadow-md">
         <div className="max-w-[1527px] w-full flex flex-row items-center align-middle justify-between">
           <img
             src={Logo}
-            className="w-24 cursor-pointer"
+            className="w-28 cursor-pointer"
             onClick={() => {
               navigate("/");
               setDropdownOpen(false);
@@ -101,7 +103,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 navigate("/");
                 setDropdownOpen(false);
               }}
-              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors navbar-item"
+              className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors navbar-item"
             >
               Home
             </p>
@@ -110,7 +112,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 navigate("/about");
                 setDropdownOpen(false);
               }}
-              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+              className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors"
             >
               About Us
             </p>
@@ -120,16 +122,16 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   className="flex flex-row items-center gap-4 cursor-pointer"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
+                  <p className="font-semibold hover:text-[#FF6F00] transition-colors">
+                    Hi, {customerName}
+                  </p>
                   {profilePic && (
                     <img
                       src={profilePic}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full border border-[#554971]/20 object-cover"
                       alt="Profile"
                     />
                   )}
-                  <p className="font-normal hover:text-[#FF6F00] transition-colors">
-                    Hi, {customerName}
-                  </p>
                 </div>
 
                 {dropdownOpen && (
@@ -159,9 +161,9 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             ) : (
               <p
                 onClick={() => navigate("/login")}
-                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+                className="bg-[#FF6F00] font-semibold cursor-pointer transition-colors border px-3 py-1 rounded-sm border-[#FF6F00] hover:bg-white hover:text-gray-800 text-white"
               >
-                Login/Signup
+                Login
               </p>
             )}
           </div>
@@ -224,7 +226,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               navigate("/login");
             }
           }}
-          className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
+          className="font-semibold cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
         >
           Login/Signup
         </p>

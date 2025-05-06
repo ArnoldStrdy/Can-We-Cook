@@ -9,6 +9,7 @@ import {
 } from "./WrapperObjects";
 import { getOwnerFromUID } from "./FirebaseAPI";
 import { get } from "http";
+import Logo from "../assets/logoNameIcon.png";
 
 function BusinessCreate() {
   const auth = firebase.auth();
@@ -98,7 +99,7 @@ function BusinessCreate() {
     const newBusiness = new Business(data);
     newBusiness.createBusiness();
     navigate("/business");
-  }
+  };
   const createBusiness = () => {
     console.log("Creating business...");
     if (useAddress) {
@@ -114,7 +115,8 @@ function BusinessCreate() {
           lat = data.features[0].properties.lat;
           lon = data.features[0].properties.lon;
           return { lat, lon };
-        }).then(({lat, lon}) => {
+        })
+        .then(({ lat, lon }) => {
           console.log("Latitude:", lat, "Longitude:", lon);
           setLatitude(lat);
           setLongitude(lon);
@@ -137,7 +139,8 @@ function BusinessCreate() {
         .then((data) => {
           const address = data.features[0].properties.formatted;
           return address;
-        }).then((address) => {
+        })
+        .then((address) => {
           setBusinessAddress(address);
           addr = address;
           generateBusiness();
@@ -149,72 +152,84 @@ function BusinessCreate() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center mt-20 max-w-sm mx-auto gap-4">
-      <h1>Create Business</h1>
-      <input
-        className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-        type="text"
-        placeholder="Business Name"
-        value={businessName}
-        onChange={(e) => setbusinessName(e.target.value)}
-      />
-      <input
-        className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-        type="paragraph"
-        placeholder="Business Description"
-        value={businessDescription}
-        onChange={(e) => setBusinessDescription(e.target.value)}
-      />
-      <div className="flex gap-2">
-        <label htmlFor="address">Use Address</label>
+    <div className="bg-gray-1 py-20 dark:bg-dark lg:py-[120px] bg-[#A7ACD9]/20 min-h-screen">
+      <div className="flex flex-col items-center justify-center mt-20 max-w-sm mx-auto gap-4">
+        <div className="flex flex-col items-center justify-center gap-2 max-w-[160px]">
+          <img src={Logo} alt="logo" />
+          <span className="">Configure Business</span>
+        </div>
         <input
-          type="checkbox"
-          id="address"
-          checked={useAddress}
-          onChange={(e) => setUseAddress(e.target.checked)}
-        />
-      </div>
-      {useAddress ? (
-        <input
-          className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
+          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
           type="text"
-          placeholder="Business Address"
-          value={businessAddress}
-          onChange={(e) => setBusinessAddress(e.target.value)}
+          placeholder="Business Name"
+          value={businessName}
+          onChange={(e) => setbusinessName(e.target.value)}
         />
-      ) : (
-        <div className="flex flex-col gap-2">
+        <input
+          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+          type="paragraph"
+          placeholder="Business Description"
+          value={businessDescription}
+          onChange={(e) => setBusinessDescription(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <label htmlFor="address">Use Address</label>
           <input
-            className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-            type="number"
-            placeholder="Latitude"
-            value={latitude || ""}
-            onChange={(e) => {
-              setLatitude(Number(e.target.value))
-              lat = Number(e.target.value)
-            }
-          }
-          />
-          <input
-            className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-            type="number"
-            placeholder="Longitude"
-            value={longitude || ""}
-            onChange={(e) => {
-              setLongitude(Number(e.target.value))
-              lon = Number(e.target.value)
-            }
-          }
+            type="checkbox"
+            id="address"
+            checked={useAddress}
+            onChange={(e) => setUseAddress(e.target.checked)}
           />
         </div>
-      )}
-      <input
-        className="border-1 border-gray-300 w-full px-4 py-1 rounded-2xl"
-        type="text"
-        placeholder="Cusine Type"
-        value={cuisineType}
-        onChange={(e) => setCuisineType(e.target.value)}
-      />
+        {useAddress ? (
+          <input
+            className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+            type="text"
+            placeholder="Business Address"
+            value={businessAddress}
+            onChange={(e) => setBusinessAddress(e.target.value)}
+          />
+        ) : (
+          <div className="flex flex-col gap-2">
+            <input
+              className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+              type="number"
+              placeholder="Latitude"
+              value={latitude || ""}
+              onChange={(e) => {
+                setLatitude(Number(e.target.value));
+                lat = Number(e.target.value);
+              }}
+            />
+            <input
+              className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+              type="number"
+              placeholder="Longitude"
+              value={longitude || ""}
+              onChange={(e) => {
+                setLongitude(Number(e.target.value));
+                lon = Number(e.target.value);
+              }}
+            />
+          </div>
+        )}
+        <input
+          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white"
+          type="text"
+          placeholder="Cuisine Type"
+          value={cuisineType}
+          onChange={(e) => setCuisineType(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            generateBusiness();
+          }}
+          type="button"
+          className="w-full cursor-pointer rounded-md border border-primary bg-[#554971] px-5 py-3 text-base font-medium text-white transition hover:bg-opacity-90"
+        >
+          Submit Details
+        </button>
+      </div>
     </div>
   );
 }

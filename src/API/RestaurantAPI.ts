@@ -56,67 +56,80 @@ export const getBusinessById = async (
 export const getReviewByBusinessId = async (
   businessId: string
 ): Promise<IExistingReview[]> => {
-    // Convert businessId string into a Firestore reference
-    const businessRef = doc(db, "businesses", businessId);
+  // Convert businessId string into a Firestore reference
+  const businessRef = doc(db, "businesses", businessId);
 
-    // Query reviews where businessId matches
-    const reviewsQuery = query(
-      collection(db, "reviews"),
-      where("businessID", "==", businessRef),
-      orderBy("dateTime", "desc")
-    );
+  // Query reviews where businessId matches
+  const reviewsQuery = query(
+    collection(db, "reviews"),
+    where("businessID", "==", businessRef),
+    orderBy("dateTime", "desc")
+  );
 
-    const querySnapshot = await getDocs(reviewsQuery);
+  const querySnapshot = await getDocs(reviewsQuery);
 
-    // Extract reviews with business & customer references
-    const reviewsData: IExistingReview[] = await Promise.all(
-      querySnapshot.docs.map(async (doc) => {
-        const data = doc.data();
-        let customerName = "Anonymous";
-        if (!data.anonymous) {
-          const customerRef = data.customerID as DocumentReference; // Firestore Reference to customer
-          customerName = "Unknown Customer";
-          // Fetch Customer Name
-          if (customerRef) {
-            const customerDoc = await getDoc(customerRef);
-            if (customerDoc.exists()) {
-              const customerData = customerDoc.data() as TCustomer;
-              customerName = customerData.name; // Extract customer name
-            }
+  // Extract reviews with business & customer references
+  const reviewsData: IExistingReview[] = await Promise.all(
+    querySnapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      let customerName = "Anonymous";
+      if (!data.anonymous) {
+        const customerRef = data.customerID as DocumentReference; // Firestore Reference to customer
+        customerName = "Unknown Customer";
+        // Fetch Customer Name
+        if (customerRef) {
+          const customerDoc = await getDoc(customerRef);
+          if (customerDoc.exists()) {
+            const customerData = customerDoc.data() as TCustomer;
+            customerName = customerData.name; // Extract customer name
           }
         }
+      }
 
-        return {
-          reviewId: doc.id,
-          anonymous: data.anonymous,
-          customerName: customerName,
-          dateTime: data.dateTime,
-          rating: data.rating,
-          reviewText: data.reviewText,
-          verified: data.verified,
-          pictures: data.pictures,
-        };
-      })
-    );
+      return {
+        reviewId: doc.id,
+        anonymous: data.anonymous,
+        customerName: customerName,
+        dateTime: data.dateTime,
+        rating: data.rating,
+        reviewText: data.reviewText,
+        verified: data.verified,
+        pictures: data.pictures,
+      };
+    })
+  );
 
-    return reviewsData;
+  return reviewsData;
 };
 
 export const getMenuByBusinessId = async (
   businessId: string
 ): Promise<IExistingMenu[]> => {
-    const docRef = doc(db, "businesses", businessId);
+  const docRef = doc(db, "businesses", businessId);
 
-    const docSnap = await getDoc(docRef);
+  const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return data.menu;
-    } else {
-      console.log("No such document!");
-      return [];
-    }
-  
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    return data.menu;
+  } else {
+    console.log("No such document!");
+    return [];
+  }
+};
+
+export const getCertficationByBusinessId = async (
+  businessId: string
+): Promise<string[]> => {
+  const docRef = doc(db, "businesses", businessId);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    return data.businessCertifications;
+  } else {
+    console.log("No such document!");
+    return [];
+  }
 };
 
 export const postReview = async ({
@@ -128,35 +141,35 @@ export const postReview = async ({
   businessID: string;
   customerUid?: string;
 }): Promise<undefined> => {
-    const imgUrls = await Promise.all(
-      newReview.pictures.map((img) => uploadImage(img))
+  const imgUrls = await Promise.all(
+    newReview.pictures.map((img) => uploadImage(img))
+  );
+  const businessRef = doc(db, "businesses", businessID);
+  console.log(customerUid);
+  if (customerUid) {
+    const customerQuery = query(
+      collection(db, "customers"),
+      where("uid", "==", customerUid)
     );
-    const businessRef = doc(db, "businesses", businessID);
-    console.log(customerUid)
-    if (customerUid) {
-      const customerQuery = query(
-        collection(db, "customers"),
-        where("uid", "==", customerUid)
-      );
-      const querySnapshot = await getDocs(customerQuery);
-      const customerID = querySnapshot.docs[0].id;
-      const customerRef = doc(db, "customers", customerID);
+    const querySnapshot = await getDocs(customerQuery);
+    const customerID = querySnapshot.docs[0].id;
+    const customerRef = doc(db, "customers", customerID);
 
-      const docRef = await addDoc(collection(db, "reviews"), {
-        ...newReview,
-        pictures: imgUrls,
-        businessID: businessRef,
-        customerID: customerRef,
-      });
-      console.log("Document added with ID: ", docRef);
-    } else {
-      const docRef = await addDoc(collection(db, "reviews"), {
-        ...newReview,
-        pictures: imgUrls,
-        businessID: businessRef,
-      });
-        console.log("Document added with ID: ", docRef);
-      }
+    const docRef = await addDoc(collection(db, "reviews"), {
+      ...newReview,
+      pictures: imgUrls,
+      businessID: businessRef,
+      customerID: customerRef,
+    });
+    console.log("Document added with ID: ", docRef);
+  } else {
+    const docRef = await addDoc(collection(db, "reviews"), {
+      ...newReview,
+      pictures: imgUrls,
+      businessID: businessRef,
+    });
+    console.log("Document added with ID: ", docRef);
+  }
 };
 
 export const postNewMenuItem = async ({
@@ -166,15 +179,19 @@ export const postNewMenuItem = async ({
   menuItem: INewMenu;
   businessId: string;
 }): Promise<undefined> => {
-    const businessRef = doc(db, "businesses", businessId);
-    const itemID = uuidv4();
-    if (menuItem.itemImage) {
-      const itemImage = await uploadImage(menuItem.itemImage!)
-      await updateDoc(businessRef, { menu: arrayUnion({ itemID, ...menuItem, itemImage }) });
-    } else {
-      await updateDoc(businessRef, { menu: arrayUnion({ itemID, ...menuItem, itemImage:"" }) });
-    }
-    console.log("Menu item added with ID: ");
+  const businessRef = doc(db, "businesses", businessId);
+  const itemID = uuidv4();
+  if (menuItem.itemImage) {
+    const itemImage = await uploadImage(menuItem.itemImage!);
+    await updateDoc(businessRef, {
+      menu: arrayUnion({ itemID, ...menuItem, itemImage }),
+    });
+  } else {
+    await updateDoc(businessRef, {
+      menu: arrayUnion({ itemID, ...menuItem, itemImage: "" }),
+    });
+  }
+  console.log("Menu item added with ID: ");
 };
 
 export const deleteMenuItem = async ({
@@ -184,26 +201,28 @@ export const deleteMenuItem = async ({
   itemID: string;
   businessId: string;
 }): Promise<undefined> => {
-    const businessRef = doc(db, "businesses", businessId);
+  const businessRef = doc(db, "businesses", businessId);
 
-    const docSnap = await getDoc(businessRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const currentArray = data.menu || [];
+  const docSnap = await getDoc(businessRef);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    const currentArray = data.menu || [];
 
-      // Filter out the item with itemID === 2
-      const updatedArray = currentArray.filter(
-        (item: IExistingMenu) => item.itemID !== itemID
-      );
+    // Filter out the item with itemID === 2
+    const updatedArray = currentArray.filter(
+      (item: IExistingMenu) => item.itemID !== itemID
+    );
 
-      await updateDoc(businessRef, {
-        menu: updatedArray,
-      });
-    }
-    console.log(`Deleted menu item with id: ${itemID}`);
+    await updateDoc(businessRef, {
+      menu: updatedArray,
+    });
+  }
+  console.log(`Deleted menu item with id: ${itemID}`);
 };
 
-export const deleteReviewById = async (reviewId: string): Promise<undefined> => {
-  await deleteDoc(doc(db, "reviews", reviewId))
-  console.log("Successfult deleted review: ", reviewId)
-}
+export const deleteReviewById = async (
+  reviewId: string
+): Promise<undefined> => {
+  await deleteDoc(doc(db, "reviews", reviewId));
+  console.log("Successfult deleted review: ", reviewId);
+};
