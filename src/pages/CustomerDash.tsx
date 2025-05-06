@@ -8,6 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllBusinesses, getAllPromotions } from "@/API/RestaurantAPI";
 import { BusinessCard } from "@/components/custom/businessCard";
 import Marquee from "react-fast-marquee";
+import { LuInfo } from "react-icons/lu";
+import Footer from "@/components/Footer";
 import {
   Carousel,
   CarouselApi,
@@ -17,112 +19,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { TPromotion } from "@/Types/RestaurantTypes";
-
-const sampleTopRestaurants = [
-  {
-    name: "Savor & Sip",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Green House",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Blue Plate",
-    logo: imgUrl,
-    rating: 3.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Red Spoon",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Yellow Bowl",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-];
-
-const sampleRestaurants = [
-  {
-    name: "Savor & Sip",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "American",
-  },
-  {
-    name: "The Green House",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Italian",
-  },
-  {
-    name: "The Blue Plate",
-    logo: imgUrl,
-    rating: 3.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Chinese",
-  },
-  {
-    name: "The Red Spoon",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Mexican",
-  },
-  {
-    name: "The Yellow Bowl",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Indian",
-  },
-  {
-    name: "Urban Bites",
-    logo: imgUrl,
-    rating: 3.8,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Thai",
-  },
-  {
-    name: "Fork & Flame",
-    logo: imgUrl,
-    rating: 4.2,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Korean",
-  },
-  {
-    name: "Spice Symphony",
-    logo: imgUrl,
-    rating: 4.6,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Indian",
-  },
-  {
-    name: "Fusion Feast",
-    logo: imgUrl,
-    rating: 3.9,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Fusion",
-  },
-  {
-    name: "Taste of Tokyo",
-    logo: imgUrl,
-    rating: 4.3,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Japanese",
-  },
-];
 
 type TCuisine =
   | "All"
