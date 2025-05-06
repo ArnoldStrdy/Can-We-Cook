@@ -112,10 +112,10 @@ function CustomerDash() {
               onClick={() => navigate(`/restaurant/${promotion.businessID}`)}
               key={promotion.promotionID}
             >
-              <div className="flex items-center justify-center h-72 bg-gray-200 rounded-lg p-1">
+              <div className="flex items-center justify-center h-72 bg-gray-200/40 rounded-lg p-1">
                 <img
                   src={promotion.imageURL}
-                  className="object-contain max-h-full"
+                  className="object-cover max-h-full cursor-pointer"
                 />
               </div>
             </CarouselItem>
@@ -158,9 +158,12 @@ function CustomerDash() {
             </>
           )}
         </div>
-        {getAllPromotionsQuery.data?.length! > 0 && (
-          <PromotionCarousel promotions={getAllPromotionsQuery.data!} />
-        )}
+        <div className="max-w-6xl flex flex-col items-start justify-start gap-3 pt-6">
+          <h1 className="text-3xl font-bold">Promotions</h1>
+          {getAllPromotionsQuery.data?.length! > 0 && (
+            <PromotionCarousel promotions={getAllPromotionsQuery.data!} />
+          )}
+        </div>
 
         <div className="max-w-6xl w-full flex flex-col items-start justify-center gap-6 mb-6">
           <div className="flex flex-col items-start justify-start gap-1">
