@@ -5,10 +5,124 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Ratings from "@/components/ui/ratings";
 import { useQuery } from "@tanstack/react-query";
-import { getAllBusinesses } from "@/API/RestaurantAPI";
+import { getAllBusinesses, getAllPromotions } from "@/API/RestaurantAPI";
 import { BusinessCard } from "@/components/custom/businessCard";
-import { LuInfo } from "react-icons/lu";
-import Footer from "@/components/Footer";
+import Marquee from "react-fast-marquee";
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { TPromotion } from "@/Types/RestaurantTypes";
+
+const sampleTopRestaurants = [
+  {
+    name: "Savor & Sip",
+    logo: imgUrl,
+    rating: 4,
+    id: "odCe5cYwH8M3oHTcYmav",
+  },
+  {
+    name: "The Green House",
+    logo: imgUrl,
+    rating: 4.5,
+    id: "odCe5cYwH8M3oHTcYmav",
+  },
+  {
+    name: "The Blue Plate",
+    logo: imgUrl,
+    rating: 3.5,
+    id: "odCe5cYwH8M3oHTcYmav",
+  },
+  {
+    name: "The Red Spoon",
+    logo: imgUrl,
+    rating: 4.5,
+    id: "odCe5cYwH8M3oHTcYmav",
+  },
+  {
+    name: "The Yellow Bowl",
+    logo: imgUrl,
+    rating: 4,
+    id: "odCe5cYwH8M3oHTcYmav",
+  },
+];
+
+const sampleRestaurants = [
+  {
+    name: "Savor & Sip",
+    logo: imgUrl,
+    rating: 4,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "American",
+  },
+  {
+    name: "The Green House",
+    logo: imgUrl,
+    rating: 4.5,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Italian",
+  },
+  {
+    name: "The Blue Plate",
+    logo: imgUrl,
+    rating: 3.5,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Chinese",
+  },
+  {
+    name: "The Red Spoon",
+    logo: imgUrl,
+    rating: 4.5,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Mexican",
+  },
+  {
+    name: "The Yellow Bowl",
+    logo: imgUrl,
+    rating: 4,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Indian",
+  },
+  {
+    name: "Urban Bites",
+    logo: imgUrl,
+    rating: 3.8,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Thai",
+  },
+  {
+    name: "Fork & Flame",
+    logo: imgUrl,
+    rating: 4.2,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Korean",
+  },
+  {
+    name: "Spice Symphony",
+    logo: imgUrl,
+    rating: 4.6,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Indian",
+  },
+  {
+    name: "Fusion Feast",
+    logo: imgUrl,
+    rating: 3.9,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Fusion",
+  },
+  {
+    name: "Taste of Tokyo",
+    logo: imgUrl,
+    rating: 4.3,
+    id: "odCe5cYwH8M3oHTcYmav",
+    cuisine: "Japanese",
+  },
+];
 
 type TCuisine =
   | "All"
@@ -74,6 +188,49 @@ function CustomerDash() {
       />
     ));
 
+  const getAllPromotionsQuery = useQuery({
+    queryFn: () => getAllPromotions(),
+    queryKey: ["getAllPromotions"],
+  });
+
+  const PromotionCarousel = ({ promotions }: { promotions: TPromotion[] }) => {
+    const [api, setApi] = useState<CarouselApi>();
+
+    const intervalTime = 3000;
+    useEffect(() => {
+      setInterval(() => {
+        api?.scrollNext();
+      }, intervalTime);
+    }, [api]);
+
+    return (
+      <Carousel
+        setApi={setApi}
+        className="max-w-7xl"
+        opts={{ align: "center", loop: true }}
+      >
+        <CarouselContent>
+          {promotions?.map((promotion) => (
+            <CarouselItem
+              className="basis-1/3"
+              onClick={() => navigate(`/restaurant/${promotion.businessID}`)}
+              key={promotion.promotionID}
+            >
+              <div className="flex items-center justify-center h-72 bg-gray-200 rounded-lg p-1">
+                <img
+                  src={promotion.imageURL}
+                  className="object-contain max-h-full"
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+    );
+  };
+
   return (
     <>
       <img
@@ -105,6 +262,10 @@ function CustomerDash() {
             </>
           )}
         </div>
+        {getAllPromotionsQuery.data?.length! > 0 && (
+          <PromotionCarousel promotions={getAllPromotionsQuery.data!} />
+        )}
+
         <div className="max-w-6xl w-full flex flex-col items-start justify-center gap-6 mb-6">
           <div className="flex flex-col items-start justify-start gap-1">
             <h1 className="text-3xl font-bold">All Restaurants</h1>
