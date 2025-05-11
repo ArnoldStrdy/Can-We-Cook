@@ -10,7 +10,7 @@ import { firestore, DocumentData } from "./FirebaseAPI";
 import { Cron } from "croner"
 import { Timestamp } from "firebase/firestore";
 
-const weeklyCronJob = new Cron("0 0 * * 0", async () => {
+const weeklyJob = async () => {
   console.log("Running weekly cron job...");
 
   try {
@@ -74,9 +74,11 @@ const weeklyCronJob = new Cron("0 0 * * 0", async () => {
   } catch (error) {
     console.error("Error running weekly cron job:", error);
   }
-});
+}
 
-const cleanExpiredBanners = new Cron("0 0 * * *", async () => {
+const weeklyCronJob = new Cron("0 0 * * 0", weeklyJob);
+
+const cleanExpiredBanners = async () => {
 
   console.log("Running daily cron job to clean expired banners...");
 
@@ -107,7 +109,9 @@ const cleanExpiredBanners = new Cron("0 0 * * *", async () => {
   } catch (error) {
     console.error("Error running daily cron job:", error);
   }
-});
+}
+
+const cleanExpiredBannersCron = new Cron("0 0 * * *", cleanExpiredBanners);
 
 class menuItem {
   businessID: string;
