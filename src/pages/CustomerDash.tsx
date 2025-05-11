@@ -18,6 +18,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { TPromotion } from "@/Types/RestaurantTypes";
+import { weeklyJob } from "./WrapperObjects";
 
 type TCuisine =
   | "All"
@@ -114,7 +115,9 @@ function CustomerDash() {
         <CarouselContent>
           {promotions?.map((promotion) => (
             <CarouselItem
-              className={`basis-1/${promotions.length < 3 ? promotions.length : 3}`}
+              className={`basis-1/${
+                promotions.length < 3 ? promotions.length : 3
+              }`}
               onClick={() => navigate(`/restaurant/${promotion.businessID}`)}
               key={promotion.promotionID}
             >
@@ -141,9 +144,17 @@ function CustomerDash() {
     <>
       <img
         src={BGLogo}
-        className="w-[50%] blur-xl opacity-30 object-contain fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none -z-50"
+        className="w-[50%] blur-2xl opacity-30 object-contain fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none -z-50"
       />
       <div className="bg-[#A7ACD9]/20 flex flex-col items-center pt-20 text-black gap-10 relative">
+        <button
+          onClick={() => {
+            console.log(topBusiness);
+          }}
+          className="bg-[#7367e6] text-white px-4 py-2 rounded"
+        >
+          run weekly job
+        </button>
         <div
           id="top"
           className="max-w-6xl w-full flex flex-col items-start justify-center gap-6"

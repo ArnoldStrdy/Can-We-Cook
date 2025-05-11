@@ -7,10 +7,10 @@ import {
 } from "./FirebaseAPI";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { firestore, DocumentData } from "./FirebaseAPI";
-import { Cron } from "croner"
+import { Cron } from "croner";
 import { Timestamp } from "firebase/firestore";
 
-const weeklyJob = async () => {
+export const weeklyJob = async () => {
   console.log("Running weekly cron job...");
 
   try {
@@ -26,9 +26,10 @@ const weeklyJob = async () => {
       const businessID = business.id;
       const buisness = new Business();
       await buisness.initBusiness(businessID);
-      const reviewsSnapshot = await firestore.collection("reviews")
-        .where("businessID", "==", doc(firestore, "businesses", businessID)
-      ).get();
+      const reviewsSnapshot = await firestore
+        .collection("reviews")
+        .where("businessID", "==", doc(firestore, "businesses", businessID))
+        .get();
       const reviews = reviewsSnapshot.docs.map((doc) => {
         const data = new Review(
           doc.id,
@@ -38,7 +39,7 @@ const weeklyJob = async () => {
           doc.data().reviewText,
           doc.data().verified,
           doc.data().rating
-        )
+        );
         return data;
       });
       const aggregatedScore = reviews?.reduce(
@@ -47,15 +48,13 @@ const weeklyJob = async () => {
       );
       const aggregatedReviews = reviews?.length;
       const today = new Date();
-      const priorDate = new Date()
+      const priorDate = new Date();
       priorDate.setDate(today.getDate() - 7);
-      const weeklyReviews = reviews?.filter(
-        (review: Review) => {
-          console.log(review.dateTime, priorDate, today);
-          console.log(review.dateTime >= priorDate, review.dateTime <= today);
-          return review.dateTime >= priorDate && review.dateTime <= today
-        }
-      );
+      const weeklyReviews = reviews?.filter((review: Review) => {
+        console.log(review.dateTime, priorDate, today);
+        console.log(review.dateTime >= priorDate, review.dateTime <= today);
+        return review.dateTime >= priorDate && review.dateTime <= today;
+      });
       const weeklyAggregatedScore = weeklyReviews?.reduce(
         (acc: number, review: Review) => acc + review.rating,
         0
@@ -74,12 +73,11 @@ const weeklyJob = async () => {
   } catch (error) {
     console.error("Error running weekly cron job:", error);
   }
-}
+};
 
-const weeklyCronJob = new Cron("0 0 * * 0", weeklyJob);
+export const weeklyCronJob = new Cron("0 0 * * 0", weeklyJob);
 
 const cleanExpiredBanners = async () => {
-
   console.log("Running daily cron job to clean expired banners...");
 
   try {
@@ -109,7 +107,7 @@ const cleanExpiredBanners = async () => {
   } catch (error) {
     console.error("Error running daily cron job:", error);
   }
-}
+};
 
 const cleanExpiredBannersCron = new Cron("0 0 * * *", cleanExpiredBanners);
 
@@ -363,11 +361,9 @@ class Business {
       .catch((error) => {
         console.error("Error adding business: ", error);
       });
-      console.log("DONE")
+    console.log("DONE");
   }
-  setBusinessCertifications(
-    businessCertifications: Array<string> | undefined
-  ) {
+  setBusinessCertifications(businessCertifications: Array<string> | undefined) {
     this.businessCertifications = businessCertifications;
     if (this.businessID === undefined) {
       console.error("Business ID is undefined");
@@ -678,11 +674,17 @@ class Banner {
   businessID: string;
   imageURL: string;
   expiresAt: Date;
-  constructor(businessID: string, imageURL: string, expiresAt?: Date, bannerID?: string) {
+  constructor(
+    businessID: string,
+    imageURL: string,
+    expiresAt?: Date,
+    bannerID?: string
+  ) {
     this.bannerID = bannerID || "";
     this.businessID = businessID;
     this.imageURL = imageURL;
-    this.expiresAt = expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default to one week from now
+    this.expiresAt =
+      expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default to one week from now
   }
   public createBanner() {
     const data = {
@@ -702,18 +704,34 @@ class Banner {
         console.error("Error adding banner: ", error);
       });
   }
-
 }
 
 const getBanners = async (businessID: string): Promise<Banner[]> => {
   const banners: Banner[] = [];
-  const snapshot = await firestore.collection("promotions").where("businessID", "==", businessID).get();
+  const snapshot = await firestore
+    .collection("promotions")
+    .where("businessID", "==", businessID)
+    .get();
   snapshot.forEach((doc) => {
     const data = doc.data();
-    const banner = new Banner(data.businessID, data.imageURL, data.expiresAt.toDate(), doc.id);
+    const banner = new Banner(
+      data.businessID,
+      data.imageURL,
+      data.expiresAt.toDate(),
+      doc.id
+    );
     banners.push(banner);
   });
   return banners;
-}
-export { Business, menuItem, Customer, Review, Owner, uploadImage, Banner, getBanners };
+};
+export {
+  Business,
+  menuItem,
+  Customer,
+  Review,
+  Owner,
+  uploadImage,
+  Banner,
+  getBanners,
+};
 export type { businessData };
