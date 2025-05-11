@@ -449,7 +449,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     Buisness.data?.setBusinessName(name);
     Buisness.data?.setBusinessDescription(description);
     setIsEditing(false);
-    alert(`Updated: ${name}, ${description}`);
+    // alert(`Updated: ${name}, ${description}`);
+    toast.success("Restaurant info updated successfully!");
   };
   const handleDeletePicture = (indexToDelete: number) => {
     const updatedPictures = pictures.filter(
@@ -556,7 +557,26 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     }
   };
 
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
+
+  // if mobile, set open to false
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setOpen(false);
+      } else {
+        setOpen(true);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Call it once to set the initial state
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const [selected, setSelected] = useState<string>("Dashboard");
 
   const TitleSection: React.FC<TitleSectionProps> = ({ open }) => {
@@ -588,7 +608,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   const RestaurantPage = () => {
     return (
-      <div className="mt-10 mx-[20%] space-y-4">
+      <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
           Update Restaurant Info
         </h1>
@@ -761,10 +781,10 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
         <ToggleClose open={open} setOpen={setOpen} />
       </motion.nav>
-      <div className="flex-1 px-10 overflow-y-auto">
+      <div className="flex-1 sm:px-10 overflow-y-auto">
         {currentPage === "Dashboard" && (
-          <div className="mx-[20%] mt-[5%] space-y-6">
-            <div className="flex justify-between">
+          <div className="mx-4 sm:mx-[20%] mt-[5%] space-y-6">
+            <div className="flex justify-between flex-col sm:flex-row">
               <div className="flex-3/4 text-left space-y-4 pr-[10%]">
                 <h1 className="text-4xl font-extrabold">{restaurantName}</h1>
                 <span className="text-lg font-semibold">{restaurantDesc}</span>
@@ -843,7 +863,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Reviews" && (
-          <div className="mt-10 mx-[20%] ">
+          <div className="mt-10 mx-4 sm:mx-[20%]">
             <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">
               Reviews
             </h1>
@@ -857,7 +877,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         {currentPage === "Restaurant" && <RestaurantPage />}
 
         {currentPage === "Promotions" && (
-          <div className="mt-10 mx-[20%] space-y-4">
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Upload Promotion Banner
             </h1>
@@ -898,7 +918,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Menu" && (
-          <div className="mt-10 mx-[20%] space-y-4">
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Menu
             </h1>
@@ -1000,7 +1020,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Update Pictures" && (
-          <div className="mt-10 mx-[20%] space-y-4">
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Update Pictures
             </h1>
@@ -1058,7 +1078,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Settings" && (
-          <div className="mt-10 mx-[20%] space-y-4">
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Settings
             </h1>
@@ -1098,7 +1118,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Certifications" && (
-          <div className="mt-10 mx-[20%] space-y-4">
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
               Select Your Certifications
             </h1>

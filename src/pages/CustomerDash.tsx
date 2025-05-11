@@ -148,7 +148,7 @@ function CustomerDash() {
         src={BGLogo}
         className="w-[50%] blur-2xl opacity-30 object-contain fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none -z-50"
       />
-      <div className="bg-[#A7ACD9]/20 flex flex-col items-center pt-20 text-black gap-10 relative">
+      <div className="bg-[#A7ACD9]/20 flex flex-col items-center pt-20 text-black gap-10 relative px-4 sm:px-0">
         {/* <button
           onClick={() => {
             weeklyJob();

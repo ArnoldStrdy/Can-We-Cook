@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { getOwnerFromUID } from "./FirebaseAPI";
 import { stat } from "fs";
 import Footer from "@/components/Footer";
+import { Triangle } from "react-loader-spinner";
 
 const LoginPageBusiness: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const LoginPageBusiness: React.FC = () => {
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
       await auth.setPersistence(persistance);
       await auth.signInWithEmailAndPassword(email, password);
       console.log("User logged in successfully");
@@ -34,18 +36,22 @@ const LoginPageBusiness: React.FC = () => {
         console.log(auth.currentUser.uid);
         const owner = await getOwnerFromUID(auth.currentUser.uid);
         if (owner) {
+          setLoading(false);
           toast.success("User logged in successfully");
           console.log("Owner found: ", owner);
           navigate("/business");
         } else {
+          setLoading(false);
           console.log("No owner found for this user");
           toast.error("No owner found for this user");
           firebase.auth().signOut();
         }
       } else {
+        setLoading(false);
         console.log("No user is currently logged in");
       }
     } catch (error: any) {
+      setLoading(false);
       let errorMessage = "An unexpected error occurred. Please try again.";
 
       switch (error.code) {
@@ -80,6 +86,7 @@ const LoginPageBusiness: React.FC = () => {
 
   const handleSignup = async () => {
     try {
+      setLoading(true);
       await auth.createUserWithEmailAndPassword(email, password);
       await auth.setPersistence(persistance);
 
@@ -93,11 +100,14 @@ const LoginPageBusiness: React.FC = () => {
         console.log("User signed up successfully with avatar:", avatarUrl);
         document.cookie = "name=" + name;
         document.cookie = "uid=" + auth.currentUser.uid;
+        setLoading(false);
         toast.success("User signed up successfully");
       } else {
+        setLoading(false);
         console.log("No user is currently logged in: Catastrophic Error");
       }
     } catch (error: any) {
+      setLoading(false);
       let errorMessage = "An unexpected error occurred. Please try again.";
       switch (error.code) {
         case AuthErrorCodes.INVALID_EMAIL:
@@ -141,11 +151,20 @@ const LoginPageBusiness: React.FC = () => {
     }
   };
 
+  const [loading, setLoading] = useState(false);
+
   return (
     <>
       <section className="bg-gray-1 py-20 dark:bg-dark lg:py-[120px] bg-[#A7ACD9]/20 min-h-screen">
+        {loading && (
+          <div className="fixed top-0 backdrop-blur left-0 w-full h-full flex items-center justify-center bg-gray-950/50 z-50">
+            <div className="flex flex-col gap-4 items-center">
+              <Triangle color="#FF6F00" height={100} width={100} />
+            </div>
+          </div>
+        )}
         <div className="container mx-auto">
-          <div className="-mx-4 flex flex-wrap">
+          <div className="flex flex-wrap">
             <div className="w-full px-4">
               <div className="relative mx-auto max-w-[525px] overflow-hidden rounded-lg px-10 py-16 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]">
                 <div className="mb-10 text-center md:mb-10">

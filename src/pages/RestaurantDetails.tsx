@@ -96,13 +96,13 @@ function RestaurantDetails() {
 
   return (
     <>
-      <div className="px-[20%] pt-[5%] min-h-screen space-y-6 bg-[#A7ACD9]/20">
+      <div className="px-4 sm:px-[20%] pt-20 sm:pt-[5%] min-h-screen space-y-6 bg-[#A7ACD9]/20">
         <img
           src={BGLogo}
           className="w-[50%] blur-3xl opacity-30 object-contain fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none -z-50"
         />
-        <div className="flex">
-          <div className="flex-3/4 text-left space-y-4 pr-[10%]">
+        <div className="flex flex-col sm:flex-row">
+          <div className="flex-3/4 space-y-4 sm:pr-[10%] text-center sm:text-left">
             <h1 className="text-5xl font-extrabold">
               {getBusinessQuery.data?.businessName}
             </h1>
@@ -110,7 +110,7 @@ function RestaurantDetails() {
               {getBusinessQuery.data?.businessDescription}
             </span>
           </div>
-          <div className="flex-1/4 flex-col justify-end flex">
+          <div className="flex-1/4 flex-col justify-end flex pb-10 sm:pb-0">
             {getBusinessQuery.data?.businessLogo.length! > 0 && (
               <img
                 src={getBusinessQuery.data?.businessLogo}

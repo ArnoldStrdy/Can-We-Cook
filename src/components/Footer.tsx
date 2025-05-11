@@ -11,7 +11,7 @@ const Footer = () => {
         <p className="mb-7 text-base font-extrabold">
           For Monash by Monash students.
         </p>
-        <p className="text-base font-semibold text-[#FF6F00]">
+        <p className="text-base font-semibold text-[#FF6F00] pb-6">
           &copy; 2025 Can we Cook? All rights reserved.
         </p>
       </footer>
