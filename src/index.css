@@ -155,3 +155,12 @@
   color: #000000;
   text-transform: capitalize;
 }
+
+hide-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
