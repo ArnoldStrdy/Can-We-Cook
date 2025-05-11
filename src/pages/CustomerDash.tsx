@@ -7,7 +7,6 @@ import Ratings from "@/components/ui/ratings";
 import { useQuery } from "@tanstack/react-query";
 import { getAllBusinesses, getAllPromotions } from "@/API/RestaurantAPI";
 import { BusinessCard } from "@/components/custom/businessCard";
-import Marquee from "react-fast-marquee";
 import { LuInfo } from "react-icons/lu";
 import Footer from "@/components/Footer";
 import {
@@ -108,7 +107,7 @@ function CustomerDash() {
         <CarouselContent>
           {promotions?.map((promotion) => (
             <CarouselItem
-              className="basis-1/3"
+              className={`basis-1/${promotions.length < 3 ? promotions.length : 3}`}
               onClick={() => navigate(`/restaurant/${promotion.businessID}`)}
               key={promotion.promotionID}
             >
@@ -121,8 +120,12 @@ function CustomerDash() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        {promotions.length > 3 && (
+          <>
+            <CarouselPrevious />
+            <CarouselNext />
+          </>
+        )}
       </Carousel>
     );
   };
@@ -159,7 +162,7 @@ function CustomerDash() {
           )}
         </div>
         <div className="max-w-6xl flex flex-col items-start justify-start gap-3 pt-6">
-          <h1 className="text-3xl font-bold">Promotions</h1>
+          <h1 className="text-3xl font-bold mx-auto">Promotions</h1>
           {getAllPromotionsQuery.data?.length! > 0 && (
             <PromotionCarousel promotions={getAllPromotionsQuery.data!} />
           )}
