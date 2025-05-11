@@ -71,8 +71,13 @@ function CustomerDash() {
     ?.filter((restaurant) => restaurant.aggregatedReviews > 0)
     .sort(
       (a, b) =>
-        b.aggregatedScore / b.aggregatedReviews -
-        a.aggregatedScore / a.aggregatedReviews
+      {
+        const aRatio = a.aggregatedScore / a.aggregatedReviews
+        const bRatio = b.aggregatedScore / b.aggregatedReviews
+        return aRatio == bRatio ? b.aggregatedReviews - a.aggregatedReviews : bRatio - aRatio
+      }
+        
+        
     )
     .slice(0, 5)
     .map((restaurant, index) => (
