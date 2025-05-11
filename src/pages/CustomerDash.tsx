@@ -44,7 +44,7 @@ const cuisines: TCuisine[] = [
 
 function CustomerDash() {
   const navigate = useNavigate();
-  const [cuisine, setCuisine] = useState<TCuisine>("All");
+  const [cuisine, setCuisine] = useState<string>("All");
   const [query, setQuery] = useState<string>("");
   const { section } = useParams();
   useEffect(() => {
@@ -87,6 +87,13 @@ function CustomerDash() {
         restaurant={restaurant}
       />
     ));
+
+  const getCategories = getAllBusinessesQuery.data
+    ?.map((restaurant) => restaurant.cuisineType)
+    .filter((value, index, self) => self.indexOf(value) === index);
+  const categories = getCategories?.sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: "base" })
+  );
 
   const getAllPromotionsQuery = useQuery({
     queryFn: () => getAllPromotions(),
@@ -178,24 +185,26 @@ function CustomerDash() {
             <h1 className="text-3xl font-bold">All Restaurants</h1>
           </div>
 
-          <div className="flex flex-row items-center justify-start gap-4 overflow-x-auto w-full py-2 px-1">
-            {cuisines.map((cuisine, index) => (
-              <div
-                key={index}
-                className="border rounded-md px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => setCuisine(cuisine)}
-              >
-                {cuisine}
-              </div>
-            ))}
+          <div className="flex flex-row items-center justify-start gap-4 w-full py-2 px-1">
             <input
               type="text"
-              className="border rounded-full px-4 py-2 w-full min-w-fit"
+              className="border rounded-full px-4 py-2 w-fit min-w-fit"
               placeholder="Search for a restaurant"
               onChange={(e) => {
                 setQuery(e.target.value);
               }}
             />
+            <div className="flex flex-row items-center justify-start gap-2 w-full overflow-x-auto !hide-scrollbar">
+              {categories?.map((cuisine, index) => (
+                <div
+                  key={index}
+                  className="border rounded-md px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => setCuisine(cuisine)}
+                >
+                  {cuisine}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-col justify-center gap-4 w-full">
