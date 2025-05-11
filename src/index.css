@@ -156,11 +156,14 @@
   text-transform: capitalize;
 }
 
-hide-scrollbar {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
 
-.hide-scrollbar::-webkit-scrollbar {
-  display: none !important;
+  .scrollbar-hidden {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
 }
