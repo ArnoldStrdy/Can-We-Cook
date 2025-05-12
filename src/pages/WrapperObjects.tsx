@@ -77,7 +77,7 @@ export const weeklyJob = async () => {
 
 export const weeklyCronJob = new Cron("0 0 * * 0", weeklyJob);
 
-const cleanExpiredBanners = async () => {
+export const cleanExpiredBanners = async () => {
   console.log("Running daily cron job to clean expired banners...");
 
   try {

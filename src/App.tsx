@@ -15,6 +15,8 @@ import { useLocation } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import { CookiesProvider, useCookies } from "react-cookie";
 import { getCustomerFromUID, getOwnerFromUID } from "./pages/FirebaseAPI";
+import ScrollToTop from "./components/ScrollToTop";
+
 
 const auth = firebase.auth();
 console.log(auth.currentUser);
@@ -77,6 +79,7 @@ function App() {
     <div>
       {!hideNavbar && <CustomerNavbar uid={uid} setUID={setUID} />}
       <Toaster richColors position="bottom-right" />
+        <ScrollToTop />
       <Routes>
         <Route path="/" element={<CustomerDash />} />
         <Route path="/settings" element={<UserSettings />} />
