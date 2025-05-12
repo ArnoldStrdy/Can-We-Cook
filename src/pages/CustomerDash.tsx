@@ -46,7 +46,7 @@ const cuisines: TCuisine[] = [
 
 function CustomerDash() {
   const navigate = useNavigate();
-  const [cuisine, setCuisine] = useState<string>("All");
+  const [selectedCuisine, setCuisine] = useState<string>("All");
   const [query, setQuery] = useState<string>("");
   const { section } = useParams();
   useEffect(() => {
@@ -193,7 +193,7 @@ function CustomerDash() {
         <h1 className="text-3xl font-bold text-start w-full max-w-6xl">
           Promotions
         </h1>
-        <div className="max-w-6xl flex flex-col items-start justify-start gap-3 pt-6">
+        <div className="max-w-6xl w-full flex flex-col items-start justify-start gap-3 pt-6">
           {getAllPromotionsQuery.data?.length! > 0 && (
             <PromotionCarousel promotions={getAllPromotionsQuery.data!} />
           )}
@@ -217,7 +217,7 @@ function CustomerDash() {
               {categories?.map((cuisine, index) => (
                 <div
                   key={index}
-                  className="border rounded-md px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className={`border rounded-md px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${cuisine == selectedCuisine && "bg-gray-100"}`}
                   onClick={() => setCuisine(cuisine)}
                 >
                   {cuisine}
@@ -230,15 +230,15 @@ function CustomerDash() {
             {getAllBusinessesQuery.data
               ?.filter(
                 (restaurant) =>
-                  (cuisine !== "All"
-                    ? restaurant.cuisineType == cuisine
+                  (selectedCuisine !== "All"
+                    ? restaurant.cuisineType == selectedCuisine
                     : true) &&
                   (restaurant.businessName
                     .toLowerCase()
                     .includes(query.toLowerCase()) ||
                     restaurant.cuisineType
                       .toLowerCase()
-                      .includes(cuisine.toLowerCase()))
+                      .includes(selectedCuisine.toLowerCase()))
               )
               .map((restaurant, index) => (
                 <BusinessCard
