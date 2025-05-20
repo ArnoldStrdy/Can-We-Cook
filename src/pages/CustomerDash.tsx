@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import BGLogo from "../assets/logoIconFork.png";
-import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import Ratings from "@/components/ui/ratings";
 import { useQuery } from "@tanstack/react-query";
 import { getAllBusinesses, getAllPromotions } from "@/API/RestaurantAPI";
 import { BusinessCard } from "@/components/custom/businessCard";
@@ -21,28 +19,6 @@ import { TPromotion } from "@/Types/RestaurantTypes";
 import { weeklyJob } from "./WrapperObjects";
 import { cleanExpiredBanners } from "./WrapperObjects";
 
-type TCuisine =
-  | "All"
-  | "American"
-  | "Italian"
-  | "Chinese"
-  | "Mexican"
-  | "Indian"
-  | "Thai"
-  | "Korean"
-  | "Japanese";
-
-const cuisines: TCuisine[] = [
-  "All",
-  "American",
-  "Italian",
-  "Chinese",
-  "Mexican",
-  "Indian",
-  "Thai",
-  "Korean",
-  "Japanese",
-];
 
 function CustomerDash() {
   const navigate = useNavigate();
@@ -124,7 +100,7 @@ function CustomerDash() {
               onClick={() => navigate(`/restaurant/${promotion.businessID}`)}
               key={promotion.promotionID}
             >
-              <div className="flex items-center justify-center h-72 bg-gray-200/40 rounded-lg p-1">
+              <div className="flex items-center justify-center h-36 sm:h-72 bg-gray-200/40 rounded-lg p-1">
                 <img
                   src={promotion.imageURL}
                   className="object-cover max-h-full cursor-pointer"
@@ -150,11 +126,12 @@ function CustomerDash() {
         className="w-[50%] blur-2xl opacity-30 object-contain fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none -z-50"
       />
       <div className="bg-[#A7ACD9]/20 flex flex-col items-center pt-20 text-black gap-10 relative px-4 sm:px-0">
+      <div className="flex flex-row items-center justify-center gap-2">
         <button
           onClick={() => {
             weeklyJob();
           }}
-          className="bg-red-600 text-white px-4 py-2 rounded"
+          className="bg-red-600 text-white px-4 py-2 rounded hidden"
         >
           DEMO ONLY Weekly update top pics
         </button>
@@ -162,10 +139,11 @@ function CustomerDash() {
           onClick={() => {
             cleanExpiredBanners();
           }}
-          className="bg-red-600 text-white px-4 py-2 rounded"
+          className="bg-red-600 text-white px-4 py-2 rounded hidden"
         >
           DEMO ONLY Daily delete expired promotions
         </button>
+        </div>
         <div
           id="top"
           className="max-w-6xl w-full flex flex-col items-start justify-center gap-6"

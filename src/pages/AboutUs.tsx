@@ -32,8 +32,8 @@ const AboutUs: React.FC = () => {
           "PzuVWR3t9YB9qMz_P" // e.g. "Ddfh_SsAK123ABCd"
         )
         .then(
-          (result) => {
-            console.log("Message successfully sent!", result.text);
+          () => {
+            // console.log("Message successfully sent!", result.text);
             toast.success("Message sent successfully!");
             setFormData({
               name: "",

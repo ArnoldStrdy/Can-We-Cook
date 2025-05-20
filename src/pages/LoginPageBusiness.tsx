@@ -9,7 +9,6 @@ import { AuthErrorCodes } from "firebase/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { toast } from "sonner";
 import { getOwnerFromUID } from "./FirebaseAPI";
-import { stat } from "fs";
 import Footer from "@/components/Footer";
 import { Triangle } from "react-loader-spinner";
 
@@ -17,38 +16,35 @@ const LoginPageBusiness: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [name, setName] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
   const [status, setStatus] = useState("Login");
-  const [message, setMessage] = useState("");
   const auth = firebase.auth();
   const persistance = firebase.auth.Auth.Persistence.LOCAL;
-  console.log("Auth: ", auth.currentUser);
+  // console.log("Auth: ", auth.currentUser);
 
   const handleLogin = async () => {
     try {
       setLoading(true);
       await auth.setPersistence(persistance);
       await auth.signInWithEmailAndPassword(email, password);
-      console.log("User logged in successfully");
+      // console.log("User logged in successfully");
       if (auth.currentUser) {
-        console.log(auth.currentUser.uid);
+        // console.log(auth.currentUser.uid);
         const owner = await getOwnerFromUID(auth.currentUser.uid);
         if (owner) {
           setLoading(false);
           toast.success("User logged in successfully");
-          console.log("Owner found: ", owner);
+          // console.log("Owner found: ", owner);
           navigate("/business");
         } else {
           setLoading(false);
-          console.log("No owner found for this user");
+          // console.log("No owner found for this user");
           toast.error("No owner found for this user");
           firebase.auth().signOut();
         }
       } else {
         setLoading(false);
-        console.log("No user is currently logged in");
+        // console.log("No user is currently logged in");
       }
     } catch (error: any) {
       setLoading(false);
@@ -78,7 +74,6 @@ const LoginPageBusiness: React.FC = () => {
           errorMessage = error.message || errorMessage;
       }
 
-      setError(errorMessage);
       console.error("Error logging in: ", error);
       toast.error(errorMessage);
     }
@@ -97,14 +92,14 @@ const LoginPageBusiness: React.FC = () => {
 
         await createOwner(name, auth.currentUser.uid, avatarUrl);
         navigate("/createBusiness");
-        console.log("User signed up successfully with avatar:", avatarUrl);
+        // console.log("User signed up successfully with avatar:", avatarUrl);
         document.cookie = "name=" + name;
         document.cookie = "uid=" + auth.currentUser.uid;
         setLoading(false);
         toast.success("User signed up successfully");
       } else {
         setLoading(false);
-        console.log("No user is currently logged in: Catastrophic Error");
+        // console.log("No user is currently logged in: Catastrophic Error");
       }
     } catch (error: any) {
       setLoading(false);
@@ -133,9 +128,7 @@ const LoginPageBusiness: React.FC = () => {
         default:
           errorMessage = error.message || errorMessage;
       }
-      setError(errorMessage);
       toast.error(errorMessage);
-      setError((error as any).message);
       console.error("Error signing up: ", error);
     }
   };
@@ -143,11 +136,7 @@ const LoginPageBusiness: React.FC = () => {
   const handleResetPassword = async () => {
     try {
       await sendPasswordResetEmail(auth, email);
-      setMessage("Password reset email sent! Check your inbox.");
-      setError("");
     } catch (err: any) {
-      setError("Error resetting password: " + err.message);
-      setMessage("");
     }
   };
 

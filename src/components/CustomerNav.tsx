@@ -1,10 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logoNameIcon.png";
 import { useEffect, useState } from "react";
-import { getAuth, EmailAuthProvider } from "firebase/auth";
-import * as firebaseui from "firebaseui";
 import React from "react";
-import { Link } from "react-router-dom";
 import firebase from "firebase/compat/app";
 import { getCustomerFromUID } from "@/pages/FirebaseAPI";
 import { toast } from "sonner";
@@ -18,7 +15,7 @@ interface CustomerNavbarProps {
 const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const navigate = useNavigate();
   const url = window.location.href;
-  const [cookies, setCookie] = useCookies(["uid", "name"]);
+  const [cookies] = useCookies(["uid", "name"]);
   // useEffect(() => {
   //   console.log(section);
   //   console.log(url);

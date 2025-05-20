@@ -8,7 +8,6 @@ import {
   FiMonitor,
   FiShoppingCart,
   FiTag,
-  FiUsers,
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 
@@ -235,5 +234,3 @@ const ToggleClose: React.FC<ToggleCloseProps> = ({ open, setOpen }) => {
     </motion.button>
   );
 };
-
-const ExampleContent = () => <div className="h-[200vh] w-full"></div>;

@@ -114,7 +114,7 @@ export const getMenuByBusinessId = async (
     const data = docSnap.data();
     return data.menu;
   } else {
-    console.log("No such document!");
+    // console.log("No such document!");
     return [];
   }
 };
@@ -128,7 +128,7 @@ export const getCertficationByBusinessId = async (
     const data = docSnap.data();
     return data.businessCertifications;
   } else {
-    console.log("No such document!");
+    // console.log("No such document!");
     return [];
   }
 };
@@ -146,7 +146,7 @@ export const postReview = async ({
     newReview.pictures.map((img) => uploadImage(img))
   );
   const businessRef = doc(db, "businesses", businessID);
-  console.log(customerUid);
+  // console.log(customerUid);
   if (customerUid) {
     const customerQuery = query(
       collection(db, "customers"),
@@ -156,20 +156,20 @@ export const postReview = async ({
     const customerID = querySnapshot.docs[0].id;
     const customerRef = doc(db, "customers", customerID);
 
-    const docRef = await addDoc(collection(db, "reviews"), {
+    await addDoc(collection(db, "reviews"), {
       ...newReview,
       pictures: imgUrls,
       businessID: businessRef,
       customerID: customerRef,
     });
-    console.log("Document added with ID: ", docRef);
+    // console.log("Document added with ID: ", docRef);
   } else {
-    const docRef = await addDoc(collection(db, "reviews"), {
+    await addDoc(collection(db, "reviews"), {
       ...newReview,
       pictures: imgUrls,
       businessID: businessRef,
     });
-    console.log("Document added with ID: ", docRef);
+    // console.log("Document added with ID: ", docRef);
   }
 };
 
@@ -192,7 +192,7 @@ export const postNewMenuItem = async ({
       menu: arrayUnion({ itemID, ...menuItem, itemImage: "" }),
     });
   }
-  console.log("Menu item added with ID: ");
+  // console.log("Menu item added with ID: ");
 };
 
 export const deleteMenuItem = async ({
@@ -218,14 +218,14 @@ export const deleteMenuItem = async ({
       menu: updatedArray,
     });
   }
-  console.log(`Deleted menu item with id: ${itemID}`);
+  // console.log(`Deleted menu item with id: ${itemID}`);
 };
 
 export const deleteReviewById = async (
   reviewId: string
 ): Promise<undefined> => {
   await deleteDoc(doc(db, "reviews", reviewId));
-  console.log("Successfult deleted review: ", reviewId);
+  // console.log("Successfult deleted review: ", reviewId);
 };
 
 export const getAllPromotions = async (): Promise<TPromotion[]> => {
@@ -234,10 +234,10 @@ export const getAllPromotions = async (): Promise<TPromotion[]> => {
     const docs = snapshot.docs.map(
       (doc) => ({ ...doc.data(), promotionID: doc.id } as TPromotion)
     );
-    console.log(docs);
+    // console.log(docs);
     return docs;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return [];
   }
 };
