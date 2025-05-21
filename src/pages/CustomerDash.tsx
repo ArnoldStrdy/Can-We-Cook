@@ -187,6 +187,7 @@ function CustomerDash() {
               type="text"
               className="border rounded-md px-4 py-2 w-fit min-w-fit border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#FF6F00] focus:border-transparent"
               placeholder="Search for a restaurant"
+              onClick={() => setCuisine("All")}
               onChange={(e) => {
                 setQuery(e.target.value);
               }}
