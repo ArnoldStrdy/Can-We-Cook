@@ -214,6 +214,12 @@ function CustomerDash() {
               }}
             />
             <div className="flex flex-row items-center justify-start gap-2 w-full overflow-x-auto scrollbar-hidden">
+              <div
+                  className={`border rounded-md px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${"All" == selectedCuisine && "bg-gray-100"}`}
+                  onClick={() => setCuisine("All")}
+                >
+                  All
+                </div>
               {categories?.map((cuisine, index) => (
                 <div
                   key={index}
