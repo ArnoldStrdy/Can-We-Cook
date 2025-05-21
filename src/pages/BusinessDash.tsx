@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Business, uploadImage, Banner } from "@/pages/WrapperObjects";
 import { toast } from "sonner";
@@ -24,7 +23,6 @@ import { GrAnnounce } from "react-icons/gr";
 import { motion } from "framer-motion";
 
 import imgUrl from "../assets/logoIcon.png";
-import { useCookies } from "react-cookie";
 import firebase from "firebase/compat/app";
 import model from "@/API/gemini";
 
@@ -56,7 +54,6 @@ import {
 } from "./FirebaseAPI";
 import { Input } from "@/components/ui/input";
 import { ReviewCard } from "@/components/custom/reviewCard";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Quantum } from "ldrs/react";
 import "ldrs/react/Quantum.css";
 import { PicturesTabContent } from "@/components/custom/PicturesTabContent";
@@ -77,14 +74,6 @@ const mapCertToImg: { [key: string]: string } = {
   "Gluten Free": Gluten,
   "Organic": Organic,
   "Non-GMO": NonGMO,
-};
-
-type Review = {
-  reviewer: string;
-  verified: boolean;
-  date: string;
-  rating: number;
-  review: string;
 };
 
 type SummarizedReviews = {
@@ -210,16 +199,12 @@ const certificate = [
 ];
 const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [currentPage, setCurrentPage] = useState("Dashboard");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
-  const [cookies, setCookie] = useCookies(["uid", "name"]);
+  // const [cookies, setCookie] = useCookies(["uid", "name"]);
   const auth = firebase.auth();
-  const [menu, setMenu] = useState([]);
+  // const [menu, setMenu] = useState([]);
   const [pictures, setPictures] = useState(dummyPictures);
   const [ownerName, setOwnerName] = useState("Owner Name");
-  const [reviews] = useState([]);
+  // const [reviews] = useState([]);
   const [newPassword, setNewPassword] = useState("");
   const [changePasswordError, setChangePasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -263,12 +248,12 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         // Existing onAuthStateChanged listener setup
         const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
           if (user) {
-            console.log("Auth state changed: User found", user.uid);
+            // console.log("Auth state changed: User found", user.uid);
             setUID(user.uid);
             // Optionally set cookie here too for redundancy, though LOCAL persistence should handle it
-            setCookie("uid", user.uid, { path: "/" });
+            // setCookie("uid", user.uid, { path: "/" });
           } else {
-            console.log("Auth state changed: No user found");
+            // console.log("Auth state changed: No user found");
             setUID(null);
             // Optionally clear cookie if needed
             // removeCookie("uid", { path: "/" });
@@ -283,7 +268,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     // Note: Removed setUID(uid) from here as it was redundant with onAuthStateChanged
     // The initial uid prop might be useful if passed down correctly,
     // but onAuthStateChanged is the primary mechanism.
-  }, [auth, setCookie, setUID]); // Add dependencies
+  }, [auth, setUID]); // Add dependencies
 
   useEffect(() => {
     const fetchCustomerData = async () => {
@@ -293,9 +278,9 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       const ownerName = await getOwnerNameFromUID(uid);
       if (!ownerName) return;
       setOwnerName(ownerName!);
-      console.log("Owner Name:", ownerName);
+      // console.log("Owner Name:", ownerName);
 
-      console.log("Owner ID:", owner);
+      // console.log("Owner ID:", owner);
     };
 
     fetchCustomerData();
@@ -312,7 +297,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       if (ownerID) {
         const business = await getRestuarantfromOwnerID(ownerID);
         setbusinesID(business!);
-        console.log("Business ID:", business);
+        // console.log("Business ID:", business);
       }
     };
     fetchBusinessID();
@@ -329,27 +314,27 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         setRestaurantDesc(business.businessDescription);
         setBusinessLogo(business.businessLogo);
         setSelectedCertificates(business.businessCertifications || []);
-        console.log("Business ID:", businessId, business.businessID);
-        console.log("Business Pictures:", pictures, business.businessPictures);
-        console.log("Business:", restaurantName, business.businessName);
-        console.log(
-          "Business Desc:",
-          restaurantDesc,
-          business.businessDescription
-        );
+        // console.log("Business ID:", businessId, business.businessID);
+        // console.log("Business Pictures:", pictures, business.businessPictures);
+        // console.log("Business:", restaurantName, business.businessName);
+        // console.log(
+        //   "Business Desc:",
+        //   restaurantDesc,
+        //   business.businessDescription
+        // );
       });
       return business;
     },
     queryKey: ["getBusinessById", businessId],
   });
-  console.log("Business ID:", businessId, Buisness.data?.businessID);
-  console.log("Business Pictures:", pictures, Buisness.data?.businessPictures);
-  console.log("Business:", restaurantName, Buisness.data?.businessName);
-  console.log(
-    "Business Desc:",
-    restaurantDesc,
-    Buisness.data?.businessDescription
-  );
+  // console.log("Business ID:", businessId, Buisness.data?.businessID);
+  // console.log("Business Pictures:", pictures, Buisness.data?.businessPictures);
+  // console.log("Business:", restaurantName, Buisness.data?.businessName);
+  // console.log(
+  //   "Business Desc:",
+  //   restaurantDesc,
+  //   Buisness.data?.businessDescription
+  // );
   const queryClient = useQueryClient();
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
@@ -434,9 +419,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
     // setMenu((prev) => [...prev, { name, price }]);
   };
-  const handlePictureLoad = (business: Business) => {
-    setPictures(business.businessPictures);
-  };
   const handleDeleteMenu = (itemID: string) => {
     if (businessId) {
       deleteMenuItemMutation.mutate({ itemID, businessId });
@@ -458,8 +440,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     );
     setPictures(updatedPictures);
     Buisness.data!.setBusinessPictures(updatedPictures);
-    console.log("Updated Pictures:", updatedPictures);
-    console.log("Business Pictures:", Buisness.data!.businessPictures);
+    // console.log("Updated Pictures:", updatedPictures);
+    // console.log("Business Pictures:", Buisness.data!.businessPictures);
   };
 
   const [isEditing, setIsEditing] = useState(false);
@@ -487,22 +469,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [isEditingPictures, setIsEditingPictures] = useState(false);
 
   const [isEditingMenu, setIsEditingMenu] = useState(false);
-  const handleLogin = async () => {
-    try {
-      await auth.setPersistence(persistance);
-      await auth.signInWithEmailAndPassword(email, password);
-      console.log("User logged in successfully");
-      if (auth.currentUser) {
-        setCookie("uid", auth.currentUser.uid, { path: "/" }); // Set uid cookie
-        console.log(auth.currentUser.uid);
-      } else {
-        console.log("No user is currently logged in");
-      }
-    } catch (error) {
-      setError((error as any).message);
-      console.error("Error logging in: ", error);
-    }
-  };
   const handleChangePassword = async () => {
     const user = firebase.auth().currentUser;
 
@@ -576,8 +542,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  const [selected, setSelected] = useState<string>("Dashboard");
 
   const TitleSection: React.FC<TitleSectionProps> = ({ open }) => {
     return (
@@ -1039,7 +1003,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               </button>
             ) : (
               <div className="space-y-4">
-                <div className="space-y-4">
+                <div className="space-y-4 space-x-2">
                   <label className="inline-block px-4 py-2 bg-[#FF6F00] text-white rounded cursor-pointer">
                     📷 Upload Picture
                     <input
@@ -1179,7 +1143,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             </div>
           </div>
         )}
-        {currentPage === "login" && (
+        {/* {currentPage === "login" && (
           <>
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mt-10">
               Login
@@ -1203,7 +1167,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   isLogin
                     ? handleLogin
                     : () =>
-                        console.log("Sign Up functionality not implemented yet")
+                        // console.log("Sign Up functionality not implemented yet")
                 }
               >
                 {isLogin ? "Login" : "Sign Up"}
@@ -1214,7 +1178,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               </button>
             </div>
           </>
-        )}
+        )} */}
       </div>
       {/* </div> */}
     </div>

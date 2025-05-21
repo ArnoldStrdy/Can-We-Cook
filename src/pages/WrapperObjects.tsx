@@ -1,17 +1,16 @@
 import {
   addDocument,
-  app,
   getCollection,
   getDocument,
   updateDocument,
 } from "./FirebaseAPI";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { firestore, DocumentData } from "./FirebaseAPI";
+import { doc } from "firebase/firestore";
+import { firestore } from "./FirebaseAPI";
 import { Cron } from "croner";
 import { Timestamp } from "firebase/firestore";
 
 export const weeklyJob = async () => {
-  console.log("Running weekly cron job...");
+  // console.log("Running weekly cron job...");
 
   try {
     // Fetch all businesses
@@ -51,8 +50,8 @@ export const weeklyJob = async () => {
       const priorDate = new Date();
       priorDate.setDate(today.getDate() - 7);
       const weeklyReviews = reviews?.filter((review: Review) => {
-        console.log(review.dateTime, priorDate, today);
-        console.log(review.dateTime >= priorDate, review.dateTime <= today);
+        // console.log(review.dateTime, priorDate, today);
+        // console.log(review.dateTime >= priorDate, review.dateTime <= today);
         return review.dateTime >= priorDate && review.dateTime <= today;
       });
       const weeklyAggregatedScore = weeklyReviews?.reduce(
@@ -60,16 +59,16 @@ export const weeklyJob = async () => {
         0
       );
       const weeklyAggregatedReviews = weeklyReviews?.length;
-      console.log(
-        `Business ID: ${businessID}, Aggregated Score: ${aggregatedScore}, Aggregated Reviews: ${aggregatedReviews}, Weekly Aggregated Score: ${weeklyAggregatedScore}, Weekly Aggregated Reviews: ${weeklyAggregatedReviews}`
-      );
+      // console.log(
+      //   `Business ID: ${businessID}, Aggregated Score: ${aggregatedScore}, Aggregated Reviews: ${aggregatedReviews}, Weekly Aggregated Score: ${weeklyAggregatedScore}, Weekly Aggregated Reviews: ${weeklyAggregatedReviews}`
+      // );
       buisness.setAggregatedScore(aggregatedScore || 0);
       buisness.setAggregatedReviews(aggregatedReviews || 0);
       buisness.setweeklyAggregatedScore(weeklyAggregatedScore || 0);
       buisness.setweeklyAggregatedReviews(weeklyAggregatedReviews || 0);
-      console.log(`Reset weekly data for business ID: ${businessID}`);
+      // console.log(`Reset weekly data for business ID: ${businessID}`);
     }
-    console.log("Weekly cron job completed successfully.");
+    // console.log("Weekly cron job completed successfully.");
   } catch (error) {
     console.error("Error running weekly cron job:", error);
   }
@@ -78,7 +77,7 @@ export const weeklyJob = async () => {
 export const weeklyCronJob = new Cron("0 0 * * 0", weeklyJob);
 
 export const cleanExpiredBanners = async () => {
-  console.log("Running daily cron job to clean expired banners...");
+  // console.log("Running daily cron job to clean expired banners...");
 
   try {
     // Fetch all banners
@@ -86,7 +85,7 @@ export const cleanExpiredBanners = async () => {
 
     // Check if there are any banners to process
     if (bannersSnapshot?.empty) {
-      console.log("No banners found.");
+      // console.log("No banners found.");
       return;
     }
 
@@ -99,17 +98,17 @@ export const cleanExpiredBanners = async () => {
       if (expiresAt < new Date()) {
         // Delete the expired banner
         await firestore.collection("promotions").doc(bannerDoc.id).delete();
-        console.log(`Deleted expired banner with ID: ${bannerDoc.id}`);
+        // console.log(`Deleted expired banner with ID: ${bannerDoc.id}`);
       }
     }
 
-    console.log("Daily cron job completed successfully.");
+    // console.log("Daily cron job completed successfully.");
   } catch (error) {
     console.error("Error running daily cron job:", error);
   }
 };
 
-const cleanExpiredBannersCron = new Cron("0 0 * * *", cleanExpiredBanners);
+export const cleanExpiredBannersCron = new Cron("0 0 * * *", cleanExpiredBanners);
 
 class menuItem {
   businessID: string;
@@ -145,16 +144,16 @@ class menuItem {
       return;
     }
     getDocument("businesses", this.businessID).then((doc) => {
-      if (doc.exists) {
+      if (doc) {
         updateDocument("businesses", this.businessID, {
           menu: doc
-            .data()
+            .data
             .menu.map((item: menuItem) =>
               item.itemID === this.itemID ? this : item
             ),
         }).then((bool) => {
           if (bool) {
-            console.log("Item name updated successfully");
+            // console.log("Item name updated successfully");
           } else {
             console.error("Error updating item name");
           }
@@ -169,16 +168,16 @@ class menuItem {
       return;
     }
     getDocument("businesses", this.businessID).then((doc) => {
-      if (doc.exists) {
+      if (doc) {
         updateDocument("businesses", this.businessID, {
           menu: doc
-            .data()
+            .data
             .menu.map((item: menuItem) =>
               item.itemID === this.itemID ? this : item
             ),
         }).then((bool) => {
           if (bool) {
-            console.log("Item price updated successfully");
+            // console.log("Item price updated successfully");
           } else {
             console.error("Error updating item price");
           }
@@ -193,16 +192,16 @@ class menuItem {
       return;
     }
     getDocument("businesses", this.businessID).then((doc) => {
-      if (doc.exists) {
+      if (doc) {
         updateDocument("businesses", this.businessID, {
           menu: doc
-            .data()
+            .data
             .menu.map((item: menuItem) =>
               item.itemID === this.itemID ? this : item
             ),
         }).then((bool) => {
           if (bool) {
-            console.log("Item image updated successfully");
+            // console.log("Item image updated successfully");
           } else {
             console.error("Error updating item image");
           }
@@ -296,7 +295,7 @@ class Business {
       return;
     }
     if (doc) {
-      //console.log(doc.data)
+      // console.log(doc.data)
       this.businessName = doc.data.businessName;
       this.businessAddress = doc.data.businessAddress;
       this.ownerID = doc.data.ownerID;
@@ -321,17 +320,17 @@ class Business {
       this.aggregatedReviews = doc.data.aggregatedReviews;
       this.aggregatedScore = doc.data.aggregatedScore;
     }
-    console.log(this);
-    //console.log("Business ID: " + businessData);
+    // console.log(this);
+    // console.log("Business ID: " + businessData);
     return;
   }
   createBusiness() {
-    console.log("Creating business...");
+    // console.log("Creating business...");
     if (this.businessID !== undefined) {
       console.error("Business already exists");
       return;
     }
-    console.log(this.ownerID);
+    // console.log(this.ownerID);
     const data = {
       businessName: this.businessName,
       businessAddress: this.businessAddress,
@@ -348,12 +347,12 @@ class Business {
       aggregatedReviews: this.aggregatedReviews,
       aggregatedScore: this.aggregatedScore,
     };
-    console.log(data);
+    // console.log(data);
     addDocument(this.collection, data)
       .then((id) => {
         if (id != "") {
           this.businessID = id;
-          console.log("Business added successfully");
+          // console.log("Business added successfully");
         } else {
           console.error("Error adding business");
         }
@@ -361,7 +360,7 @@ class Business {
       .catch((error) => {
         console.error("Error adding business: ", error);
       });
-    console.log("DONE");
+    // console.log("DONE");
   }
   setBusinessCertifications(businessCertifications: Array<string> | undefined) {
     this.businessCertifications = businessCertifications;
@@ -373,7 +372,7 @@ class Business {
       businessCertifications: businessCertifications,
     }).then((bool) => {
       if (bool) {
-        console.log("Business certifications updated successfully");
+        // console.log("Business certifications updated successfully");
       } else {
         console.error("Error updating business certifications");
       }
@@ -389,7 +388,7 @@ class Business {
       businessName: businessName,
     }).then((bool) => {
       if (bool) {
-        console.log("Business name updated successfully");
+        // console.log("Business name updated successfully");
       } else {
         console.error("Error updating business name");
       }
@@ -405,7 +404,7 @@ class Business {
       weeklyAggregatedScore: weeklyAggregatedScore,
     }).then((bool) => {
       if (bool) {
-        console.log("Weekly aggregated score updated successfully");
+        // console.log("Weekly aggregated score updated successfully");
       } else {
         console.error("Error updating weekly aggregated score");
       }
@@ -421,7 +420,7 @@ class Business {
       weeklyAggregatedReviews: weeklyAggregatedReviews,
     }).then((bool) => {
       if (bool) {
-        console.log("Weekly aggregated reviews updated successfully");
+        // console.log("Weekly aggregated reviews updated successfully");
       } else {
         console.error("Error updating weekly aggregated reviews");
       }
@@ -437,7 +436,7 @@ class Business {
       aggregatedReviews: aggregatedReviews,
     }).then((bool) => {
       if (bool) {
-        console.log("Aggregated reviews updated successfully");
+        // console.log("Aggregated reviews updated successfully");
       } else {
         console.error("Error updating aggregated reviews");
       }
@@ -453,7 +452,7 @@ class Business {
       aggregatedScore: aggregatedScore,
     }).then((bool) => {
       if (bool) {
-        console.log("Aggregated score updated successfully");
+        // console.log("Aggregated score updated successfully");
       } else {
         console.error("Error updating aggregated score");
       }
@@ -469,7 +468,7 @@ class Business {
       businessAddress: businessAddress,
     }).then((bool) => {
       if (bool) {
-        console.log("Business address updated successfully");
+        // console.log("Business address updated successfully");
       } else {
         console.error("Error updating business address");
       }
@@ -485,7 +484,7 @@ class Business {
       businessLogo: businessLogo,
     }).then((bool) => {
       if (bool) {
-        console.log("Business logo updated successfully");
+        // console.log("Business logo updated successfully");
       } else {
         console.error("Error updating business logo");
       }
@@ -501,7 +500,7 @@ class Business {
       cuisineType: cuisineType,
     }).then((bool) => {
       if (bool) {
-        console.log("Cuisine type updated successfully");
+        // console.log("Cuisine type updated successfully");
       } else {
         console.error("Error updating cuisine type");
       }
@@ -517,7 +516,7 @@ class Business {
       businessDescription: businessDescription,
     }).then((bool) => {
       if (bool) {
-        console.log("Business description updated successfully");
+        // console.log("Business description updated successfully");
       } else {
         console.error("Error updating business description");
       }
@@ -533,7 +532,7 @@ class Business {
       businessPictures: businessPictures,
     }).then((bool) => {
       if (bool) {
-        console.log("Business pictures updated successfully");
+        // console.log("Business pictures updated successfully");
       } else {
         console.error("Error updating business pictures");
       }
@@ -549,14 +548,14 @@ class Business {
       businessPictures: this.businessPictures,
     }).then((bool) => {
       if (bool) {
-        console.log("Business pictures updated successfully");
+        // console.log("Business pictures updated successfully");
       } else {
         console.error("Error updating business pictures");
       }
     });
   }
   getAllReviews() {
-    console.log("Business ID: " + this.businessID);
+    // console.log("Business ID: " + this.businessID);
     if (this.businessID === undefined) {
       console.error("Business ID is undefined");
       return;
@@ -572,9 +571,9 @@ class Business {
           const reviewData = doc.data();
           reviewData.customerID
             .get()
-            .then((customerDoc: { data: () => any }) => {
-              console.log("XX", customerDoc.data());
-            });
+            // .then((customerDoc: { data: () => any }) => {
+            //   // console.log("XX", customerDoc.data());
+            // });
           const review = new Review(
             doc.id,
             reviewData.customerID,
@@ -586,16 +585,16 @@ class Business {
           );
           data.push(review);
         });
-        console.log(data);
+        // console.log(data);
       });
     return data;
   }
 }
 class Customer {
-  customerID: string;
-  name: string;
-  uid: string;
-  ProfilePic: string;
+  customerID: string | undefined;
+  name: string | undefined;
+  uid: string | undefined;
+  ProfilePic: string | undefined;
 }
 class Review {
   collection: string = "reviews";
@@ -635,7 +634,7 @@ class Review {
     addDocument(this.collection, data)
       .then((bool) => {
         if (bool) {
-          console.log("Review added successfully");
+          // console.log("Review added successfully");
         } else {
           console.error("Error adding review");
         }
@@ -646,9 +645,9 @@ class Review {
   }
 }
 class Owner {
-  ownerID: string;
-  name: string;
-  uid: string;
+  ownerID: string | undefined;
+  name: string | undefined;
+  uid: string | undefined;
 }
 
 const uploadImage = async (file: File): Promise<string> => {
@@ -695,7 +694,7 @@ class Banner {
     addDocument(this.collection, data)
       .then((bool) => {
         if (bool) {
-          console.log("Banner added successfully");
+          // console.log("Banner added successfully");
         } else {
           console.error("Error adding banner");
         }

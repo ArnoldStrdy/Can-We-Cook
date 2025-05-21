@@ -71,9 +71,6 @@ type ReviewType = {
 
 function RestaurantDetails() {
   const businessId = useParams().id;
-  const [selectedCertificates, setSelectedCertificates] = useState<string[]>(
-    []
-  );
 
   const getBusinessQuery = useQuery({
     queryFn: () => getBusinessById(businessId!),
@@ -200,7 +197,7 @@ const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
 };
 
 const MenuTabContent = ({ menu }: { menu: IExistingMenu[] }) => {
-  console.log(menu);
+  // console.log(menu);
   return (
     <Table className="mt-4">
       <TableHeader>

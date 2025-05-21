@@ -1,7 +1,6 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import { firebaseConfig } from "../FirebaseConfig";
-import { doc } from "firebase/firestore"; // If you're using modular SDK
 
 // Your web app's Firebase configuration
 
@@ -20,14 +19,15 @@ const firestore = firebase.firestore();
 async function addDocument(collectionName: string, data: any): Promise<string> {
   try {
     const docRef = await firestore.collection(collectionName).add(data);
-    console.log("Document written with ID: ", docRef.id);
+    // console.log("Document written with ID: ", docRef.id);
     return docRef.id.toString();
   } catch (error) {
-    console.error("Error adding document: ", error);
+    // console.error("Error adding document: ", error);
     return "";
   }
 }
 interface DocumentData {
+  menu: any;
   id: string;
   data: firebase.firestore.DocumentData;
 }
@@ -37,12 +37,12 @@ async function getDocument(
 ): Promise<DocumentData | undefined> {
   try {
     const doc = await firestore.collection(collectionName).doc(docId).get();
-    console.log("Document data:", doc.data());
+    // console.log("Document data:", doc.data());
     if (doc.exists) {
-      console.log("Document data:", doc.data());
+      // console.log("Document data:", doc.data());
       return { id: doc.id, data: doc.data() } as DocumentData;
     } else {
-      console.log("No such document!");
+      // console.log("No such document!");
     }
   } catch (error) {
     console.error("Error getting document: ", error);
@@ -57,10 +57,10 @@ async function updateDocument(
 ): Promise<boolean> {
   try {
     await firestore.collection(collectionName).doc(docId).update(data);
-    console.log("Document successfully updated!");
+    // console.log("Document successfully updated!");
     return true;
   } catch (error) {
-    console.error("Error updating document: ", error);
+    // console.error("Error updating document: ", error);
     return false;
   }
 }
@@ -71,10 +71,10 @@ async function deleteDocument(
 ): Promise<boolean> {
   try {
     await firestore.collection(collectionName).doc(docId).delete();
-    console.log("Document successfully deleted!");
+    // console.log("Document successfully deleted!");
     return true;
   } catch (error) {
-    console.error("Error deleting document: ", error);
+    // console.error("Error deleting document: ", error);
     return false;
   }
 }
@@ -84,9 +84,9 @@ async function getCollection(
 ): Promise<firebase.firestore.QuerySnapshot | undefined> {
   try {
     const snapshot = await firestore.collection(collectionName).get();
-    snapshot.forEach((doc: firebase.firestore.QueryDocumentSnapshot) => {
-      console.log(doc.id, " => ", doc.data());
-    });
+    // snapshot.forEach((doc: firebase.firestore.QueryDocumentSnapshot) => {
+    //   // console.log(doc.id, " => ", doc.data());
+    // });
     return snapshot;
   } catch (error) {
     console.error("Error getting collection: ", error);
@@ -103,8 +103,6 @@ const getOwnerFromUID = async (uid: string): Promise<string | undefined> => {
       .get();
 
     if (snapshot.empty) return undefined;
-
-    const data = snapshot.docs[0].data();
     return snapshot.docs[0].id;
   } catch (error) {
     console.error("Error getting owner data:", error);
@@ -125,7 +123,7 @@ export const getOwnerNameFromUID = async (
     if (snapshot.empty) return undefined;
 
     const data = snapshot.docs[0].data();
-    console.log("Owner data:", data);
+    // console.log("Owner data:", data);
     return data.name as string;
   } catch (error) {
     console.error("Error getting owner data:", error);
@@ -162,7 +160,7 @@ const addRestaurantName = async (businessID: string, name: string) => {
     await firestore.collection("businesses").doc(businessID).update({
       businessName: name,
     });
-    console.log("Restaurant name successfully updated!");
+    // console.log("Restaurant name successfully updated!");
   } catch (error) {
     console.error("Error updating restaurant name: ", error);
   }
@@ -180,8 +178,6 @@ const getRestuarantfromOwnerID = async (
       .get();
 
     if (snapshot.empty) return undefined;
-
-    const data = snapshot.docs[0].data();
     return snapshot.docs[0].id;
   } catch (error) {
     console.error("Error getting restaurant data:", error);
@@ -199,7 +195,7 @@ const createCustomer = async (
       uid: uid,
       ProfilePic: profilePic,
     });
-    console.log("Customer successfully created!");
+    // console.log("Customer successfully created!");
   } catch (error) {
     console.error("Error creating customer: ", error);
   }
@@ -212,7 +208,7 @@ const createOwner = async (name: string, uid: string, profilePic: string) => {
       uid: uid,
       ProfilePic: profilePic,
     });
-    console.log("Owners successfully created!");
+    // console.log("Owners successfully created!");
   } catch (error) {
     console.error("Error creating owner: ", error);
   }

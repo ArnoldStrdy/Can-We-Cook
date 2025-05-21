@@ -5,7 +5,6 @@ import { Card, CardContent } from "../ui/card";
 
 export function BusinessCard({
   restaurant,
-  index,
 }: {
   restaurant: TRestaurant;
   index: number;

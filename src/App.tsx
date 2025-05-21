@@ -1,5 +1,5 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { use, useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
 import BusinessDash from "./pages/BusinessDash";
 import CustomerDash from "./pages/CustomerDash";
 import RestaurantDetails from "./pages/RestaurantDetails";
@@ -13,20 +13,20 @@ import UserSettings from "./pages/UserSettings";
 import firebase from "firebase/compat/app";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
-import { CookiesProvider, useCookies } from "react-cookie";
+import { useCookies } from "react-cookie";
 import { getCustomerFromUID, getOwnerFromUID } from "./pages/FirebaseAPI";
 import ScrollToTop from "./components/ScrollToTop";
 
 
-const auth = firebase.auth();
-console.log(auth.currentUser);
+// const auth = firebase.auth();
+// console.log(auth.currentUser);
 
 function App() {
   const [uid, setUID] = useState<string | null>(null);
-  const [name, setName] = useState<string | null>(null);
+  // const [name, setName] = useState<string | null>(null);
   const [cookies, setCookie] = useCookies(["uid", "name"]); // Use react-cookie to access cookies
   const location = useLocation(); // Current route location
-  const [isOwner, setIsOwner] = useState(false);
+  // const [isOwner, setIsOwner] = useState(false);
 
   // Check if the user is an owner
   useEffect(() => {
@@ -35,11 +35,11 @@ function App() {
         if (user) {
           getOwnerFromUID(user.uid).then((customer) => {
             if (customer) {
-              setIsOwner(true);
-              console.log("User is an owner.");
+              // setIsOwner(true);
+              // console.log("User is an owner.");
             } else {
-              setIsOwner(false);
-              console.log("User is not an owner.");
+              // setIsOwner(false);
+              // console.log("User is not an owner.");
             }
           });
         }
@@ -51,18 +51,18 @@ function App() {
   useEffect(() => {
     if (cookies.uid) {
       setUID(cookies.uid);
-      setName(cookies.name);
+      // setName(cookies.name);
     } else {
       firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
         if (user) {
           setUID(user.uid);
           getCustomerFromUID(user.uid).then((customer) => {
             if (customer) {
-              setName(customer.name);
+              // setName(customer.name);
               setCookie("uid", user.uid, { path: "/" }); // Set uid cookie
               setCookie("name", customer.name, { path: "/" }); // Set name cookie
             } else {
-              console.log("No customer data found for this UID.");
+              // console.log("No customer data found for this UID.");
             }
           });
         }
