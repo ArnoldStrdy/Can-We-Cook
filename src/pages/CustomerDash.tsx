@@ -185,7 +185,7 @@ function CustomerDash() {
           <div className="flex flex-row items-center justify-start gap-4 w-full py-2 px-1">
             <input
               type="text"
-              className="border rounded-full px-4 py-2 w-fit min-w-fit"
+              className="border rounded-md px-4 py-2 w-fit min-w-fit border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#FF6F00] focus:border-transparent"
               placeholder="Search for a restaurant"
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -195,7 +195,7 @@ function CustomerDash() {
               {categories?.map((cuisine, index) => (
                 <div
                   key={index}
-                  className={`border rounded-md px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${cuisine == selectedCuisine && "bg-gray-100"}`}
+                  className={`border rounded-md px-4 py-2 hover:cursor-pointer border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 ${cuisine == selectedCuisine && "bg-gray-100"}`}
                   onClick={() => setCuisine(cuisine)}
                 >
                   {cuisine}
