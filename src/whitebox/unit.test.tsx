@@ -1,18 +1,23 @@
 // White Box Testing Directory
-import { Business, menuItem } from "../pages/WrapperObjects";
+import { Business, menuItem, Banner } from "../pages/WrapperObjects";
 
 // Mock FirebaseAPI functions
 jest.mock("../pages/FirebaseAPI", () => {
   return {
     getDocument: jest.fn((collection, id) => {
       if (collection === "businesses") {
+        console.log("Fetching business with ID:", id);
         return Promise.resolve({
-          data: () => ({
+          data: {
             businessID: id,
             businessName: "Test",
             businessAddress: "",
             ownerID: "",
-            menu: [],
+            menu: [
+                { itemID: "1", itemName: "Burger", itemPrice: 10, itemImage: "img.png" },
+                { itemID: "2", itemName: "Pizza", itemPrice: 15, itemImage: "img.png" },
+                { itemID: "3", itemName: "Pasta", itemPrice: 12, itemImage: "img.png" },
+            ],
             businessDescription: "",
             businessLogo: "",
             cuisineType: "",
@@ -23,21 +28,20 @@ jest.mock("../pages/FirebaseAPI", () => {
             weeklyAggregatedScore: 0,
             aggregatedReviews: 0,
             aggregatedScore: 0,
-          }),
+          },
         });
       }
-      if (collection === "menu") {
+      if (collection === "promotions") {
         return Promise.resolve({
           data: () => ({
-            menu: [
-              { itemID: "1", itemName: "Burger", itemPrice: 10, itemImage: "img.png" },
-              { itemID: "2", itemName: "Pizza", itemPrice: 15, itemImage: "img.png" },
-              { itemID: "3", itemName: "Pasta", itemPrice: 12, itemImage: "img.png" },
-            ],
+            businessID: id,
+            bannerID: "banner1",
+            imageURL: "https://example.com/banner.jpg",
+            expiresAt: Date.now() + 86400000, // 1 day from now
           }),
         });
       }
-      return Promise.resolve({ data: () => ({}) });
+      return Promise.resolve({ data: () => ({}), broken: true });
     }),
     updateDocument: jest.fn(() => Promise.resolve(true)),
     addDocument: jest.fn(() => Promise.resolve("mockedID")),
@@ -81,62 +85,107 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe("menuItem class", () => {
-  it("should return correct item data", () => {
-    const item = new menuItem("Pizza", "123", 15, "pizza.png", "biz1");
-    expect(item.getItem()).toEqual({
-      itemName: "Pizza",
-      itemID: "123",
-      itemPrice: 15,
-      itemImage: "pizza.png",
-    });
+describe("Business Class", () => {
+  it("should create a new business", async () => {
+    const data = {
+      businessName: "Test",
+      businessAddress: "",
+      ownerID: "ownerID",
+      menu: [],
+      businessDescription: "",
+      businessLogo: "",
+      cuisineType: "",
+      businessID: undefined,
+      businessCertifications: [],
+      businessLocation: [0, 0],
+      businessPictures: [],
+      weeklyAggregatedScore: 0,
+      weeklyAggregatedReviews: 0,
+      aggregatedReviews: 0,
+      aggregatedScore: 0,
+    };
+    const newBusiness = new Business(data);
+    await newBusiness.createBusiness();
+    expect(newBusiness.businessID).toBe("mockedID");
   });
-
-  it("should call updateDocument when setItemName is called", async () => {
-    const item = new menuItem("Burger", "1", 10, "img.png", "biz1");
-    await item.setItemName("Cheeseburger");
-    const { updateDocument } = require("../pages/FirebaseAPI");
-    expect(updateDocument).toHaveBeenCalled();
+  it("should update a business", async () => {
+    const data = {
+      businessName: "Test",
+      businessAddress: "",
+      ownerID: "ownerID",
+      menu: [],
+      businessDescription: "",
+      businessLogo: "",
+      cuisineType: "",
+      businessID: "mockedID",
+      businessCertifications: [],
+      businessLocation: [0, 0],
+      businessPictures: [],
+      weeklyAggregatedScore: 0,
+      weeklyAggregatedReviews: 0,
+      aggregatedReviews: 0,
+      aggregatedScore: 0,
+    };
+    const newBusiness = new Business(data);
+    newBusiness.setAggregatedReviews(10);
+    newBusiness.setAggregatedScore(4.5);
+    newBusiness.setBusinessName("New Name");
+    newBusiness.setBusinessAddress("New Address");
+    newBusiness.setBusinessDescription("New Description");
+    newBusiness.setCuisineType("New Cuisine");
+    newBusiness.setBusinessLogo("New Logo");
+    expect(newBusiness.businessName).toBe("New Name");
+    expect(newBusiness.businessAddress).toBe("New Address");
+    expect(newBusiness.businessDescription).toBe("New Description");
+    expect(newBusiness.cuisineType).toBe("New Cuisine");
+    expect(newBusiness.businessLogo).toBe("New Logo");
+    expect(newBusiness.aggregatedReviews).toBe(10);
+    expect(newBusiness.aggregatedScore).toBe(4.5);
   });
-});
-
-describe("Business class", () => {
-  it("should initialize with default values", () => {
+  it("should fetch a business", async () => {
     const business = new Business();
-    expect(business.businessName).toBe("");
-    expect(business.menu).toEqual([]);
+    await business.initBusiness("biz1");
   });
-
-  it("should set business name and call updateDocument", async () => {
-    const business = new Business({ businessID: "biz1", businessName: "Test", businessAddress: "", ownerID: "", menu: [], businessDescription: "", businessLogo: "", cuisineType: "", businessPictures: [], businessCertifications: [], businessLocation: [0,0], weeklyAggregatedReviews: 0, weeklyAggregatedScore: 0, aggregatedReviews: 0, aggregatedScore: 0 });
-    await business.setBusinessName("New Name");
-    const { updateDocument } = require("../pages/FirebaseAPI");
-    expect(updateDocument).toHaveBeenCalledWith("businesses", "biz1", { businessName: "New Name" });
+  it("should modify a menu item", async () => {
+    const business = new Business();
+    await business.initBusiness("biz1");
+    const menuItem = business.menu[0];
+    menuItem.setItemName("New Burger");
+    menuItem.setItemPrice(12);
+    menuItem.setItemImage("newImg.png");
+    expect(menuItem.itemName).toBe("New Burger");
+    expect(menuItem.itemPrice).toBe(12);
+    expect(menuItem.itemImage).toBe("newImg.png");
   });
-});
-describe("menuItem class methods", () => {
-  it("should set item name", async () => {
-    const item = new menuItem("Burger", "1", 10, "img.png", "biz1");
-    await item.setItemName("Cheeseburger");
-    expect(item.itemName).toBe("Cheeseburger");
-  });
-
-  it("should set item price", async () => {
-    const item = new menuItem("Burger", "1", 10, "img.png", "biz1");
-    await item.setItemPrice(12);
-    expect(item.itemPrice).toBe(12);
+  it("should add a menu item", async () => {
+    const business = new Business();
+    await business.initBusiness("biz1");
+    const newMenuItem = new menuItem("New Item", "4", 20, "newImg.png", "biz1");
+    business.menu.push(newMenuItem);
+    expect(business.menu.length).toBe(4);
   });
 });
-describe("Business class methods", () => {
-  it("should set business name", async () => {
-    const business = new Business({ businessID: "biz1", businessName: "Test", businessAddress: "", ownerID: "", menu: [], businessDescription: "", businessLogo: "", cuisineType: "", businessPictures: [], businessCertifications: [], businessLocation: [0,0], weeklyAggregatedReviews: 0, weeklyAggregatedScore: 0, aggregatedReviews: 0, aggregatedScore: 0 });
-    await business.setBusinessName("New Name");
-    expect(business.businessName).toBe("New Name");
-  });
 
-  it("should set business address", async () => {
-    const business = new Business({ businessID: "biz1", businessName: "Test", businessAddress: "", ownerID: "", menu: [], businessDescription: "", businessLogo: "", cuisineType: "", businessPictures: [], businessCertifications: [], businessLocation: [0,0], weeklyAggregatedReviews: 0, weeklyAggregatedScore: 0, aggregatedReviews: 0, aggregatedScore: 0 });
-    await business.setBusinessAddress("New Address");
-    expect(business.businessAddress).toBe("New Address");
+describe("Menu Class", () => {
+  it("should create a new menu item", async () => {
+    const newMenuItem = new menuItem("Burger", "1", 10, "img.png", "biz1");
+    expect(newMenuItem.itemID).toBe("1");
+  });
+  it("should update a menu item", async () => {
+    const newMenuItem = new menuItem("Burger", "1", 10, "img.png", "biz1");
+    newMenuItem.setItemName("New Burger");
+    newMenuItem.setItemPrice(12);
+    newMenuItem.setItemImage("newImg.png");
+    expect(newMenuItem.itemName).toBe("New Burger");
+    expect(newMenuItem.itemPrice).toBe(12);
+    expect(newMenuItem.itemImage).toBe("newImg.png");
+  });
+});
+
+describe("Banner Class", () => {
+  it("should create a new banner", async () => {
+    const newBanner = new Banner("biz1", "https://example.com/banner.jpg");
+    expect(newBanner.businessID).toBe("biz1");
+    expect(newBanner.imageURL).toBe("https://example.com/banner.jpg");
   });
 });

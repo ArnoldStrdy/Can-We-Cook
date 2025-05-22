@@ -295,14 +295,26 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   useEffect(() => {
     const fetchBusinessID = async () => {
       if (ownerID) {
+        console.log("Owner ID:", ownerID);
         const business = await getRestuarantfromOwnerID(ownerID);
         setbusinesID(business!);
-        // console.log("Business ID:", business);
+        console.log("Business ID:", business);
       }
     };
     fetchBusinessID();
   }, [ownerID]);
-
+  const bus = useQuery({
+    queryKey: ["getRestuarantfromOwnerID", ownerID],
+    queryFn: async () => {
+      if (ownerID) {
+        console.log("Owner ID:", ownerID);
+        const business = await getRestuarantfromOwnerID(ownerID);
+        setbusinesID(business!);
+        console.log("Business ID:", business);
+      }
+      return ownerID;
+    }
+  });
   const Buisness = useQuery({
     queryFn: () => {
       const business = new Business();
