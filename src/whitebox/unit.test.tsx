@@ -13,6 +13,10 @@ jest.mock("../pages/FirebaseAPI", () => ({
   })),
   updateDocument: jest.fn(() => Promise.resolve(true)),
   addDocument: jest.fn(() => Promise.resolve("mockedID")),
+  deleteDocument: jest.fn(() => Promise.resolve(true)),
+  getAllDocuments: jest.fn(() => Promise.resolve([
+    { businessID: "biz1", businessName: "Test", businessAddress: "", ownerID: "", menu: [], businessDescription: "", businessLogo: "", cuisineType: "", businessPictures: [], businessCertifications: [], businessLocation: [0,0], weeklyAggregatedReviews: 0, weeklyAggregatedScore: 0, aggregatedReviews: 0, aggregatedScore: 0 }
+  ])),
 }));
 
 describe("menuItem class", () => {
@@ -46,5 +50,31 @@ describe("Business class", () => {
     await business.setBusinessName("New Name");
     const { updateDocument } = require("../pages/FirebaseAPI");
     expect(updateDocument).toHaveBeenCalledWith("businesses", "biz1", { businessName: "New Name" });
+  });
+});
+describe("menuItem class methods", () => {
+  it("should set item name", async () => {
+    const item = new menuItem("Burger", "1", 10, "img.png", "biz1");
+    await item.setItemName("Cheeseburger");
+    expect(item.itemName).toBe("Cheeseburger");
+  });
+
+  it("should set item price", async () => {
+    const item = new menuItem("Burger", "1", 10, "img.png", "biz1");
+    await item.setItemPrice(12);
+    expect(item.itemPrice).toBe(12);
+  });
+});
+describe("Business class methods", () => {
+  it("should set business name", async () => {
+    const business = new Business({ businessID: "biz1", businessName: "Test", businessAddress: "", ownerID: "", menu: [], businessDescription: "", businessLogo: "", cuisineType: "", businessPictures: [], businessCertifications: [], businessLocation: [0,0], weeklyAggregatedReviews: 0, weeklyAggregatedScore: 0, aggregatedReviews: 0, aggregatedScore: 0 });
+    await business.setBusinessName("New Name");
+    expect(business.businessName).toBe("New Name");
+  });
+
+  it("should set business address", async () => {
+    const business = new Business({ businessID: "biz1", businessName: "Test", businessAddress: "", ownerID: "", menu: [], businessDescription: "", businessLogo: "", cuisineType: "", businessPictures: [], businessCertifications: [], businessLocation: [0,0], weeklyAggregatedReviews: 0, weeklyAggregatedScore: 0, aggregatedReviews: 0, aggregatedScore: 0 });
+    await business.setBusinessAddress("New Address");
+    expect(business.businessAddress).toBe("New Address");
   });
 });
