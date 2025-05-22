@@ -1,145 +1,28 @@
 import { useState, useEffect } from "react";
-import imgUrl from "../assets/logoIcon.png";
-import { Star } from "lucide-react";
+import BGLogo from "../assets/logoIconFork.png";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import Ratings from "@/components/ui/ratings";
 import { useQuery } from "@tanstack/react-query";
-import { getAllBusinesses } from "@/API/RestaurantAPI";
+import { getAllBusinesses, getAllPromotions } from "@/API/RestaurantAPI";
 import { BusinessCard } from "@/components/custom/businessCard";
+import { LuInfo } from "react-icons/lu";
+import Footer from "@/components/Footer";
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { TPromotion } from "@/Types/RestaurantTypes";
+import { weeklyJob } from "./WrapperObjects";
+import { cleanExpiredBanners } from "./WrapperObjects";
 
-const sampleTopRestaurants = [
-  {
-    name: "Savor & Sip",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Green House",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Blue Plate",
-    logo: imgUrl,
-    rating: 3.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Red Spoon",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-  {
-    name: "The Yellow Bowl",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-  },
-];
-
-const sampleRestaurants = [
-  {
-    name: "Savor & Sip",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "American",
-  },
-  {
-    name: "The Green House",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Italian",
-  },
-  {
-    name: "The Blue Plate",
-    logo: imgUrl,
-    rating: 3.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Chinese",
-  },
-  {
-    name: "The Red Spoon",
-    logo: imgUrl,
-    rating: 4.5,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Mexican",
-  },
-  {
-    name: "The Yellow Bowl",
-    logo: imgUrl,
-    rating: 4,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Indian",
-  },
-  {
-    name: "Urban Bites",
-    logo: imgUrl,
-    rating: 3.8,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Thai",
-  },
-  {
-    name: "Fork & Flame",
-    logo: imgUrl,
-    rating: 4.2,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Korean",
-  },
-  {
-    name: "Spice Symphony",
-    logo: imgUrl,
-    rating: 4.6,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Indian",
-  },
-  {
-    name: "Fusion Feast",
-    logo: imgUrl,
-    rating: 3.9,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Fusion",
-  },
-  {
-    name: "Taste of Tokyo",
-    logo: imgUrl,
-    rating: 4.3,
-    id: "odCe5cYwH8M3oHTcYmav",
-    cuisine: "Japanese",
-  },
-];
-
-type TCuisine =
-  | "All"
-  | "American"
-  | "Italian"
-  | "Chinese"
-  | "Mexican"
-  | "Indian"
-  | "Thai"
-  | "Korean"
-  | "Japanese";
-
-const cuisines: TCuisine[] = [
-  "All",
-  "American",
-  "Italian",
-  "Chinese",
-  "Mexican",
-  "Indian",
-  "Thai",
-  "Korean",
-  "Japanese",
-];
 
 function CustomerDash() {
   const navigate = useNavigate();
-  const [cuisine, setCuisine] = useState<TCuisine>("All");
+  const [selectedCuisine, setCuisine] = useState<string>("All");
   const [query, setQuery] = useState<string>("");
   const { section } = useParams();
   useEffect(() => {
@@ -164,11 +47,13 @@ function CustomerDash() {
 
   const topBusiness = getTopBusinessesQuery.data
     ?.filter((restaurant) => restaurant.aggregatedReviews > 0)
-    .sort(
-      (a, b) =>
-        b.aggregatedScore / b.aggregatedReviews -
-        a.aggregatedScore / a.aggregatedReviews
-    )
+    .sort((a, b) => {
+      const aRatio = a.aggregatedScore / a.aggregatedReviews;
+      const bRatio = b.aggregatedScore / b.aggregatedReviews;
+      return aRatio == bRatio
+        ? b.aggregatedReviews - a.aggregatedReviews
+        : bRatio - aRatio;
+    })
     .slice(0, 5)
     .map((restaurant, index) => (
       <BusinessCard
@@ -178,69 +63,182 @@ function CustomerDash() {
       />
     ));
 
-  return (
-    <div className="bg-white dark:bg-black flex flex-col items-center pt-20 text-black gap-10">
-      <div
-        id="top"
-        className="max-w-6xl w-full flex flex-col items-start justify-center gap-6"
+  const getCategories = getAllBusinessesQuery.data
+    ?.map((restaurant) => restaurant.cuisineType)
+    .filter((value, index, self) => self.indexOf(value) === index);
+  const categories = getCategories?.sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: "base" })
+  );
+
+  const getAllPromotionsQuery = useQuery({
+    queryFn: () => getAllPromotions(),
+    queryKey: ["getAllPromotions"],
+  });
+
+  const PromotionCarousel = ({ promotions }: { promotions: TPromotion[] }) => {
+    const [api, setApi] = useState<CarouselApi>();
+
+    const intervalTime = 3000;
+    useEffect(() => {
+      setInterval(() => {
+        api?.scrollNext();
+      }, intervalTime);
+    }, [api]);
+
+    return (
+      <Carousel
+        setApi={setApi}
+        className="max-w-7xl"
+        opts={{ align: "center", loop: true }}
       >
-        {topBusiness?.length! > 0 && (
+        <CarouselContent>
+          {promotions?.map((promotion) => (
+            <CarouselItem
+              className={`basis-1/${
+                promotions.length < 3 ? promotions.length : 3
+              }`}
+              onClick={() => navigate(`/restaurant/${promotion.businessID}`)}
+              key={promotion.promotionID}
+            >
+              <div className="flex items-center justify-center h-36 sm:h-72 bg-gray-200/40 rounded-lg p-1">
+                <img
+                  src={promotion.imageURL}
+                  className="object-cover max-h-full cursor-pointer"
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        {promotions.length > 3 && (
           <>
-            <div className="flex flex-col items-start justify-start gap-1">
-              <h1 className="text-3xl font-semibold">Top Pics</h1>
-              <p>Highest Average Ratings Updated Weekly</p>
-            </div>
-            <div className="flex flex-col justify-center gap-4 w-full">
-              {topBusiness}
-            </div>
+            <CarouselPrevious />
+            <CarouselNext />
           </>
         )}
-      </div>
-      <div className="max-w-6xl w-full flex flex-col items-start justify-center gap-6 mb-6">
-        <div className="flex flex-col items-start justify-start gap-1">
-          <h1 className="text-3xl font-semibold">Restaurants</h1>
-        </div>
+      </Carousel>
+    );
+  };
 
-        <div className="flex flex-row items-center justify-start gap-4 overflow-x-auto w-full py-2 px-1">
-          {cuisines.map((cuisine, index) => (
-            <div
-              key={index}
-              className="border rounded-full px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => setCuisine(cuisine)}
-            >
-              {cuisine}
+  return (
+    <>
+      <img
+        src={BGLogo}
+        className="w-[50%] blur-2xl opacity-30 object-contain fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none -z-50"
+      />
+      <div className="bg-[#A7ACD9]/20 flex flex-col items-center pt-20 text-black gap-10 relative px-4 sm:px-0">
+      <div className="flex flex-row items-center justify-center gap-2">
+        <button
+          onClick={() => {
+            weeklyJob();
+          }}
+          className="bg-red-600 text-white px-4 py-2 rounded hidden"
+        >
+          DEMO ONLY Weekly update top pics
+        </button>
+        <button
+          onClick={() => {
+            cleanExpiredBanners();
+          }}
+          className="bg-red-600 text-white px-4 py-2 rounded hidden"
+        >
+          DEMO ONLY Daily delete expired promotions
+        </button>
+        </div>
+        <div
+          id="top"
+          className="max-w-6xl w-full flex flex-col items-start justify-center gap-6"
+        >
+          <div className="flex flex-row items-center justify-start gap-3 pt-6">
+            <h1 className="text-3xl font-bold">Top Pics</h1>
+
+            <div className="relative group flex flex-row items-center justify-center gap-2 h-full">
+              <LuInfo className="text-xl cursor-pointer" />
+
+              {/* Tooltip */}
+              <div className="absolute bottom-[-2.5rem] left-1/2 -translate-x-1/2 bg-white text-sm text-black px-3 py-1 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                Highest Average Ratings Updated Weekly
+              </div>
             </div>
-          ))}
-          <input
-            type="text"
-            className="border rounded-full px-4 py-2 w-full min-w-fit"
-            placeholder="Search for a restaurant"
-            onChange={(e) => {
-              setQuery(e.target.value);
-            }}
-          />
+          </div>
+          {topBusiness?.length! > 0 && (
+            <>
+              <div className="flex flex-col justify-center gap-4 w-full">
+                {topBusiness}
+              </div>
+            </>
+          )}
+        </div>
+        <h1 className="text-3xl font-bold text-start w-full max-w-6xl">
+          Promotions
+        </h1>
+        <div className="max-w-6xl w-full flex flex-col items-start justify-start gap-3 pt-6">
+          {getAllPromotionsQuery.data?.length! > 0 && (
+            <PromotionCarousel promotions={getAllPromotionsQuery.data!} />
+          )}
         </div>
 
-        <div className="flex flex-col justify-center gap-4 w-full">
-          {getAllBusinessesQuery.data
-            ?.filter(
-              (restaurant) =>
-                (cuisine !== "All"
-                  ? restaurant.cuisineType == cuisine
-                  : true) &&
-                (restaurant.businessName
-                  .toLowerCase()
-                  .includes(query.toLowerCase()) ||
-                  restaurant.cuisineType
+        <div className="max-w-6xl w-full flex flex-col items-start justify-center gap-6 mb-6">
+          <div className="flex flex-col items-start justify-start gap-1">
+            <h1 className="text-3xl font-bold">All Restaurants</h1>
+          </div>
+
+          <div className="flex flex-row items-center justify-start gap-4 w-full py-2 px-1">
+            <input
+              type="text"
+              className="border rounded-md px-4 py-2 w-fit min-w-fit border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#FF6F00] focus:border-transparent"
+              placeholder="Search for a restaurant"
+              onClick={() => setCuisine("All")}
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+            />
+            <div className="flex flex-row items-center justify-start gap-2 w-full overflow-x-auto scrollbar-hidden">
+              <div
+                  className={`border rounded-md px-4 py-2 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${"All" == selectedCuisine && "bg-gray-100"}`}
+                  onClick={() => setCuisine("All")}
+                >
+                  All
+                </div>
+              {categories?.map((cuisine, index) => (
+                <div
+                  key={index}
+                  className={`border rounded-md px-4 py-2 hover:cursor-pointer border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 ${cuisine == selectedCuisine && "bg-gray-100"}`}
+                  onClick={() => setCuisine(cuisine)}
+                >
+                  {cuisine}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-center gap-4 w-full">
+            {getAllBusinessesQuery.data
+              ?.filter(
+                (restaurant) =>
+                  (selectedCuisine !== "All"
+                    ? restaurant.cuisineType == selectedCuisine
+                    : true) &&
+                  (restaurant.businessName
                     .toLowerCase()
-                    .includes(cuisine.toLowerCase()))
-            )
-            .map((restaurant, index) => (
-              <BusinessCard index={index} key={index} restaurant={restaurant} />
-            ))}
+                    .includes(query.toLowerCase()) ||
+                    restaurant.cuisineType
+                      .toLowerCase()
+                      .includes(selectedCuisine.toLowerCase()))
+              )
+              .map((restaurant, index) => (
+                <BusinessCard
+                  index={index}
+                  key={index}
+                  restaurant={restaurant}
+                />
+              ))}
+          </div>
         </div>
       </div>
-    </div>
+      <div className="flex w-full justify-center items-center">
+        <Footer />
+      </div>
+    </>
   );
 }
 

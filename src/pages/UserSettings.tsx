@@ -7,8 +7,6 @@ function UserSettings() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [changePasswordError, setChangePasswordError] = useState("");
     const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
-    const auth = firebase.auth();
-    const persistance = firebase.auth.Auth.Persistence.SESSION;
     const handleChangePassword = async () => {
         const user = firebase.auth().currentUser;
       
@@ -98,7 +96,7 @@ function UserSettings() {
         accept="image/*"
         onChange={async (e) => {
           const user = firebase.auth().currentUser;
-          console.log(user);
+          // console.log(user);
           if (user && e.target.files) {
             const file = e.target.files[0];
             try {
@@ -107,7 +105,7 @@ function UserSettings() {
               getCustomerFromUID(user.uid).then((customer) => {
                 if (customer) {
                   const customerRef = firebase.firestore().collection("customers").doc(customer.id);
-                  console.log(customerRef);
+                  // console.log(customerRef);
                   customerRef.update({ ProfilePic: url });
                 }
               });

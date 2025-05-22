@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Business, uploadImage } from "@/pages/WrapperObjects";
+import { Business, uploadImage, Banner } from "@/pages/WrapperObjects";
 import { toast } from "sonner";
 import {
   Table,
@@ -11,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FiChevronsRight, FiHome } from "react-icons/fi";
 import { MdOutlineReviews } from "react-icons/md";
 import { IoRestaurantOutline } from "react-icons/io5";
@@ -19,10 +19,10 @@ import { AiOutlinePicture } from "react-icons/ai";
 import { PiCertificate } from "react-icons/pi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { RiLogoutBoxLine } from "react-icons/ri";
+import { GrAnnounce } from "react-icons/gr";
 import { motion } from "framer-motion";
 
 import imgUrl from "../assets/logoIcon.png";
-import { useCookies } from "react-cookie";
 import firebase from "firebase/compat/app";
 import model from "@/API/gemini";
 
@@ -54,17 +54,26 @@ import {
 } from "./FirebaseAPI";
 import { Input } from "@/components/ui/input";
 import { ReviewCard } from "@/components/custom/reviewCard";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Quantum } from "ldrs/react";
 import "ldrs/react/Quantum.css";
 import { PicturesTabContent } from "@/components/custom/PicturesTabContent";
 
-type Review = {
-  reviewer: string;
-  verified: boolean;
-  date: string;
-  rating: number;
-  review: string;
+import Gluten from "@/assets/gluten.png";
+import Halal from "@/assets/halal.png";
+import Kosher from "@/assets/kosher.png";
+import NonGMO from "@/assets/nongmo.png";
+import Organic from "@/assets/organic.png";
+import Vegan from "@/assets/vegan.png";
+import Vegetarian from "@/assets/vegetarian.png";
+
+const mapCertToImg: { [key: string]: string } = {
+  "Halal": Halal,
+  "Kosher": Kosher,
+  "Vegan": Vegan,
+  "Vegetarian": Vegetarian,
+  "Gluten Free": Gluten,
+  "Organic": Organic,
+  "Non-GMO": NonGMO,
 };
 
 type SummarizedReviews = {
@@ -190,16 +199,12 @@ const certificate = [
 ];
 const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [currentPage, setCurrentPage] = useState("Dashboard");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
-  const [cookies, setCookie] = useCookies(["uid", "name"]);
+  // const [cookies, setCookie] = useCookies(["uid", "name"]);
   const auth = firebase.auth();
-  const [menu, setMenu] = useState([]);
+  // const [menu, setMenu] = useState([]);
   const [pictures, setPictures] = useState(dummyPictures);
   const [ownerName, setOwnerName] = useState("Owner Name");
-  const [reviews] = useState([]);
+  // const [reviews] = useState([]);
   const [newPassword, setNewPassword] = useState("");
   const [changePasswordError, setChangePasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -209,18 +214,33 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [businessLogo, setBusinessLogo] = useState<string>(
     dummyBusiness.businessLogo
   );
+
+  const [bannerFile, setBannerFile] = useState<File>();
+  const [expireDate, setExpireDate] = useState<string>(""); // e.g. "2025-05-31"
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   // Change this line
   const persistance = firebase.auth.Auth.Persistence.LOCAL; // Use LOCAL instead of SESSION
-  const handleUpdateCertifications = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const selectedOptions = Array.from(event.target.selectedOptions).map(
-      (option) => option.value
+  // const handleUpdateCertifications = (
+  //   event: React.ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   const selectedOptions = Array.from(event.target.selectedOptions).map(
+  //     (option) => option.value
+  //   );
+  //   Buisness.data?.setBusinessCertifications(selectedOptions);
+  //   toast.success("Certifications updated successfully!");
+  // };
+
+  const toggleCertificate = (cert: string) => {
+    setSelectedCertificates((prev) =>
+      prev.includes(cert) ? prev.filter((c) => c !== cert) : [...prev, cert]
     );
-    Buisness.data?.setBusinessCertifications(selectedOptions);
+  };
+
+  const handleUpdateCertifications = () => {
+    Buisness.data?.setBusinessCertifications(selectedCertificates);
     toast.success("Certifications updated successfully!");
   };
+
   useEffect(() => {
     auth
       .setPersistence(persistance)
@@ -228,12 +248,12 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         // Existing onAuthStateChanged listener setup
         const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
           if (user) {
-            console.log("Auth state changed: User found", user.uid);
+            // console.log("Auth state changed: User found", user.uid);
             setUID(user.uid);
             // Optionally set cookie here too for redundancy, though LOCAL persistence should handle it
-            setCookie("uid", user.uid, { path: "/" });
+            // setCookie("uid", user.uid, { path: "/" });
           } else {
-            console.log("Auth state changed: No user found");
+            // console.log("Auth state changed: No user found");
             setUID(null);
             // Optionally clear cookie if needed
             // removeCookie("uid", { path: "/" });
@@ -248,7 +268,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     // Note: Removed setUID(uid) from here as it was redundant with onAuthStateChanged
     // The initial uid prop might be useful if passed down correctly,
     // but onAuthStateChanged is the primary mechanism.
-  }, [auth, setCookie, setUID]); // Add dependencies
+  }, [auth, setUID]); // Add dependencies
 
   useEffect(() => {
     const fetchCustomerData = async () => {
@@ -258,9 +278,9 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       const ownerName = await getOwnerNameFromUID(uid);
       if (!ownerName) return;
       setOwnerName(ownerName!);
-      console.log("Owner Name:", ownerName);
+      // console.log("Owner Name:", ownerName);
 
-      console.log("Owner ID:", owner);
+      // console.log("Owner ID:", owner);
     };
 
     fetchCustomerData();
@@ -277,7 +297,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
       if (ownerID) {
         const business = await getRestuarantfromOwnerID(ownerID);
         setbusinesID(business!);
-        console.log("Business ID:", business);
+        // console.log("Business ID:", business);
       }
     };
     fetchBusinessID();
@@ -294,27 +314,27 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         setRestaurantDesc(business.businessDescription);
         setBusinessLogo(business.businessLogo);
         setSelectedCertificates(business.businessCertifications || []);
-        console.log("Business ID:", businessId, business.businessID);
-        console.log("Business Pictures:", pictures, business.businessPictures);
-        console.log("Business:", restaurantName, business.businessName);
-        console.log(
-          "Business Desc:",
-          restaurantDesc,
-          business.businessDescription
-        );
+        // console.log("Business ID:", businessId, business.businessID);
+        // console.log("Business Pictures:", pictures, business.businessPictures);
+        // console.log("Business:", restaurantName, business.businessName);
+        // console.log(
+        //   "Business Desc:",
+        //   restaurantDesc,
+        //   business.businessDescription
+        // );
       });
       return business;
     },
     queryKey: ["getBusinessById", businessId],
   });
-  console.log("Business ID:", businessId, Buisness.data?.businessID);
-  console.log("Business Pictures:", pictures, Buisness.data?.businessPictures);
-  console.log("Business:", restaurantName, Buisness.data?.businessName);
-  console.log(
-    "Business Desc:",
-    restaurantDesc,
-    Buisness.data?.businessDescription
-  );
+  // console.log("Business ID:", businessId, Buisness.data?.businessID);
+  // console.log("Business Pictures:", pictures, Buisness.data?.businessPictures);
+  // console.log("Business:", restaurantName, Buisness.data?.businessName);
+  // console.log(
+  //   "Business Desc:",
+  //   restaurantDesc,
+  //   Buisness.data?.businessDescription
+  // );
   const queryClient = useQueryClient();
   const getReviewsQuery = useQuery({
     queryFn: () => getReviewByBusinessId(businessId!),
@@ -342,6 +362,25 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     },
   });
 
+  const handleUploadBanner = async () => {
+    if (!bannerFile || !expireDate || !businessId) {
+      toast.error("Please upload an image and select an expiration date.");
+      return;
+    }
+
+    try {
+      const url = await uploadImage(bannerFile);
+      const expiresAt = new Date(expireDate);
+      const banner = new Banner(businessId, url, expiresAt);
+      banner.createBanner();
+      toast.success("Banner uploaded successfully!");
+      setBannerFile(undefined);
+      setExpireDate("");
+    } catch (error) {
+      console.error("Error uploading banner:", error);
+      toast.error("Failed to upload banner.");
+    }
+  };
   const deleteMenuItemMutation = useMutation({
     mutationFn: deleteMenuItem,
     onSuccess: () => {
@@ -380,9 +419,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
     // setMenu((prev) => [...prev, { name, price }]);
   };
-  const handlePictureLoad = (business: Business) => {
-    setPictures(business.businessPictures);
-  };
   const handleDeleteMenu = (itemID: string) => {
     if (businessId) {
       deleteMenuItemMutation.mutate({ itemID, businessId });
@@ -395,7 +431,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     Buisness.data?.setBusinessName(name);
     Buisness.data?.setBusinessDescription(description);
     setIsEditing(false);
-    alert(`Updated: ${name}, ${description}`);
+    // alert(`Updated: ${name}, ${description}`);
+    toast.success("Restaurant info updated successfully!");
   };
   const handleDeletePicture = (indexToDelete: number) => {
     const updatedPictures = pictures.filter(
@@ -403,8 +440,8 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     );
     setPictures(updatedPictures);
     Buisness.data!.setBusinessPictures(updatedPictures);
-    console.log("Updated Pictures:", updatedPictures);
-    console.log("Business Pictures:", Buisness.data!.businessPictures);
+    // console.log("Updated Pictures:", updatedPictures);
+    // console.log("Business Pictures:", Buisness.data!.businessPictures);
   };
 
   const [isEditing, setIsEditing] = useState(false);
@@ -432,22 +469,6 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const [isEditingPictures, setIsEditingPictures] = useState(false);
 
   const [isEditingMenu, setIsEditingMenu] = useState(false);
-  const handleLogin = async () => {
-    try {
-      await auth.setPersistence(persistance);
-      await auth.signInWithEmailAndPassword(email, password);
-      console.log("User logged in successfully");
-      if (auth.currentUser) {
-        setCookie("uid", auth.currentUser.uid, { path: "/" }); // Set uid cookie
-        console.log(auth.currentUser.uid);
-      } else {
-        console.log("No user is currently logged in");
-      }
-    } catch (error) {
-      setError((error as any).message);
-      console.error("Error logging in: ", error);
-    }
-  };
   const handleChangePassword = async () => {
     const user = firebase.auth().currentUser;
 
@@ -502,8 +523,25 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     }
   };
 
-  const [open, setOpen] = useState<boolean>(true);
-  const [selected, setSelected] = useState<string>("Dashboard");
+  const [open, setOpen] = useState<boolean>(false);
+
+  // if mobile, set open to false
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setOpen(false);
+      } else {
+        setOpen(true);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Call it once to set the initial state
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const TitleSection: React.FC<TitleSectionProps> = ({ open }) => {
     return (
@@ -534,18 +572,20 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   const RestaurantPage = () => {
     return (
-      <div className="mt-10 max-w-2xl space-y-4">
+      <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
           Update Restaurant Info
         </h1>
-
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8">
+          Name and Description
+        </h2>
         {!isEditing ? (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-2">
+          <div className="bg-card flex flex-col gap-6 rounded-md py-6 px-4">
             <h2 className="text-xl font-bold">{restaurantName}</h2>
             <p className="text-gray-700 dark:text-gray-300">{restaurantDesc}</p>
             <button
               onClick={() => setIsEditing(true)}
-              className="mt-2 px-4 py-2 bg-[#FF6F00] text-white rounded"
+              className="mt-2 px-4 py-2 w-fit bg-[#FF6F00] text-white rounded"
             >
               + Edit
             </button>
@@ -626,7 +666,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     );
   };
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-black">
+    <div className="flex h-screen bg-[#A7ACD9]/20">
       <motion.nav
         layout
         className="sticky top-0 h-screen shrink-0 border-r border-slate-300 bg-white p-2"
@@ -660,7 +700,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             open={open}
           />
           <Option
-            Icon={IoRestaurantOutline}
+            Icon={GrAnnounce}
             title="Promotions"
             selected={currentPage}
             setSelected={setCurrentPage}
@@ -705,19 +745,34 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
         <ToggleClose open={open} setOpen={setOpen} />
       </motion.nav>
-      <div className="flex-1 px-10 overflow-y-auto">
+      <div className="flex-1 sm:px-10 overflow-y-auto">
         {currentPage === "Dashboard" && (
-          <div className="mx-[20%] mt-[5%] space-y-6">
-            <div className="flex justify-between">
+          <div className="mx-4 sm:mx-[20%] mt-[5%] space-y-6">
+            <div className="flex justify-between flex-col sm:flex-row">
               <div className="flex-3/4 text-left space-y-4 pr-[10%]">
-                <h1 className="text-4xl font-bold">{restaurantName}</h1>
-                <span className="text-lg">{restaurantDesc}</span>
+                <h1 className="text-4xl font-extrabold">{restaurantName}</h1>
+                <span className="text-lg font-semibold">{restaurantDesc}</span>
               </div>
-              <div className="flex-1/4 justify-end flex">
+              <div className="flex-1/4 flex-col justify-end flex">
                 <img
                   src={businessLogo ? businessLogo : imgUrl}
-                  className="w-40 h-40 object-contain"
+                  className="w-full h-40 object-contain"
                 />
+                <div className="flex flex-wrap gap-2 pt-8 align-middle justify-center">
+                  {selectedCertificates.map((cert) => (
+                    <div
+                      key={cert}
+                      className="flex items-center text-sm font-semibold text-gray-700"
+                    >
+                      <img
+                        src={mapCertToImg[cert]}
+                        alt={cert}
+                        className="w-12 h-12 mr-1"
+                        title={cert}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="flex justify-center items-center">
@@ -772,7 +827,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Reviews" && (
-          <div className="mt-10">
+          <div className="mt-10 mx-4 sm:mx-[20%]">
             <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">
               Reviews
             </h1>
@@ -785,8 +840,49 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
         {currentPage === "Restaurant" && <RestaurantPage />}
 
+        {currentPage === "Promotions" && (
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+              Upload Promotion Banner
+            </h1>
+
+            <div className="bg-card flex flex-col gap-6 rounded-md py-6 px-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Select Banner Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setBannerFile(e.target.files?.[0])}
+                  className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#FF6F00] file:text-white hover:file:bg-[#e65c00] file:cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expiry Date
+                </label>
+                <input
+                  type="date"
+                  value={expireDate}
+                  onChange={(e) => setExpireDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00] dark:bg-gray-800 dark:text-white"
+                />
+              </div>
+
+              <button
+                onClick={handleUploadBanner}
+                className="mt-2 px-4 py-2 w-fit bg-[#FF6F00] text-white rounded cursor-pointer hover:file:bg-[#e65c00]"
+              >
+                Upload Banner
+              </button>
+            </div>
+          </div>
+        )}
+
         {currentPage === "Menu" && (
-          <div className="mt-10 max-w-3xl space-y-6">
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Menu
             </h1>
@@ -888,7 +984,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Update Pictures" && (
-          <div className="mt-10 max-w-5xl space-y-4">
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
               Update Pictures
             </h1>
@@ -907,7 +1003,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               </button>
             ) : (
               <div className="space-y-4">
-                <div className="space-y-4">
+                <div className="space-y-4 space-x-2">
                   <label className="inline-block px-4 py-2 bg-[#FF6F00] text-white rounded cursor-pointer">
                     📷 Upload Picture
                     <input
@@ -946,60 +1042,78 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         )}
 
         {currentPage === "Settings" && (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Change Password
-            </h2>
-            {/* Change Password Section */}
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+              Settings
+            </h1>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Change Password
+              </h2>
+              {/* Change Password Section */}
+              <input
+                type="password"
+                placeholder="New Password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              <button
+                onClick={handleChangePassword}
+                className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+              >
+                ✔ Update Password
+              </button>
+              {changePasswordError && (
+                <p className="text-red-500">{changePasswordError}</p>
+              )}
+              {changePasswordSuccess && (
+                <p className="text-green-500">{changePasswordSuccess}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {currentPage === "Certifications" && (
+          <div className="mt-10 mx-4 sm:mx-[20%] space-y-4">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              Select Your Certifications
+            </h1>
+
+            <div className="bg-card rounded shadow-sm px-6 py-4 space-y-3">
+              {certificate?.map((cert: string, index: number) => (
+                <div key={index} className="flex items-center gap-3">
+                  <Checkbox
+                    id={`cert-${index}`}
+                    checked={selectedCertificates.includes(cert)}
+                    onCheckedChange={() => toggleCertificate(cert)}
+                  />
+                  <label
+                    htmlFor={`cert-${index}`}
+                    className="text-sm font-medium text-gray-800 dark:text-gray-200"
+                  >
+                    {cert}
+                  </label>
+                </div>
+              ))}
+            </div>
+
             <button
-              onClick={handleChangePassword}
-              className="bg-[#FF6F00] text-white px-4 py-2 rounded"
+              onClick={handleUpdateCertifications}
+              className="w-fit px-5 py-2 rounded bg-[#FF6F00] text-white font-medium hover:bg-[#e65c00] transition-colors"
             >
-              ✔ Update Password
+              Update Certifications
             </button>
-            {changePasswordError && (
-              <p className="text-red-500">{changePasswordError}</p>
-            )}
-            {changePasswordSuccess && (
-              <p className="text-green-500">{changePasswordSuccess}</p>
-            )}
           </div>
         )}
-        {currentPage === "Certificates" && (
-          <div className="mt-10 max-w-md mx-auto text-center space-y-6">
-            <select
-              className="mt-4 space-y-6"
-              name="certificates"
-              id="certificates"
-              multiple
-              value={selectedCertificates}
-              onChange={handleUpdateCertifications}
-            >
-              {certificate?.map((certificate: string, index: number) => {
-                console.log("Certificate:", certificate);
-                return (
-                  <option key={index} value={certificate}>
-                    {certificate}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        )}
+
         {currentPage === "Logout" && (
           <div className="mt-10 max-w-md mx-auto text-center space-y-6">
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
@@ -1018,18 +1132,18 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   navigate("/");
                 }}
               >
-                <Check/> Confirm
+                <Check /> Confirm
               </button>
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded flex gap-2"
                 onClick={() => setCurrentPage("Dashboard")}
               >
-                <X/> Cancel
+                <X /> Cancel
               </button>
             </div>
           </div>
         )}
-        {currentPage === "login" && (
+        {/* {currentPage === "login" && (
           <>
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mt-10">
               Login
@@ -1053,7 +1167,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   isLogin
                     ? handleLogin
                     : () =>
-                        console.log("Sign Up functionality not implemented yet")
+                        // console.log("Sign Up functionality not implemented yet")
                 }
               >
                 {isLogin ? "Login" : "Sign Up"}
@@ -1064,7 +1178,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
               </button>
             </div>
           </>
-        )}
+        )} */}
       </div>
       {/* </div> */}
     </div>
@@ -1084,17 +1198,6 @@ const ReviewsTabContent = ({
 
   return (
     <div className="my-4 space-y-6">
-      {/* <Card>
-      <CardContent className="p-4 text-gray-800 dark:text-gray-200">
-        <strong>🧠 AI Summary:</strong>
-        <br />
-        Customers generally praise the warm ambiance and attentive staff. The
-        grilled salmon is a standout favorite. However, some mention
-        inconsistent wait times. Overall sentiment is{" "}
-        <span className="text-green-600 font-bold">positive</span>.
-      </CardContent>
-    </Card> */}
-
       {reviews?.map((review, index) => {
         return (
           <ReviewCard
@@ -1117,15 +1220,17 @@ const MenuTabContent = ({
   <Table className="mt-4">
     <TableHeader>
       <TableRow className="text-lg">
-        <TableHead className="text-center font-bold text-black">
+        <TableHead className="text-center font-bold text-black w-1/3">
           Image
         </TableHead>
-        <TableHead className="text-center font-bold text-black">Name</TableHead>
-        <TableHead className="text-center font-bold text-black">
+        <TableHead className="text-center font-bold text-black w-1/3">
+          Name
+        </TableHead>
+        <TableHead className="text-center font-bold text-black w-1/3">
           Price
         </TableHead>
         {onDelete && (
-          <TableHead className="text-center font-bold text-black">
+          <TableHead className="text-center font-bold text-black w-1/3">
             Actions
           </TableHead>
         )}
@@ -1134,11 +1239,22 @@ const MenuTabContent = ({
     <TableBody>
       {menu?.map((item, index) => (
         <TableRow key={index}>
-          <TableCell className="w-[7%] text-center">
-            {item.itemImage.length > 0 && <img src={item.itemImage} />}
+          <TableCell className="w-[7%] p-0 text-center">
+            <div className="flex justify-center items-center w-full h-full">
+              {item.itemImage.length > 0 && (
+                <img
+                  src={item.itemImage}
+                  className="w-12 h-12 object-contain"
+                />
+              )}
+            </div>
           </TableCell>
-          <TableCell className="text-center">{item.itemName}</TableCell>
-          <TableCell className="text-center">${item.itemPrice}</TableCell>
+          <TableCell className="text-center">
+            <p className="text-base font-semibold">{item.itemName}</p>
+          </TableCell>
+          <TableCell className="text-center">
+            <p className="text-base font-semibold">${item.itemPrice}</p>
+          </TableCell>
           {onDelete && (
             <TableCell className="text-center">
               <Button variant="ghost" onClick={() => onDelete(item.itemID)}>
@@ -1151,6 +1267,5 @@ const MenuTabContent = ({
     </TableBody>
   </Table>
 );
-
 
 export default BusinessDash;

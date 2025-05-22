@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import BGLogo from "../assets/logoIconFork.png";
 import {
   Table,
   TableBody,
@@ -29,6 +30,7 @@ import {
   getMenuByBusinessId,
   getReviewByBusinessId,
   postReview,
+  getCertficationByBusinessId,
 } from "@/API/RestaurantAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
@@ -39,6 +41,25 @@ import { receiptModel } from "@/API/gemini";
 import { Quantum } from "ldrs/react";
 import "ldrs/react/Quantum.css";
 import { PicturesTabContent } from "@/components/custom/PicturesTabContent";
+import Footer from "@/components/Footer";
+
+import Gluten from "@/assets/gluten.png";
+import Halal from "@/assets/halal.png";
+import Kosher from "@/assets/kosher.png";
+import NonGMO from "@/assets/nongmo.png";
+import Organic from "@/assets/organic.png";
+import Vegan from "@/assets/vegan.png";
+import Vegetarian from "@/assets/vegetarian.png";
+
+const mapCertToImg: { [key: string]: string } = {
+  "Halal": Halal,
+  "Kosher": Kosher,
+  "Vegan": Vegan,
+  "Vegetarian": Vegetarian,
+  "Gluten Free": Gluten,
+  "Organic": Organic,
+  "Non-GMO": NonGMO,
+};
 
 type ReviewType = {
   rating: number;
@@ -65,68 +86,102 @@ function RestaurantDetails() {
     queryKey: ["getMenuByBusinessId", businessId],
   });
 
+  const getCertificatesQuery = useQuery({
+    queryFn: () => getCertficationByBusinessId(businessId!),
+    queryKey: ["getCertficationByBusinessId", businessId],
+  });
+
   return (
-    <div className="mx-[20%] mt-[5%] space-y-6">
-      <div className="flex">
-        <div className="flex-3/4 text-left space-y-4 pr-[10%]">
-          <h1 className="text-4xl font-bold">
-            {getBusinessQuery.data?.businessName}
-          </h1>
-          <span className="text-lg">
-            {getBusinessQuery.data?.businessDescription}
-          </span>
-        </div>
-        <div className="flex-1/4 m-auto">
-          {getBusinessQuery.data?.businessLogo.length! > 0 && (
-            <img
-              src={getBusinessQuery.data?.businessLogo}
-              className="w-[60%] mx-auto"
-            />
-          )}
-        </div>
-      </div>
-      <div className="w-min mx-auto">
-        <ReviewDialog businessId={businessId!} />
-      </div>
-      <Tabs defaultValue="reviews" className="w-full">
-        <TabsList className="w-full">
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          <TabsTrigger value="menu">Menu</TabsTrigger>
-          <TabsTrigger value="pictures">Pictures</TabsTrigger>
-          <TabsTrigger value="map">Map</TabsTrigger>
-        </TabsList>
-        <TabsContent value="reviews" className="px-4 mb-4">
-          <ReviewsTabContent reviews={getReviewsQuery.data!} />
-        </TabsContent>
-        <TabsContent value="menu" className="px-4">
-          <MenuTabContent menu={getMenuQuery.data!} />
-        </TabsContent>
-        <TabsContent value="pictures" className="px-4">
-          <PicturesTabContent pictures={getBusinessQuery.data?.businessPictures!} />
-        </TabsContent>
-        <TabsContent value="map" className="px-4">
-          <div className="aspect-2/1 w-full">
-            <iframe
-              className="size-full"
-              src={`https://use.mazemap.com/embed.html#v=1&zlevel=1&center=${getBusinessQuery
-                .data?.businessLocation[1]!},${getBusinessQuery.data
-                ?.businessLocation[0]!}&zoom=18.5&campusid=159${
-                getBusinessQuery.data?.businessLocation[2] &&
-                "&sharepoitype=poi&sharepoi=" +
-                  getBusinessQuery.data?.businessLocation[2]! +
-                  "&utm_medium=iframe"
-              }`}
-              style={{ border: "1px solid grey" }}
-              allow="geolocation"
-            ></iframe>
-            <br />
-            <small>
-              <a href="https://www.mazemap.com/">Map by MazeMap</a>
-            </small>
+    <>
+      <div className="px-4 sm:px-[20%] pt-20 sm:pt-[5%] min-h-screen space-y-6 bg-[#A7ACD9]/20">
+        <img
+          src={BGLogo}
+          className="w-[50%] blur-3xl opacity-30 object-contain fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none -z-50"
+        />
+        <div className="flex flex-col sm:flex-row">
+          <div className="flex-3/4 space-y-4 sm:pr-[10%] text-center sm:text-left">
+            <h1 className="text-5xl font-extrabold">
+              {getBusinessQuery.data?.businessName}
+            </h1>
+            <span className="text-lg font-semibold text-gray-700">
+              {getBusinessQuery.data?.businessDescription}
+            </span>
           </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+          <div className="flex-1/4 flex-col justify-end flex pb-10 sm:pb-0">
+            {getBusinessQuery.data?.businessLogo.length! > 0 && (
+              <img
+                src={getBusinessQuery.data?.businessLogo}
+                className="h-50 object-contain"
+              />
+            )}
+            <div className="flex flex-wrap gap-2 pt-4 align-middle justify-center">
+              {getCertificatesQuery.data?.length! > 0 && (
+                <div className="flex items-center text-sm font-semibold text-gray-700">
+                  {getCertificatesQuery.data?.map((cert) => {
+                    const imgSrc = mapCertToImg[cert];
+                    return (
+                      <img
+                        key={cert}
+                        src={imgSrc}
+                        alt={cert}
+                        title={cert}
+                        className="w-12 h-12 mr-1"
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="w-min mx-auto">
+          <ReviewDialog businessId={businessId!} />
+        </div>
+        <Tabs defaultValue="reviews" className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="menu">Menu</TabsTrigger>
+            <TabsTrigger value="pictures">Pictures</TabsTrigger>
+            <TabsTrigger value="map">Map</TabsTrigger>
+          </TabsList>
+          <TabsContent value="reviews" className="mb-4">
+            <ReviewsTabContent reviews={getReviewsQuery.data!} />
+          </TabsContent>
+          <TabsContent value="menu">
+            <MenuTabContent menu={getMenuQuery.data!} />
+          </TabsContent>
+          <TabsContent value="pictures">
+            <PicturesTabContent
+              pictures={getBusinessQuery.data?.businessPictures!}
+            />
+          </TabsContent>
+          <TabsContent value="map">
+            <div className="aspect-2/1 w-full">
+              <iframe
+                className="size-full"
+                src={`https://use.mazemap.com/embed.html#v=1&zlevel=1&center=${getBusinessQuery
+                  .data?.businessLocation[1]!},${getBusinessQuery.data
+                  ?.businessLocation[0]!}&zoom=18.5&campusid=159${
+                  getBusinessQuery.data?.businessLocation[2] &&
+                  "&sharepoitype=poi&sharepoi=" +
+                    getBusinessQuery.data?.businessLocation[2]! +
+                    "&utm_medium=iframe"
+                }`}
+                style={{ border: "1px solid grey" }}
+                allow="geolocation"
+              ></iframe>
+              <br />
+              <small>
+                <a href="https://www.mazemap.com/">Map by MazeMap</a>
+              </small>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+      <div className="flex w-full justify-center items-center">
+        <Footer />
+      </div>
+    </>
   );
 }
 
@@ -142,18 +197,18 @@ const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
 };
 
 const MenuTabContent = ({ menu }: { menu: IExistingMenu[] }) => {
-  console.log(menu);
+  // console.log(menu);
   return (
     <Table className="mt-4">
       <TableHeader>
         <TableRow className="text-lg">
-          <TableHead className="text-center font-bold text-black">
+          <TableHead className="text-center font-bold text-black w-1/3">
             Picture
           </TableHead>
-          <TableHead className="text-center font-bold text-black">
+          <TableHead className="text-center font-bold text-black w-1/3">
             Name
           </TableHead>
-          <TableHead className="text-center font-bold text-black">
+          <TableHead className="text-center font-bold text-black w-1/3">
             Price
           </TableHead>
         </TableRow>
@@ -161,11 +216,22 @@ const MenuTabContent = ({ menu }: { menu: IExistingMenu[] }) => {
       <TableBody>
         {menu.map((item, index) => (
           <TableRow key={index}>
-            <TableCell className="w-[7%] text-center">
-              {item.itemImage.length > 0 && <img src={item.itemImage} />}
+            <TableCell className="w-[7%] p-0 text-center">
+              <div className="flex justify-center items-center w-full h-full">
+                {item.itemImage.length > 0 && (
+                  <img
+                    src={item.itemImage}
+                    className="w-12 h-12 object-contain"
+                  />
+                )}
+              </div>
             </TableCell>
-            <TableCell className="text-center">{item.itemName}</TableCell>
-            <TableCell className="text-center">${item.itemPrice}</TableCell>
+            <TableCell className="text-center">
+              <p className="text-base font-semibold">{item.itemName}</p>
+            </TableCell>
+            <TableCell className="text-center">
+              <p className="text-base font-semibold">${item.itemPrice}</p>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -202,7 +268,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
         verified: false,
         anonymous: auth.currentUser ? false : true,
       });
-      setAnon(false)
+      setAnon(false);
       setDialogOpen(false);
       setPage(1);
     },
@@ -296,11 +362,11 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
     return (
       <>
         {auth.currentUser ? (
-          <>
+          <div className="flex flex-col justify-center items-center">
             <span>
-              You are logged in as <b>[{customerName}]</b>
+              You are logged in as <b>{customerName}</b>
             </span>
-            <span className="flex">
+            <span className="flex mb-6">
               Post anonymously?
               <Switch
                 className="ml-2 my-auto"
@@ -311,18 +377,20 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
                 }}
               />{" "}
             </span>
-          </>
+          </div>
         ) : (
-          <span>
-            You are not logged in,{" "}
-            <Button
-              variant="ghost"
-              className="w-min px-2.5"
-              onClick={() => navigate("/login")}
-            >
-              Login?
-            </Button>
-          </span>
+          <div className="flex flex-col justify-center items-center">
+            <span>
+              You are not logged in,{" "}
+              <Button
+                variant="ghost"
+                className="w-min px-2.5"
+                onClick={() => navigate("/login")}
+              >
+                Login?
+              </Button>
+            </span>
+          </div>
         )}
 
         <span className="text-center mx-[20%]">
@@ -467,7 +535,7 @@ const ReviewDialog = ({ businessId }: { businessId: string }) => {
     >
       <DialogTrigger asChild>
         <Button
-          className="mx-auto rounded-full ml-auto text-lg p-6"
+          className="bg-[#554971] text-white px-4 py-2 rounded text-base font-semibold hover:bg-[#FF6F00] hover:text-black transition-colors hover:cursor-pointer"
           onClick={() => setDialogOpen(true)}
         >
           Write a Review

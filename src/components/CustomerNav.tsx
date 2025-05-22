@@ -1,10 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logoNameIcon.png";
 import { useEffect, useState } from "react";
-import { getAuth, EmailAuthProvider } from "firebase/auth";
-import * as firebaseui from "firebaseui";
 import React from "react";
-import { Link } from "react-router-dom";
 import firebase from "firebase/compat/app";
 import { getCustomerFromUID } from "@/pages/FirebaseAPI";
 import { toast } from "sonner";
@@ -18,7 +15,7 @@ interface CustomerNavbarProps {
 const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
   const navigate = useNavigate();
   const url = window.location.href;
-  const [cookies, setCookie] = useCookies(["uid", "name"]);
+  const [cookies] = useCookies(["uid", "name"]);
   // useEffect(() => {
   //   console.log(section);
   //   console.log(url);
@@ -49,9 +46,11 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
         setProfilePic(customerData.profilePic);
       } else {
         // logout
-        firebase.auth().signOut();
-        setCustomerName("Guest"); // fallback
-        setProfilePic(""); // fallback: empty or default avatar URL
+        if (!url.includes("/loginBusiness")) {
+          firebase.auth().signOut();
+          setCustomerName("Guest"); // fallback
+          setProfilePic(""); // fallback: empty or default avatar URL
+        }
       }
     };
 
@@ -85,11 +84,11 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
   return (
     <>
-      <nav className="fixed top-0 right-0 left-0 z-40 w-full h-16 bg-neutral-50 bg-opacity-70 backdrop-blur text-gray-800 flex items-center justify-evenly px-4 max-w-sc">
+      <nav className="fixed top-0 right-0 left-0 z-40 w-full h-18 bg-white/80 backdrop-blur text-gray-800 flex items-center justify-evenly px-4 max-w-sc border-b border-[#554971] shadow-md">
         <div className="max-w-[1527px] w-full flex flex-row items-center align-middle justify-between">
           <img
             src={Logo}
-            className="w-24 cursor-pointer"
+            className="w-28 cursor-pointer"
             onClick={() => {
               navigate("/");
               setDropdownOpen(false);
@@ -101,7 +100,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 navigate("/");
                 setDropdownOpen(false);
               }}
-              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors navbar-item"
+              className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors navbar-item"
             >
               Home
             </p>
@@ -110,7 +109,7 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                 navigate("/about");
                 setDropdownOpen(false);
               }}
-              className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+              className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors"
             >
               About Us
             </p>
@@ -120,16 +119,16 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                   className="flex flex-row items-center gap-4 cursor-pointer"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
+                  <p className="font-semibold hover:text-[#FF6F00] transition-colors">
+                    Hi, {customerName}
+                  </p>
                   {profilePic && (
                     <img
                       src={profilePic}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full border border-[#554971]/20 object-cover"
                       alt="Profile"
                     />
                   )}
-                  <p className="font-normal hover:text-[#FF6F00] transition-colors">
-                    Hi, {customerName}
-                  </p>
                 </div>
 
                 {dropdownOpen && (
@@ -159,9 +158,9 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
             ) : (
               <p
                 onClick={() => navigate("/login")}
-                className="font-normal cursor-pointer hover:text-[#FF6F00] transition-colors"
+                className="bg-[#FF6F00] font-semibold cursor-pointer transition-colors border px-3 py-1 rounded-sm border-[#FF6F00] hover:bg-white hover:text-gray-800 text-white"
               >
-                Login/Signup
+                Login
               </p>
             )}
           </div>
@@ -193,43 +192,83 @@ const CustomerNavbar: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
 
       <nav
         id="nav"
-        className="opacity-0 invisible fixed inset-0 bg-[#181d25] text-white flex flex-col items-center justify-center z-40 transition-opacity duration-300"
+        className="opacity-0 invisible gap-4 fixed inset-0 bg-[#181d25] text-white flex flex-col items-center justify-center z-40 transition-opacity duration-300"
       >
         <p
           onClick={() => {
-            var top = document.getElementById("top");
-            if (top) {
-              top.scrollIntoView({ behavior: "smooth" });
-            }
+            navigate("/");
+            setDropdownOpen(false);
             handleToggle();
           }}
-          className="text-2xl mb-4 cursor-pointer"
+          className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors navbar-item"
         >
           Home
         </p>
         <p
           onClick={() => {
-            handleToggle();
             navigate("/about");
+            setDropdownOpen(false);
+            handleToggle();
           }}
-          className="text-2xl mb-4 cursor-pointer"
+          className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors"
         >
           About Us
         </p>
-        <p
-          onClick={() => {
-            if (firebase.auth().currentUser) {
-              navigate("/home");
-            } else {
+        {firebase.auth().currentUser ? (
+          <div className="relative">
+            <div
+              className="flex flex-row items-center gap-4 cursor-pointer"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <p className="font-semibold hover:text-[#FF6F00] transition-colors">
+                Hi, {customerName}
+              </p>
+              {profilePic && (
+                <img
+                  src={profilePic}
+                  className="w-8 h-8 rounded-full border border-[#554971]/20 object-cover"
+                  alt="Profile"
+                />
+              )}
+            </div>
+
+            {dropdownOpen && (
+              <div
+                onMouseLeave={() => setDropdownOpen(false)}
+                className="absolute right-0 mt-2 w-48 bg-white border border-[#FF6F00] rounded-sm shadow-sm"
+              >
+                <p
+                  className="px-4 py-2 hover:cursor-pointer hover:text-[#FF6F00]"
+                  onClick={() => {
+                    navigate("/settings");
+                    setDropdownOpen(false);
+                  }}
+                  // hide when the use clicks on anything else
+                >
+                  Settings
+                </p>
+                <p
+                  className="px-4 py-2 hover:cursor-pointer hover:text-[#FF6F00]"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p
+            onClick={() => {
               navigate("/login");
-            }
-          }}
-          className="font-normal cursor-pointer bg-white px-4 py-2 rounded-full transition-colors border border-black hover:border-[#FF6F00] hover:text-[#FF6F00]"
-        >
-          Login/Signup
-        </p>
+              handleToggle();
+            }}
+            className="bg-[#FF6F00] font-semibold cursor-pointer transition-colors border px-3 py-1 rounded-sm border-[#FF6F00] hover:bg-white hover:text-gray-800 text-white"
+          >
+            Login
+          </p>
+        )}
         <button
-          className="mt-8 text-xl text-gray-300"
+          className="font-semibold cursor-pointer hover:text-[#FF6F00] transition-colors"
           onClick={() => {
             handleToggle();
           }}
