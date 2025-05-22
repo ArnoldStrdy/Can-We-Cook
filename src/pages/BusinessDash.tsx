@@ -440,6 +440,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
     );
     setPictures(updatedPictures);
     Buisness.data!.setBusinessPictures(updatedPictures);
+    toast.success("Successfully deleted a picture")
     // console.log("Updated Pictures:", updatedPictures);
     // console.log("Business Pictures:", Buisness.data!.businessPictures);
   };
@@ -1016,6 +1017,7 @@ const BusinessDash: React.FC<CustomerNavbarProps> = ({ uid, setUID }) => {
                             .then((url) => {
                               if (url) {
                                 Buisness.data?.addBusinessPicture(url);
+                                toast.success("Successfully added a picture")
                               }
                             })
                             .catch((error) => {
