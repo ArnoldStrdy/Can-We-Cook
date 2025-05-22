@@ -143,10 +143,10 @@ class menuItem {
       return;
     }
     getDocument("businesses", this.businessID).then((doc) => {
-      if (doc.exists) {
+      if (doc) {
         updateDocument("businesses", this.businessID, {
           menu: doc
-            .data()
+            .data
             .menu.map((item: menuItem) =>
               item.itemID === this.itemID ? this : item
             ),
@@ -167,10 +167,10 @@ class menuItem {
       return;
     }
     getDocument("businesses", this.businessID).then((doc) => {
-      if (doc.exists) {
+      if (doc) {
         updateDocument("businesses", this.businessID, {
           menu: doc
-            .data()
+            .data
             .menu.map((item: menuItem) =>
               item.itemID === this.itemID ? this : item
             ),
@@ -191,10 +191,10 @@ class menuItem {
       return;
     }
     getDocument("businesses", this.businessID).then((doc) => {
-      if (doc.exists) {
+      if (doc) {
         updateDocument("businesses", this.businessID, {
           menu: doc
-            .data()
+            .data
             .menu.map((item: menuItem) =>
               item.itemID === this.itemID ? this : item
             ),
@@ -596,6 +596,12 @@ class Customer {
   name: string;
   uid: string;
   ProfilePic: string;
+  constructor(customerID: string, name: string, uid: string, ProfilePic: string) {
+    this.customerID = customerID;
+    this.name = name;
+    this.uid = uid;
+    this.ProfilePic = ProfilePic;
+  }
 }
 class Review {
   collection: string = "reviews";
@@ -649,6 +655,11 @@ class Owner {
   ownerID: string;
   name: string;
   uid: string;
+  constructor (ownerID: string, name: string, uid: string) {
+    this.ownerID = ownerID;
+    this.name = name;
+    this.uid = uid;
+  }
 }
 
 const uploadImage = async (file: File): Promise<string> => {
