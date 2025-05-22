@@ -2,22 +2,84 @@
 import { Business, menuItem } from "../pages/WrapperObjects";
 
 // Mock FirebaseAPI functions
-jest.mock("../pages/FirebaseAPI", () => ({
-  getDocument: jest.fn(() => Promise.resolve({
-    exists: true,
-    data: () => ({
-      menu: [
-        { itemID: "1", itemName: "Burger", itemPrice: 10, itemImage: "img.png" }
-      ]
-    })
-  })),
-  updateDocument: jest.fn(() => Promise.resolve(true)),
-  addDocument: jest.fn(() => Promise.resolve("mockedID")),
-  deleteDocument: jest.fn(() => Promise.resolve(true)),
-  getAllDocuments: jest.fn(() => Promise.resolve([
-    { businessID: "biz1", businessName: "Test", businessAddress: "", ownerID: "", menu: [], businessDescription: "", businessLogo: "", cuisineType: "", businessPictures: [], businessCertifications: [], businessLocation: [0,0], weeklyAggregatedReviews: 0, weeklyAggregatedScore: 0, aggregatedReviews: 0, aggregatedScore: 0 }
-  ])),
-}));
+jest.mock("../pages/FirebaseAPI", () => {
+  return {
+    getDocument: jest.fn((collection, id) => {
+      if (collection === "businesses") {
+        return Promise.resolve({
+          data: () => ({
+            businessID: id,
+            businessName: "Test",
+            businessAddress: "",
+            ownerID: "",
+            menu: [],
+            businessDescription: "",
+            businessLogo: "",
+            cuisineType: "",
+            businessPictures: [],
+            businessCertifications: [],
+            businessLocation: [0, 0],
+            weeklyAggregatedReviews: 0,
+            weeklyAggregatedScore: 0,
+            aggregatedReviews: 0,
+            aggregatedScore: 0,
+          }),
+        });
+      }
+      if (collection === "menu") {
+        return Promise.resolve({
+          data: () => ({
+            menu: [
+              { itemID: "1", itemName: "Burger", itemPrice: 10, itemImage: "img.png" },
+              { itemID: "2", itemName: "Pizza", itemPrice: 15, itemImage: "img.png" },
+              { itemID: "3", itemName: "Pasta", itemPrice: 12, itemImage: "img.png" },
+            ],
+          }),
+        });
+      }
+      return Promise.resolve({ data: () => ({}) });
+    }),
+    updateDocument: jest.fn(() => Promise.resolve(true)),
+    addDocument: jest.fn(() => Promise.resolve("mockedID")),
+    deleteDocument: jest.fn(() => Promise.resolve(true)),
+    getAllDocuments: jest.fn((collection) => {
+      if (collection === "businesses") {
+        return Promise.resolve(
+          {data: () => ({
+            businessID: "biz1",
+            businessName: "Test",
+            businessAddress: "",
+            ownerID: "",
+            menu: [
+              { itemID: "1", itemName: "Burger", itemPrice: 10, itemImage: "img.png" },
+              { itemID: "2", itemName: "Pizza", itemPrice: 15, itemImage: "img.png" },
+              { itemID: "3", itemName: "Pasta", itemPrice: 12, itemImage: "img.png" },
+            ],
+            businessDescription: "",
+            businessLogo: "",
+            cuisineType: "",
+            businessPictures: [],
+            businessCertifications: [],
+            businessLocation: [0, 0],
+            weeklyAggregatedReviews: 0,
+            weeklyAggregatedScore: 0,
+            aggregatedReviews: 0,
+            aggregatedScore: 0,
+          }), id: "000"});
+      }
+      if (collection === "menu") {
+        return Promise.resolve({
+          data: () => ({ itemID: "1", itemName: "Burger", itemPrice: 10, itemImage: "img.png" }), id: "000"
+        });
+      }
+      return Promise.resolve({data: () => ({}), id: "000"});
+    }),
+  };
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe("menuItem class", () => {
   it("should return correct item data", () => {
