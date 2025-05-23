@@ -145,6 +145,7 @@ class menuItem {
     }
     getDocument("businesses", this.businessID).then((doc) => {
       if (doc) {
+        console.log(doc)
         updateDocument("businesses", this.businessID, {
           menu: doc
             .data
@@ -347,12 +348,13 @@ class Business {
       aggregatedReviews: this.aggregatedReviews,
       aggregatedScore: this.aggregatedScore,
     };
-    // console.log(data);
+    console.log(data);
     addDocument(this.collection, data)
       .then((id) => {
         if (id != "") {
           this.businessID = id;
-          // console.log("Business added successfully");
+          console.log("Business added successfully");
+          console.log(id)
         } else {
           console.error("Error adding business");
         }
