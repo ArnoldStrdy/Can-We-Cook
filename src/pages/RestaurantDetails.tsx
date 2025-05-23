@@ -50,6 +50,7 @@ import NonGMO from "@/assets/nongmo.png";
 import Organic from "@/assets/organic.png";
 import Vegan from "@/assets/vegan.png";
 import Vegetarian from "@/assets/vegetarian.png";
+import { MenuTabContent } from "@/components/custom/MenuTabContent";
 
 const mapCertToImg: { [key: string]: string } = {
   "Halal": Halal,
@@ -185,7 +186,7 @@ function RestaurantDetails() {
   );
 }
 
-const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
+export const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
   return (
     <div className="mt-4 space-y-6">
       {reviews?.map((review, index) => {
@@ -196,48 +197,7 @@ const ReviewsTabContent = ({ reviews }: { reviews: IExistingReview[] }) => {
   );
 };
 
-const MenuTabContent = ({ menu }: { menu: IExistingMenu[] }) => {
-  // console.log(menu);
-  return (
-    <Table className="mt-4">
-      <TableHeader>
-        <TableRow className="text-lg">
-          <TableHead className="text-center font-bold text-black w-1/3">
-            Picture
-          </TableHead>
-          <TableHead className="text-center font-bold text-black w-1/3">
-            Name
-          </TableHead>
-          <TableHead className="text-center font-bold text-black w-1/3">
-            Price
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {menu.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell className="w-[7%] p-0 text-center">
-              <div className="flex justify-center items-center w-full h-full">
-                {item.itemImage.length > 0 && (
-                  <img
-                    src={item.itemImage}
-                    className="w-12 h-12 object-contain"
-                  />
-                )}
-              </div>
-            </TableCell>
-            <TableCell className="text-center">
-              <p className="text-base font-semibold">{item.itemName}</p>
-            </TableCell>
-            <TableCell className="text-center">
-              <p className="text-base font-semibold">${item.itemPrice}</p>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-};
+
 
 const ReviewDialog = ({ businessId }: { businessId: string }) => {
   const auth = firebase.auth();
