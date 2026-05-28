@@ -2,20 +2,13 @@ import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-const firebaseConfig: { 
-  apiKey: string; 
-  authDomain: string; 
-  projectId: string; 
-  storageBucket: string; 
-  messagingSenderId: string; 
-  appId: string; 
-} = {
-  apiKey: "AIzaSyC97QicSy3yIaW-vNLcalcCS9_c4CLOmLw",
-  authDomain: "can-we-cook.firebaseapp.com",
-  projectId: "can-we-cook",
-  storageBucket: "can-we-cook.firebasestorage.app",
-  messagingSenderId: "245318796446",
-  appId: "1:245318796446:web:1fccaa4f2d0f9a7274278f",
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc123",
 };
 
 const app: FirebaseApp = initializeApp(firebaseConfig);
