@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button";
 import BGLogo from "../assets/logoIconFork.png";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -24,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerFromUID } from "./FirebaseAPI";
-import { IExistingMenu, IExistingReview } from "@/Types/RestaurantTypes";
+import { IExistingReview } from "@/Types/RestaurantTypes";
 import {
   getBusinessById,
   getMenuByBusinessId,

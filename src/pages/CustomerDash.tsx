@@ -1,21 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import BGLogo from "../assets/logoIconFork.png";
-import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllBusinesses, getAllPromotions } from "@/API/RestaurantAPI";
 import { BusinessCard } from "@/components/custom/businessCard";
 import { LuInfo } from "react-icons/lu";
 import Footer from "@/components/Footer";
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { TPromotion } from "@/Types/RestaurantTypes";
 import { weeklyJob } from "./WrapperObjects";
 import { cleanExpiredBanners } from "./WrapperObjects";
 import { AllBusiness } from "@/components/custom/AllBusiness";
@@ -23,9 +13,9 @@ import { PromotionCarousel } from "@/components/custom/PromotionCarousel";
 
 
 function CustomerDash() {
-  const navigate = useNavigate();
-  const [selectedCuisine, setCuisine] = useState<string>("All");
-  const [query, setQuery] = useState<string>("");
+  // const navigate = useNavigate();
+  // const [selectedCuisine, setCuisine] = useState<string>("All");
+  // const [query, setQuery] = useState<string>("");
   const { section } = useParams();
   useEffect(() => {
     if (section) {
