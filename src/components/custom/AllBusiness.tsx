@@ -1,5 +1,4 @@
-import { TRestaurant } from "@/Types/RestaurantTypes";
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { BusinessCard } from "./businessCard";
 import { getAllBusinesses } from "@/API/RestaurantAPI";

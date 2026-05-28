@@ -11,6 +11,7 @@ import {
 } from "@/Types/RestaurantTypes";
 import { PromotionCarousel } from "../custom/PromotionCarousel";
 import { MenuTabContent } from "../custom/MenuTabContent";
+import { vi, describe, it, expect } from 'vitest';
 
 // Mock Firebase Firestore
 vi.mock("firebase/firestore", () => ({
@@ -67,7 +68,7 @@ const mockPromotions: TPromotion[] = [
 
 describe("Customer Dashboard", () => {
   it("Loads and displays restaurants", async () => {
-    (getDocs as vi.Mock).mockResolvedValue({
+    (getDocs as any).mockResolvedValue({
       docs: [
         {
           data: () => ({
