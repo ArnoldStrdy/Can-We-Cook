@@ -36,12 +36,12 @@ By aggregating community feedback, the platform helps businesses understand thei
 
 | Feature | Description |
 |---|---|
-| **Top Picks** | Weekly top 3 restaurants ranked by average review score |
-| **Restaurant Page** | Full profile with reviews, menu, pictures, and map |
-| **Review Submission** | Star rating, written feedback, and optional photo upload |
-| **Owner Dashboard** | Manage all aspects of a restaurant listing with AI summaries |
-| **Promotions Banner** | Scrollable banner of active student discounts |
-| **Restaurant Filter** | Search and filter by cuisine category |
+| ![Top Picks](screenshots/top3.png) | Weekly top 3 restaurants ranked by average review score |
+| ![Restaurant Page](screenshots/restaurant_page.png)| Full profile with reviews, menu, pictures, and map |
+| ![Review Submission](screenshots/review_submission.png) | Star rating, written feedback, and optional photo upload |
+| ![Owner Dashboard](screenshots/owner_dashboard.png) | Manage all aspects of a restaurant listing with AI summaries |
+| ![Promotions Banner](screenshots/promotions.png) | Scrollable banner of active student discounts |
+| ![Restaurant Filter](screenshots/restaurant_filter.png) | Search and filter by cuisine category |
 
 ---
 
